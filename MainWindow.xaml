@@ -13,7 +13,86 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid Background="#F2F6FA">
+        <!-- Top bar -->
+        <Grid Margin="0,0,0,0" Height="80" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="24,24,0,0" Spacing="16">
+                <!-- Settings Icon -->
+                <Button Background="Transparent" BorderThickness="0">
+                    <FontIcon Glyph="&#xE713;" />
+                </Button>
+                <!-- New Chat Icon -->
+                <Button Background="Transparent" BorderThickness="0">
+                    <FontIcon Glyph="&#xE932;" />
+                </Button>
+            </StackPanel>
+            <!-- LibreOffice Logo Placeholder -->
+            <Border Grid.Column="1" Margin="0,16,24,0" Padding="16,8" CornerRadius="16" Background="#F2F2F2" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Placeholder for logo icon -->
+                    <Image Height="32">
+                        <Image.Source>
+                            <SvgImageSource UriSource="ms-appx:///Assets/LibreOffice_logo.svg"/>
+                        </Image.Source>
+                    </Image>
+                </StackPanel>
+            </Border>
+        </Grid>
 
+        <!-- Chat area -->
+        <Grid Margin="0,80,0,100">
+            <!-- Placeholder for chat messages -->
+        </Grid>
+
+        <!-- Bottom input area -->
+        <Grid VerticalAlignment="Bottom" Margin="0,0,0,32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!--Input area-->
+            <Grid Grid.Column="0" Margin="64,0,96,0">
+                <TextBox
+                    x:Name="PromptTextBox"
+                    Grid.Column="0"
+                    MinHeight="56"
+                    MaxHeight="250"
+                    Margin="64,0,96,0"
+                    FontSize="16"
+                    Padding="28,15"
+                    Background="White"
+                    BorderBrush="#E0E0E0"
+                    BorderThickness="1"
+                    VerticalAlignment="Bottom"
+                    CornerRadius="28"
+                    VerticalContentAlignment="Center"
+                    TextWrapping="Wrap" 
+                    AcceptsReturn="True"
+                    TextChanged="PromptTextBox_TextChanged"
+                    />
+                <Button
+                    x:Name="SendButton"
+                    Width="40"
+                    Height="40"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,8,0"
+                    Visibility="Collapsed"
+                    Click="SendButton_Click"
+                    Background="#4CAF50"
+                    BorderThickness="0"
+                    CornerRadius="20">
+                    <FontIcon Glyph="&#xE724;" Foreground="White"/>
+                </Button>
+            </Grid>
+            <Button Width="56" Height="56" Background="White" BorderThickness="1" CornerRadius="28" Margin="-80,0,24,0" Grid.Column="1" VerticalAlignment="Bottom">
+                <FontIcon Glyph="&#xE720;" />
+            </Button>
+        </Grid>
     </Grid>
 </Window>

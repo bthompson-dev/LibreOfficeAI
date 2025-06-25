@@ -27,5 +27,16 @@ namespace LibreOfficeAI
         {
             InitializeComponent();
         }
+
+        private void PromptTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            SendButton.Visibility = string.IsNullOrWhiteSpace(PromptTextBox.Text) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void SendButton_Click(object sender, RoutedEventArgs e)
+        {
+            string userInput = PromptTextBox.Text;
+            PromptTextBox.Text = string.Empty;
+        }
     }
 }
