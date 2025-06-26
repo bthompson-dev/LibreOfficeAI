@@ -45,7 +45,18 @@
 
         <!-- Chat area -->
         <Grid Margin="0,80,0,100">
-            <!-- Placeholder for chat messages -->
+            <ListBox x:Name="ChatListBox"
+             Background="Transparent"
+             BorderThickness="0"
+             Padding="32,16">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="16" Padding="16" Margin="0,8,0,8">
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="16"/>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
 
         <!-- Bottom input area -->
@@ -62,23 +73,22 @@
                     Grid.Column="0"
                     MinHeight="56"
                     MaxHeight="250"
-                    Margin="64,0,96,0"
                     FontSize="16"
-                    Padding="28,15"
+                    Padding="28,15,56,15"
                     Background="White"
                     BorderBrush="#E0E0E0"
                     BorderThickness="1"
                     VerticalAlignment="Bottom"
                     CornerRadius="28"
                     VerticalContentAlignment="Center"
-                    TextWrapping="Wrap" 
-                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
                     TextChanged="PromptTextBox_TextChanged"
                     />
                 <Button
                     x:Name="SendButton"
-                    Width="40"
-                    Height="40"
+                    Width="35"
+                    Height="35"
+                    Padding="0"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     Margin="0,0,8,0"
@@ -87,7 +97,7 @@
                     Background="#4CAF50"
                     BorderThickness="0"
                     CornerRadius="20">
-                    <FontIcon Glyph="&#xE724;" Foreground="White"/>
+                    <FontIcon Glyph="&#xE724;" Foreground="White" FontSize="18" Margin="3,0,0,0"/>
                 </Button>
             </Grid>
             <Button Width="56" Height="56" Background="White" BorderThickness="1" CornerRadius="28" Margin="-80,0,24,0" Grid.Column="1" VerticalAlignment="Bottom">
