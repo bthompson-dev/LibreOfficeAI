@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -10,9 +5,16 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using OllamaSharp;
+using OllamaSharp.Models.Chat;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using System.Collections.ObjectModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -27,6 +29,9 @@ namespace LibreOfficeAI
         // Dynamic collection of user messages - automatically updates
         private ObservableCollection<string> chatMessages = new();
 
+        private OllamaApiClient ollama;
+        private Chat chat;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -34,7 +39,30 @@ namespace LibreOfficeAI
 
             // Attach an event handler to the KeyDown event of the PromptTextBox
             PromptTextBox.KeyDown += PromptTextBox_KeyDown;
+
+            // Setting up Ollama
+            var ollamaUri = new Uri("http://localhost:11434");
+            ollama = new OllamaApiClient(ollamaUri);
+
+            ollama.SelectedModel = "kitsonk/watt-tool-8B:latest";
+
+            chat = new Chat(ollama);
         }
+
+        private async void SendPrompt(string prompt)
+        {
+            chatMessages.Add("");
+            ChatListBox.ScrollIntoView(ChatListBox.Items[^1]);
+            int aiMessageIndex = chatMessages.Count - 1;
+            string response = "";
+
+            await foreach (var answerToken in chat.SendAsync(prompt))
+            {
+                response += answerToken;
+                chatMessages[aiMessageIndex] += answerToken;
+            }
+        }
+
 
         // When text is typed into the Prompt TextBox, the send button will appear
         private void PromptTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -48,7 +76,9 @@ namespace LibreOfficeAI
             string userInput = PromptTextBox.Text.Trim();
             if (!string.IsNullOrEmpty(userInput))
             {
+                
                 chatMessages.Add(userInput);
+                SendPrompt(userInput);
                 PromptTextBox.Text = string.Empty;
 
                 // Scroll to the last item
