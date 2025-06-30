@@ -1,23 +1,12 @@
+using LibreOfficeAI.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using OllamaSharp;
-using OllamaSharp.Models.Chat;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System.Text;
+using System.Threading.Tasks;
 
 namespace LibreOfficeAI
 {
@@ -27,7 +16,7 @@ namespace LibreOfficeAI
     public sealed partial class MainWindow : Window
     {
         // Dynamic collection of user messages - automatically updates
-        private ObservableCollection<string> chatMessages = new();
+        public ObservableCollection<ChatMessage> chatMessages { get; } = new();
 
         private OllamaApiClient ollama;
         private Chat chat;
@@ -35,7 +24,6 @@ namespace LibreOfficeAI
         public MainWindow()
         {
             InitializeComponent();
-            ChatListBox.ItemsSource = chatMessages;
 
             // Attach an event handler to the KeyDown event of the PromptTextBox
             PromptTextBox.KeyDown += PromptTextBox_KeyDown;
@@ -51,15 +39,26 @@ namespace LibreOfficeAI
 
         private async void SendPrompt(string prompt)
         {
-            chatMessages.Add("");
-            ChatListBox.ScrollIntoView(ChatListBox.Items[^1]);
-            int aiMessageIndex = chatMessages.Count - 1;
-            string response = "";
+            var aiMessage = new ChatMessage { Text = "", IsUser = false };
+            chatMessages.Add(aiMessage);
+
+            // Scroll to bottom
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+            });
+
+            var stringBuilder = new StringBuilder();
 
             await foreach (var answerToken in chat.SendAsync(prompt))
             {
-                response += answerToken;
-                chatMessages[aiMessageIndex] += answerToken;
+                stringBuilder.Append(answerToken);
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    aiMessage.Text = stringBuilder.ToString();
+                });
+
+                await Task.Delay(10); // Slightly longer delay for better visual effect
             }
         }
 
@@ -76,16 +75,16 @@ namespace LibreOfficeAI
             string userInput = PromptTextBox.Text.Trim();
             if (!string.IsNullOrEmpty(userInput))
             {
-                
-                chatMessages.Add(userInput);
+
+                chatMessages.Add(new ChatMessage { Text = userInput, IsUser = true });
                 SendPrompt(userInput);
                 PromptTextBox.Text = string.Empty;
 
                 // Scroll to the last item
-                if (ChatListBox.Items.Count > 0)
+                DispatcherQueue.TryEnqueue(() =>
                 {
-                    ChatListBox.ScrollIntoView(ChatListBox.Items[^1]);
-                }
+                    ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+                });
 
             }
         }

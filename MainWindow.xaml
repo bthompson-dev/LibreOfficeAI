@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:LibreOfficeAI"
+    xmlns:models="using:LibreOfficeAI.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -45,18 +46,34 @@
 
         <!-- Chat area -->
         <Grid Margin="0,80,0,100">
-            <ListBox x:Name="ChatListBox"
-             Background="Transparent"
-             BorderThickness="0"
-             Padding="32,16">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="White" CornerRadius="16" Padding="16" Margin="0,8,0,8">
-                            <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="16"/>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <Grid.Resources>
+                <DataTemplate x:Key="UserMessageTemplate">
+                    <Border Background="White" CornerRadius="16" Padding="16" Margin="0,8,0,8">
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" />
+                    </Border>
+                </DataTemplate>
+                <DataTemplate x:Key="AIMessageTemplate">
+                    <Border Background="MediumPurple" CornerRadius="16" Padding="16" Margin="0,8,0,8">
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" />
+                    </Border>
+                </DataTemplate>
+
+                <models:MessageTemplateSelector x:Key="MessageTemplateSelector"
+                                           UserTemplate="{StaticResource UserMessageTemplate}"
+                                           AITemplate="{StaticResource AIMessageTemplate}"/>
+            </Grid.Resources>
+            <ScrollViewer x:Name="ChatScrollViewer"
+                          Background="Transparent"
+                          Padding="32,16"
+                          ZoomMode="Disabled"
+                          HorizontalScrollMode="Disabled"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsRepeater x:Name="ChatItemsRepeater"
+                               ItemsSource="{x:Bind chatMessages}"
+                               ItemTemplate="{StaticResource MessageTemplateSelector}">
+                </ItemsRepeater>
+            </ScrollViewer>
         </Grid>
 
         <!-- Bottom input area -->
@@ -106,3 +123,4 @@
         </Grid>
     </Grid>
 </Window>
+    
