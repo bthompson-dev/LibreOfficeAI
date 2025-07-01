@@ -45,26 +45,36 @@
         </Grid>
 
         <!-- Chat area -->
-        <Grid Margin="0,80,0,100">
+        <Grid Margin="64,80,96,100">
             <Grid.Resources>
                 <DataTemplate x:Key="UserMessageTemplate">
-                    <Border Background="White" CornerRadius="16" Padding="16" Margin="0,8,0,8">
-                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" />
+                    <Border Background="White" CornerRadius="16" Padding="16" HorizontalAlignment="Right" Margin="100,8,0,8" MaxWidth="400">
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" HorizontalAlignment="Right" IsTextSelectionEnabled="True" />
                     </Border>
                 </DataTemplate>
                 <DataTemplate x:Key="AIMessageTemplate">
-                    <Border Background="MediumPurple" CornerRadius="16" Padding="16" Margin="0,8,0,8">
-                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" />
+                    <StackPanel>
+                    <ProgressRing IsActive="{Binding IsLoading}" Visibility="{Binding IsLoading}" HorizontalAlignment="Left" />
+                        <Border Background="#d9dbf5" CornerRadius="16" Padding="16" HorizontalAlignment="Left" Margin="0,8,100,8" 
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
+                            <TextBlock Text="{Binding Text}" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="16" IsTextSelectionEnabled="True" />
+                        </Border>
+                    </StackPanel>
+                </DataTemplate>
+                <DataTemplate x:Key="ErrorMessageTemplate">
+                    <Border Background="red" CornerRadius="16" Padding="16" HorizontalAlignment="Left" Margin="0,8,100,8">
+                        <TextBlock Text="{Binding Text}" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="16" IsTextSelectionEnabled="True" />
                     </Border>
                 </DataTemplate>
 
                 <models:MessageTemplateSelector x:Key="MessageTemplateSelector"
                                            UserTemplate="{StaticResource UserMessageTemplate}"
-                                           AITemplate="{StaticResource AIMessageTemplate}"/>
+                                           AITemplate="{StaticResource AIMessageTemplate}"
+                                           ErrorTemplate="{StaticResource ErrorMessageTemplate}"/>
             </Grid.Resources>
             <ScrollViewer x:Name="ChatScrollViewer"
                           Background="Transparent"
-                          Padding="32,16"
+                          Padding="12,16"
                           ZoomMode="Disabled"
                           HorizontalScrollMode="Disabled"
                           HorizontalScrollBarVisibility="Disabled"
@@ -100,6 +110,7 @@
                     VerticalContentAlignment="Center"
                     TextWrapping="Wrap"
                     TextChanged="PromptTextBox_TextChanged"
+                    IsEnabled="{Binding aiTurn, Converter={StaticResource BoolNegationConverter}}"
                     />
                 <Button
                     x:Name="SendButton"

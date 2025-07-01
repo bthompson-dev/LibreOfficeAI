@@ -6,6 +6,11 @@ namespace LibreOfficeAI.Models
     {
         [ObservableProperty]
         private string text = string.Empty;
-        public bool IsUser { get; set; }
+
+        [ObservableProperty]
+        private bool isLoading = false;
+        public MessageType Type { get; set; }
     }
 }
+
+public enum MessageType { User, AI, Error }

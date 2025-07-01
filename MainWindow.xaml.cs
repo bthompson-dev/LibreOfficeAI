@@ -5,6 +5,8 @@ using Microsoft.UI.Xaml.Input;
 using OllamaSharp;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +20,10 @@ namespace LibreOfficeAI
         // Dynamic collection of user messages - automatically updates
         public ObservableCollection<ChatMessage> chatMessages { get; } = new();
 
-        private OllamaApiClient ollama;
+        private OllamaService ollamaService;
         private Chat chat;
+
+        public bool aiTurn = true;
 
         public MainWindow()
         {
@@ -29,37 +33,60 @@ namespace LibreOfficeAI
             PromptTextBox.KeyDown += PromptTextBox_KeyDown;
 
             // Setting up Ollama
-            var ollamaUri = new Uri("http://localhost:11434");
-            ollama = new OllamaApiClient(ollamaUri);
+            ollamaService = new OllamaService();
+            chat = ollamaService.Chat;
 
-            ollama.SelectedModel = "kitsonk/watt-tool-8B:latest";
-
-            chat = new Chat(ollama);
         }
 
+        // Sending a prompt to the LLM model
         private async void SendPrompt(string prompt)
         {
-            var aiMessage = new ChatMessage { Text = "", IsUser = false };
-            chatMessages.Add(aiMessage);
-
-            // Scroll to bottom
-            DispatcherQueue.TryEnqueue(() =>
+            // Check that the service is running
+            try
             {
-                ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
-            });
+                bool connected = await ollamaService.Client.IsRunningAsync();
+                if (connected) Debug.WriteLine("Connected to Ollama");
+
+            } catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return;
+            }
+
+            // Create a new AI message
+            aiTurn = true;
+            var aiMessage = new ChatMessage { Text = "", Type = MessageType.AI, IsLoading = true };
+            chatMessages.Add(aiMessage);
 
             var stringBuilder = new StringBuilder();
 
-            await foreach (var answerToken in chat.SendAsync(prompt))
+            try
             {
-                stringBuilder.Append(answerToken);
-                DispatcherQueue.TryEnqueue(() =>
+                // Stream the AI response and update the message for each token
+                await foreach (var answerToken in chat.SendAsync(prompt))
                 {
-                    aiMessage.Text = stringBuilder.ToString();
-                });
+                    stringBuilder.Append(answerToken);
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        aiMessage.Text = stringBuilder.ToString();
+                    });
 
-                await Task.Delay(10); // Slightly longer delay for better visual effect
+                    if (aiMessage.IsLoading) aiMessage.IsLoading = false;
+
+                    // Scroll to the bottom                        
+                    ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+
+                    await Task.Delay(10); // Slightly longer delay for better visual effect
+                }
             }
+            catch (HttpRequestException)
+            {
+                aiMessage.IsLoading = false;
+                aiTurn = false;
+                SendErrorMessage("Error connecting - please click to retry.");
+            }
+
+            aiTurn = false;
         }
 
 
@@ -76,7 +103,7 @@ namespace LibreOfficeAI
             if (!string.IsNullOrEmpty(userInput))
             {
 
-                chatMessages.Add(new ChatMessage { Text = userInput, IsUser = true });
+                chatMessages.Add(new ChatMessage { Text = userInput, Type = MessageType.User });
                 SendPrompt(userInput);
                 PromptTextBox.Text = string.Empty;
 
@@ -97,6 +124,12 @@ namespace LibreOfficeAI
                 SendButton_Click(sender, new RoutedEventArgs());
                 e.Handled = true; // Prevents newline in TextBox
             }
+        }
+
+        private void SendErrorMessage(string message)
+        {
+            var errorMessage = new ChatMessage { Text = message, Type = MessageType.Error };
+            chatMessages.Add(errorMessage);
         }
     }
 }
