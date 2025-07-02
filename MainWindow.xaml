@@ -14,7 +14,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Background="#F2F6FA">
+    <Grid Background="#F2F6FA" x:Name="RootGrid">
         <!-- Top bar -->
         <Grid Margin="0,0,0,0" Height="80" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
@@ -54,7 +54,10 @@
                 </DataTemplate>
                 <DataTemplate x:Key="AIMessageTemplate">
                     <StackPanel>
-                    <ProgressRing IsActive="{Binding IsLoading}" Visibility="{Binding IsLoading}" HorizontalAlignment="Left" />
+                        <StackPanel Orientation="Horizontal">
+                            <ProgressRing IsActive="{Binding IsLoading}" Visibility="{Binding IsLoading}" HorizontalAlignment="Left" Margin="0,0,20,0" />
+                            <Button IsEnabled="{Binding IsLoading}" Visibility="{Binding IsLoading}" Command="{Binding DataContext.CancelPromptCommand, ElementName=RootGrid}">Cancel request</Button>
+                        </StackPanel>
                         <Border Background="#d9dbf5" CornerRadius="16" Padding="16" HorizontalAlignment="Left" Margin="0,8,100,8" 
                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
                             <TextBlock Text="{Binding Text}" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="16" IsTextSelectionEnabled="True" />
@@ -80,7 +83,7 @@
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
                 <ItemsRepeater x:Name="ChatItemsRepeater"
-                               ItemsSource="{x:Bind chatMessages}"
+                               ItemsSource="{Binding ChatMessages}"
                                ItemTemplate="{StaticResource MessageTemplateSelector}">
                 </ItemsRepeater>
             </ScrollViewer>
@@ -97,7 +100,6 @@
             <Grid Grid.Column="0" Margin="64,0,96,0">
                 <TextBox
                     x:Name="PromptTextBox"
-                    Grid.Column="0"
                     MinHeight="56"
                     MaxHeight="250"
                     FontSize="16"
@@ -109,9 +111,11 @@
                     CornerRadius="28"
                     VerticalContentAlignment="Center"
                     TextWrapping="Wrap"
-                    TextChanged="PromptTextBox_TextChanged"
-                    IsEnabled="{Binding aiTurn, Converter={StaticResource BoolNegationConverter}}"
+                    Text="{Binding PromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    IsEnabled="{Binding AiTurn, Converter={StaticResource BoolNegationConverter}}"
+                    KeyDown="PromptTextBox_KeyDown"
                     />
+                <!-- Send button -->
                 <Button
                     x:Name="SendButton"
                     Width="35"
@@ -120,18 +124,19 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     Margin="0,0,8,0"
-                    Visibility="Collapsed"
-                    Click="SendButton_Click"
+                    Visibility="{Binding IsSendButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Command="{Binding SendMessageCommand}"
                     Background="#4CAF50"
                     BorderThickness="0"
-                    CornerRadius="20">
+                    CornerRadius="20"
+                    >
                     <FontIcon Glyph="&#xE724;" Foreground="White" FontSize="18" Margin="3,0,0,0"/>
                 </Button>
             </Grid>
+            <!-- Microphone Button -->
             <Button Width="56" Height="56" Background="White" BorderThickness="1" CornerRadius="28" Margin="-80,0,24,0" Grid.Column="1" VerticalAlignment="Bottom">
                 <FontIcon Glyph="&#xE720;" />
             </Button>
         </Grid>
     </Grid>
 </Window>
-    

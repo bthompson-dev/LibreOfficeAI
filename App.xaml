@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
             <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
