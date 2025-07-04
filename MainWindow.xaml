@@ -23,21 +23,34 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="24,24,0,0" Spacing="16">
-                <!-- Settings Icon -->
-                <Button Background="White" BorderThickness="0" Width="40" Height="40" CornerRadius="40" Padding="0">
-                    <Button.Resources>
-                        <SolidColorBrush
-        x:Key="ButtonBackgroundPointerOver"
-        Color="HotPink" />
-                    </Button.Resources>
-                    <FontIcon Glyph="&#xE713;" />
-                </Button>
-                <!-- New Chat Icon -->
-                <Button Background="White" BorderThickness="0" Width="40" Height="40" CornerRadius="40" Padding="0" Command="{Binding NewChatCommand}">
+                <!-- Settings Button -->
+                <Button Background="White" 
+                        BorderThickness="0" 
+                        Width="40" 
+                        Height="40" 
+                        CornerRadius="40" 
+                        Padding="0"
+                        ToolTipService.ToolTip="Settings">
                     <Button.Resources>
                         <SolidColorBrush
                             x:Key="ButtonBackgroundPointerOver"
-                            Color="HotPink" />
+                            Color="#f2f2f2" />
+                    </Button.Resources>
+                    <FontIcon Glyph="&#xE713;" />
+                </Button>
+                <!-- New Chat Button -->
+                <Button Background="White" 
+                        BorderThickness="0" 
+                        Width="40" 
+                        Height="40" 
+                        CornerRadius="40" 
+                        Padding="0"
+                        ToolTipService.ToolTip="New Chat"
+                        Command="{Binding NewChatCommand}">
+                    <Button.Resources>
+                        <SolidColorBrush
+                            x:Key="ButtonBackgroundPointerOver"
+                            Color="#f2f2f2" />
                     </Button.Resources>
                     <FontIcon Glyph="&#xE932;" />
                 </Button>
