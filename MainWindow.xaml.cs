@@ -26,12 +26,30 @@ namespace LibreOfficeAI
 
             // Subscribe to ViewModel events
             ViewModel.RequestScrollToBottom += OnRequestScrollToBottom;
+            ViewModel.FocusTextBox += FocusTextBox;
 
+            // Focus TextBox
+            PromptTextBox.Loaded += (object sender, RoutedEventArgs args) =>
+            {
+                PromptTextBox.Focus(FocusState.Programmatic);
+            };
+
+        }
+
+        private void FocusTextBox()
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                PromptTextBox.Focus(FocusState.Programmatic);
+            });
         }
 
         private void OnRequestScrollToBottom()
         {
-            ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                ChatScrollViewer.ScrollToVerticalOffset(ChatScrollViewer.ScrollableHeight);
+            });
         }
 
         // Handles Enter being pressed to send a message

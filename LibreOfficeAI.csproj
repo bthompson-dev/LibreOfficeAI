@@ -40,7 +40,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
-    <PackageReference Include="OllamaSharp" Version="5.2.3" />
+    <PackageReference Include="OllamaSharp" Version="5.2.6" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Assets\LibreOffice_logo.svg">

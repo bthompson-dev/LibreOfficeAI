@@ -15,7 +15,6 @@ namespace LibreOfficeAI.Models
     public partial class MainViewModel : ObservableObject
     {
         private readonly OllamaService ollamaService;
-        private readonly Chat chat;
         private readonly DispatcherQueue dispatcherQueue;
 
         [ObservableProperty]
@@ -31,16 +30,16 @@ namespace LibreOfficeAI.Models
         CancellationTokenSource cts = new();
 
         // Dynamic collection of user messages - automatically updates
-        public ObservableCollection<ChatMessage> ChatMessages { get; } = new();
+        public ObservableCollection<ChatMessage> ChatMessages { get; set; } = new();
 
-        // Event to request scrolling to bottom
+        // Events linked to Main Window
         public event Action? RequestScrollToBottom;
+        public event Action? FocusTextBox;
 
         // Constructor - initialised with the ollamaService and DispatcherQueue
         public MainViewModel(OllamaService ollamaService, DispatcherQueue dispatcherQueue)
         {
             this.ollamaService = ollamaService;
-            this.chat = ollamaService.Chat;
             this.dispatcherQueue = dispatcherQueue;
         }
 
@@ -96,12 +95,16 @@ namespace LibreOfficeAI.Models
             var aiMessage = new ChatMessage { Text = "", Type = MessageType.AI, IsLoading = true };
             ChatMessages.Add(aiMessage);
 
+            // Waits for UI to update
+            await Task.Delay(2);
+            RequestScrollToBottom?.Invoke();
+
             var stringBuilder = new StringBuilder();
 
             try
             {
                 // Stream the AI response and update the message for each token
-                await foreach (var answerToken in chat.SendAsync(prompt, cts.Token))
+                await foreach (var answerToken in ollamaService.Chat.SendAsync(prompt, cts.Token))
                 {
                     stringBuilder.Append(answerToken);
                     dispatcherQueue.TryEnqueue(() =>
@@ -126,6 +129,7 @@ namespace LibreOfficeAI.Models
 
             AiTurn = false;
             SendMessageCommand.NotifyCanExecuteChanged();
+            FocusTextBox?.Invoke();
         }
 
         [RelayCommand]
@@ -140,6 +144,16 @@ namespace LibreOfficeAI.Models
             // Enable the chat input
             AiTurn = false;
             SendMessageCommand.NotifyCanExecuteChanged();
+
+            // Reset the cancellation token
+            cts = new CancellationTokenSource();
+        }
+
+        [RelayCommand]
+        private void NewChat()
+        {
+            ollamaService.RefreshChat();
+            ChatMessages.Clear();
         }
 
         private void SendErrorMessage(string message)

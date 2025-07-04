@@ -5,7 +5,7 @@ namespace LibreOfficeAI.Models
 {
     public class OllamaService
     {
-        public Chat Chat { get; }
+        public Chat Chat { get; set; }
         public OllamaApiClient Client { get; }
 
         public OllamaService()
@@ -16,6 +16,11 @@ namespace LibreOfficeAI.Models
                 SelectedModel = "kitsonk/watt-tool-8B:latest"
             };
 
+            Chat = new Chat(Client);
+        }
+
+        public void RefreshChat() 
+        {
             Chat = new Chat(Client);
         }
     }

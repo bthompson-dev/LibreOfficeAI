@@ -8,7 +8,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="LibreOfficeAI">
+    Title="LibreOfficeAI"
+    >
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -23,11 +24,21 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="24,24,0,0" Spacing="16">
                 <!-- Settings Icon -->
-                <Button Background="Transparent" BorderThickness="0">
+                <Button Background="White" BorderThickness="0" Width="40" Height="40" CornerRadius="40" Padding="0">
+                    <Button.Resources>
+                        <SolidColorBrush
+        x:Key="ButtonBackgroundPointerOver"
+        Color="HotPink" />
+                    </Button.Resources>
                     <FontIcon Glyph="&#xE713;" />
                 </Button>
                 <!-- New Chat Icon -->
-                <Button Background="Transparent" BorderThickness="0">
+                <Button Background="White" BorderThickness="0" Width="40" Height="40" CornerRadius="40" Padding="0" Command="{Binding NewChatCommand}">
+                    <Button.Resources>
+                        <SolidColorBrush
+                            x:Key="ButtonBackgroundPointerOver"
+                            Color="HotPink" />
+                    </Button.Resources>
                     <FontIcon Glyph="&#xE932;" />
                 </Button>
             </StackPanel>
