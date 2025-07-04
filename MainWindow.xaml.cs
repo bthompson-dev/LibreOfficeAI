@@ -33,7 +33,6 @@ namespace LibreOfficeAI
             {
                 PromptTextBox.Focus(FocusState.Programmatic);
             };
-
         }
 
         private void FocusTextBox()

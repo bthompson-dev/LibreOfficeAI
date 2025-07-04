@@ -1,5 +1,5 @@
-﻿using OllamaSharp;
-using System;
+﻿using System;
+using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
@@ -13,13 +13,13 @@ namespace LibreOfficeAI.Models
             var ollamaUri = new Uri("http://localhost:11434");
             Client = new OllamaApiClient(ollamaUri)
             {
-                SelectedModel = "kitsonk/watt-tool-8B:latest"
+                SelectedModel = "kitsonk/watt-tool-8B:latest",
             };
 
             Chat = new Chat(Client);
         }
 
-        public void RefreshChat() 
+        public void RefreshChat()
         {
             Chat = new Chat(Client);
         }

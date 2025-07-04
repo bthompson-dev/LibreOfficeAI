@@ -1,5 +1,4 @@
-﻿
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace LibreOfficeAI.Models
@@ -18,7 +17,7 @@ namespace LibreOfficeAI.Models
             {
                 MessageType.User => UserTemplate,
                 MessageType.AI => AITemplate,
-                MessageType.Error => ErrorTemplate
+                MessageType.Error => ErrorTemplate,
             };
         }
     }

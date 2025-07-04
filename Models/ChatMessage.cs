@@ -13,4 +13,9 @@ namespace LibreOfficeAI.Models
     }
 }
 
-public enum MessageType { User, AI, Error }
+public enum MessageType
+{
+    User,
+    AI,
+    Error,
+}

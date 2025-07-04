@@ -1,14 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Dispatching;
-using OllamaSharp;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
+using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
@@ -54,10 +54,11 @@ namespace LibreOfficeAI.Models
         private async Task SendMessageAsync()
         {
             string userInput = PromptText.Trim();
-            if (string.IsNullOrEmpty(userInput)) return;
+            if (string.IsNullOrEmpty(userInput))
+                return;
 
             // Add user message
-            ChatMessages.Add(new ChatMessage { Text =  userInput, Type = MessageType.User });
+            ChatMessages.Add(new ChatMessage { Text = userInput, Type = MessageType.User });
 
             // Clear input
             PromptText = string.Empty;
@@ -67,12 +68,10 @@ namespace LibreOfficeAI.Models
 
             // Send to AI
             await SendPromptAsync(userInput);
-
         }
 
         // Can only send a message if it is not the AI's turn, and the prompt is not empty
         private bool CanSendMessage() => !AiTurn && !string.IsNullOrWhiteSpace(PromptText);
-
 
         // Sending a prompt to the LLM model
         private async Task SendPromptAsync(string prompt)
@@ -81,8 +80,8 @@ namespace LibreOfficeAI.Models
             try
             {
                 bool connected = await ollamaService.Client.IsRunningAsync();
-                if (connected) Debug.WriteLine("Connected to Ollama");
-
+                if (connected)
+                    Debug.WriteLine("Connected to Ollama");
             }
             catch (HttpRequestException ex)
             {
@@ -92,7 +91,12 @@ namespace LibreOfficeAI.Models
 
             // Create a new AI message
             AiTurn = true;
-            var aiMessage = new ChatMessage { Text = "", Type = MessageType.AI, IsLoading = true };
+            var aiMessage = new ChatMessage
+            {
+                Text = "",
+                Type = MessageType.AI,
+                IsLoading = true,
+            };
             ChatMessages.Add(aiMessage);
 
             // Waits for UI to update
@@ -110,12 +114,12 @@ namespace LibreOfficeAI.Models
                     dispatcherQueue.TryEnqueue(() =>
                     {
                         aiMessage.Text = stringBuilder.ToString();
-                        if (aiMessage.IsLoading) aiMessage.IsLoading = false;
+                        if (aiMessage.IsLoading)
+                            aiMessage.IsLoading = false;
 
-                        // Scroll to the bottom                        
+                        // Scroll to the bottom
                         RequestScrollToBottom?.Invoke();
                     });
-
 
                     await Task.Delay(10); // Slightly longer delay for better visual effect
                 }
@@ -161,7 +165,5 @@ namespace LibreOfficeAI.Models
             var errorMessage = new ChatMessage { Text = message, Type = MessageType.Error };
             ChatMessages.Add(errorMessage);
         }
-
     }
-
 }
