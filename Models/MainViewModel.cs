@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
-using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
@@ -108,7 +107,13 @@ namespace LibreOfficeAI.Models
             try
             {
                 // Stream the AI response and update the message for each token
-                await foreach (var answerToken in ollamaService.Chat.SendAsync(prompt, cts.Token))
+                await foreach (
+                    var answerToken in ollamaService.Chat.SendAsync(
+                        prompt,
+                        cts.Token,
+                        ollamaService.AvailableTools
+                    )
+                )
                 {
                     stringBuilder.Append(answerToken);
                     dispatcherQueue.TryEnqueue(() =>

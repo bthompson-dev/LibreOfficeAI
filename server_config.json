@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "Demo": {
+      "command": "C:\\Users\\ben_t\\.local\\bin\\uv.EXE",
+      "args": [
+        "run",
+        "--with",
+        "mcp[cli]",
+        "mcp",
+        "run",
+        "C:\\Users\\ben_t\\Documents\\MSc Computer Science\\Summer Project\\mcp-server-demo\\server.py"
+      ]
+    },
+    "libreoffice-server": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\Users\\ben_t\\Documents\\MSc Computer Science\\Summer Project\\LibreOfficeMCP(Harshithb)\\libre-office-mcp\\libre-writer",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+  }

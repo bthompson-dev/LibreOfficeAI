@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -37,7 +37,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
-    <PackageReference Include="OllamaSharp" Version="5.2.6" />
+    <PackageReference Include="OllamaSharp" Version="5.2.7" />
+    <PackageReference Include="OllamaSharp.ModelContextProtocol" Version="5.2.7" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Assets\LibreOffice_logo.svg">
