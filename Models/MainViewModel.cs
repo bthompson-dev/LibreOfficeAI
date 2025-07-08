@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -8,6 +10,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
@@ -110,11 +113,16 @@ namespace LibreOfficeAI.Models
                 await foreach (
                     var answerToken in ollamaService.Chat.SendAsync(
                         prompt,
-                        cts.Token,
-                        ollamaService.AvailableTools
+                        ollamaService.AvailableTools,
+                        null, // imagesAsBase64
+                        null, // format
+                        cts.Token
                     )
                 )
                 {
+                    if (ollamaService.AvailableTools == null)
+                        Debug.WriteLine("No tools sent.");
+
                     stringBuilder.Append(answerToken);
                     dispatcherQueue.TryEnqueue(() =>
                     {
@@ -139,6 +147,20 @@ namespace LibreOfficeAI.Models
             AiTurn = false;
             SendMessageCommand.NotifyCanExecuteChanged();
             FocusTextBox?.Invoke();
+
+            // Look for any tool calls
+            var lastMessage = ollamaService.Chat.Messages.Last();
+            Debug.WriteLine(lastMessage.Content);
+            if (lastMessage.ToolCalls?.Any() == true)
+            {
+                foreach (var toolCall in lastMessage.ToolCalls)
+                {
+                    Debug.WriteLine($"Tool called: {toolCall.Function?.Name}");
+                    Debug.WriteLine(
+                        $"Arguments: {string.Join(", ", toolCall.Function?.Arguments?.Select(kvp => $"{kvp.Key}: {kvp.Value}") ?? [])}"
+                    );
+                }
+            }
         }
 
         [RelayCommand]
