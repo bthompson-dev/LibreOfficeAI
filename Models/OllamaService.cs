@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Debug;
 using OllamaSharp;
 using OllamaSharp.ModelContextProtocol;
 using OllamaSharp.ModelContextProtocol.Server;
-using Windows.Media.Protection.PlayReady;
 
 namespace LibreOfficeAI.Models
 {
@@ -14,39 +13,63 @@ namespace LibreOfficeAI.Models
     {
         public Chat Chat { get; set; }
         public OllamaApiClient Client { get; }
-        public object[] AvailableTools { get; set; }
+        public McpClientTool[] AvailableTools { get; set; }
+
+        private string SystemPrompt { get; } =
+            "You are a helpful assistant. Use a tool if possible.";
+
+        public bool ToolsLoaded { get; set; } = false;
 
         public OllamaService()
         {
             var ollamaUri = new Uri("http://localhost:11434");
-            Client = new OllamaApiClient(ollamaUri)
+
+            // Define an httpClient to allow the timeout to be extended
+            var httpClient = new HttpClient()
             {
-                SelectedModel = "kitsonk/watt-tool-8B:latest",
+                BaseAddress = ollamaUri,
+                Timeout = TimeSpan.FromMinutes(5),
             };
 
-            string systemPrompt = "Always use a tool.";
+            string selectedModel = "kitsonk/watt-tool-8B:latest";
 
-            Chat = new Chat(Client, systemPrompt);
+            Client = new OllamaApiClient(httpClient, selectedModel);
 
-            FindTools();
+            Chat = new Chat(Client);
+
+            SetupToolEventHandlers();
+
+            _ = Task.Run(async () => await FindTools());
         }
 
         public void RefreshChat()
         {
             Chat = new Chat(Client);
+            SetupToolEventHandlers();
         }
 
-        public async void FindTools()
+        private void SetupToolEventHandlers()
         {
+            // Add event listener for tool calls
+            Chat.OnToolCall += (sender, toolCall) =>
+            {
+                Debug.WriteLine($"Tool called: {toolCall.Function?.Name}");
+            };
+
+            // Add event listener for tool results
+            Chat.OnToolResult += (sender, result) =>
+            {
+                Debug.WriteLine($"Tool result: {result.Result}");
+            };
+        }
+
+        public async Task FindTools()
+        {
+            // Detailed logging for McpClient
             var loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddDebug().SetMinimumLevel(LogLevel.Debug);
             });
-
-            var modelInfo = await Client.ShowModelAsync("kitsonk/watt-tool-8B:latest");
-
-            // Checking the capabilities of the model
-            Debug.WriteLine($"Model capabilities: {string.Join(", ", modelInfo.Capabilities)}");
 
             var options = new McpClientOptions { LoggerFactory = loggerFactory };
 
@@ -55,10 +78,13 @@ namespace LibreOfficeAI.Models
                 options
             );
 
+            // Log all tools found
             foreach (var tool in AvailableTools)
             {
-                Debug.WriteLine(tool);
+                Debug.WriteLine(tool?.Function?.Name);
             }
+
+            ToolsLoaded = true;
         }
     }
 }

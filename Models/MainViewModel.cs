@@ -72,8 +72,9 @@ namespace LibreOfficeAI.Models
             await SendPromptAsync(userInput);
         }
 
-        // Can only send a message if it is not the AI's turn, and the prompt is not empty
-        private bool CanSendMessage() => !AiTurn && !string.IsNullOrWhiteSpace(PromptText);
+        // Can only send a message once AI is ready, if it is not the AI's turn, and the prompt is not empty
+        private bool CanSendMessage() =>
+            !AiTurn && !string.IsNullOrWhiteSpace(PromptText) && ollamaService.ToolsLoaded;
 
         // Sending a prompt to the LLM model
         private async Task SendPromptAsync(string prompt)
@@ -88,6 +89,7 @@ namespace LibreOfficeAI.Models
             catch (HttpRequestException ex)
             {
                 Debug.WriteLine(ex.Message);
+                SendErrorMessage("Could not find the AI service.");
                 return;
             }
 
@@ -107,6 +109,16 @@ namespace LibreOfficeAI.Models
 
             var stringBuilder = new StringBuilder();
 
+            if (ollamaService.AvailableTools == null)
+                Debug.WriteLine("No tools found.");
+            else
+                Debug.WriteLine(
+                    string.Join(
+                        ' ',
+                        ollamaService.AvailableTools.Select(tool => tool.Function?.Name?.ToString())
+                    )
+                );
+
             try
             {
                 // Stream the AI response and update the message for each token
@@ -120,9 +132,6 @@ namespace LibreOfficeAI.Models
                     )
                 )
                 {
-                    if (ollamaService.AvailableTools == null)
-                        Debug.WriteLine("No tools sent.");
-
                     stringBuilder.Append(answerToken);
                     dispatcherQueue.TryEnqueue(() =>
                     {
