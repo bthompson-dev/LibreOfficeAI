@@ -121,6 +121,7 @@ namespace LibreOfficeAI.Models
 
             try
             {
+                Debug.WriteLine(ollamaService?.Chat?.Options?.NumCtx.ToString());
                 // Stream the AI response and update the message for each token
                 await foreach (
                     var answerToken in ollamaService.Chat.SendAsync(

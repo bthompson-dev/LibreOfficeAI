@@ -4,7 +4,7 @@
       "command": "uv",
       "args": [
         "--directory",
-        "C:\\Users\\ben_t\\Documents\\MSc Computer Science\\Summer Project\\LibreOfficeMCP(Harshithb)\\libre-office-mcp\\libre-writer",
+        "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\MCPServer\\libre-office-mcp\\libre-writer\\",
         "run",
         "main.py"
       ]

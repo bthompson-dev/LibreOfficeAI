@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -34,7 +35,20 @@ namespace LibreOfficeAI
         /// </summary>
         public App()
         {
+            this.UnhandledException += App_UnhandledException;
             InitializeComponent();
+        }
+
+        private void App_UnhandledException(
+            object sender,
+            Microsoft.UI.Xaml.UnhandledExceptionEventArgs e
+        )
+        {
+            try
+            {
+                File.WriteAllText("unhandled_exception.txt", e.Exception.ToString());
+            }
+            catch { }
         }
 
         /// <summary>
@@ -43,8 +57,16 @@ namespace LibreOfficeAI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            _window = new MainWindow();
-            _window.Activate();
+            try
+            {
+                _window = new MainWindow();
+                _window.Activate();
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("startup_error.txt", ex.ToString());
+                throw;
+            }
         }
     }
 }

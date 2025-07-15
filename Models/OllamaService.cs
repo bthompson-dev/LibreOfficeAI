@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OllamaSharp;
 using OllamaSharp.ModelContextProtocol;
 using OllamaSharp.ModelContextProtocol.Server;
+using OllamaSharp.Models;
 
 namespace LibreOfficeAI.Models
 {
@@ -36,6 +37,7 @@ namespace LibreOfficeAI.Models
             Client = new OllamaApiClient(httpClient, selectedModel);
 
             Chat = new Chat(Client);
+            Chat.Options = new RequestOptions { NumThread = 6 };
 
             SetupToolEventHandlers();
 
