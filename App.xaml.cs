@@ -57,16 +57,8 @@ namespace LibreOfficeAI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            try
-            {
-                _window = new MainWindow();
-                _window.Activate();
-            }
-            catch (Exception ex)
-            {
-                File.WriteAllText("startup_error.txt", ex.ToString());
-                throw;
-            }
+            _window = new MainWindow();
+            _window.Activate();
         }
     }
 }

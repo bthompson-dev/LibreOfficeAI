@@ -14,10 +14,11 @@ using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel(OllamaService ollamaService, DispatcherQueue dispatcherQueue)
+        : ObservableObject
     {
-        private readonly OllamaService ollamaService;
-        private readonly DispatcherQueue dispatcherQueue;
+        private readonly OllamaService ollamaService = ollamaService;
+        private readonly DispatcherQueue dispatcherQueue = dispatcherQueue;
 
         [ObservableProperty]
         private bool aiTurn = false;
@@ -32,18 +33,11 @@ namespace LibreOfficeAI.Models
         CancellationTokenSource cts = new();
 
         // Dynamic collection of user messages - automatically updates
-        public ObservableCollection<ChatMessage> ChatMessages { get; set; } = new();
+        public ObservableCollection<ChatMessage> ChatMessages { get; set; } = [];
 
         // Events linked to Main Window
         public event Action? RequestScrollToBottom;
         public event Action? FocusTextBox;
-
-        // Constructor - initialised with the ollamaService and DispatcherQueue
-        public MainViewModel(OllamaService ollamaService, DispatcherQueue dispatcherQueue)
-        {
-            this.ollamaService = ollamaService;
-            this.dispatcherQueue = dispatcherQueue;
-        }
 
         // Sets send button visibility if text is present
         partial void OnPromptTextChanged(string value)
@@ -74,7 +68,9 @@ namespace LibreOfficeAI.Models
 
         // Can only send a message once AI is ready, if it is not the AI's turn, and the prompt is not empty
         private bool CanSendMessage() =>
-            !AiTurn && !string.IsNullOrWhiteSpace(PromptText) && ollamaService.ToolsLoaded;
+            !AiTurn
+            && !string.IsNullOrWhiteSpace(PromptText)
+            && ollamaService.ToolService.ToolsLoaded;
 
         // Sending a prompt to the LLM model
         private async Task SendPromptAsync(string prompt)
@@ -84,7 +80,7 @@ namespace LibreOfficeAI.Models
             {
                 bool connected = await ollamaService.Client.IsRunningAsync();
                 if (connected)
-                    Debug.WriteLine("Connected to Ollama");
+                    Debug.WriteLine("Ollama running");
             }
             catch (HttpRequestException ex)
             {
@@ -107,36 +103,27 @@ namespace LibreOfficeAI.Models
             await Task.Delay(2);
             RequestScrollToBottom?.Invoke();
 
-            var stringBuilder = new StringBuilder();
+            var toolsToCall = await ollamaService.FindNeededTools(prompt);
 
-            if (ollamaService.AvailableTools == null)
-                Debug.WriteLine("No tools found.");
-            else
-                Debug.WriteLine(
-                    string.Join(
-                        ' ',
-                        ollamaService.AvailableTools.Select(tool => tool.Function?.Name?.ToString())
-                    )
-                );
+            var response = new StringBuilder();
 
             try
             {
-                Debug.WriteLine(ollamaService?.Chat?.Options?.NumCtx.ToString());
                 // Stream the AI response and update the message for each token
                 await foreach (
-                    var answerToken in ollamaService.Chat.SendAsync(
+                    var answerToken in ollamaService.ExternalChat.SendAsync(
                         prompt,
-                        ollamaService.AvailableTools,
+                        toolsToCall,
                         null, // imagesAsBase64
                         null, // format
                         cts.Token
                     )
                 )
                 {
-                    stringBuilder.Append(answerToken);
+                    response.Append(answerToken);
                     dispatcherQueue.TryEnqueue(() =>
                     {
-                        aiMessage.Text = stringBuilder.ToString();
+                        aiMessage.Text = response.ToString();
                         if (aiMessage.IsLoading)
                             aiMessage.IsLoading = false;
 
@@ -159,7 +146,7 @@ namespace LibreOfficeAI.Models
             FocusTextBox?.Invoke();
 
             // Look for any tool calls
-            var lastMessage = ollamaService.Chat.Messages.Last();
+            var lastMessage = ollamaService.ExternalChat.Messages.Last();
             Debug.WriteLine(lastMessage.Content);
             if (lastMessage.ToolCalls?.Any() == true)
             {
@@ -193,7 +180,7 @@ namespace LibreOfficeAI.Models
         [RelayCommand]
         private void NewChat()
         {
-            ollamaService.RefreshChat();
+            ollamaService.RefreshExternalChat();
             ChatMessages.Clear();
         }
 
