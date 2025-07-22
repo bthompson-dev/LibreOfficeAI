@@ -80,7 +80,7 @@ namespace LibreOfficeAI.Models
             {
                 bool connected = await ollamaService.Client.IsRunningAsync();
                 if (connected)
-                    Debug.WriteLine("Ollama running");
+                    Debug.WriteLine("Ollama Client running");
             }
             catch (HttpRequestException ex)
             {
@@ -103,12 +103,18 @@ namespace LibreOfficeAI.Models
             await Task.Delay(2);
             RequestScrollToBottom?.Invoke();
 
-            var toolsToCall = await ollamaService.FindNeededTools(prompt);
-
             var response = new StringBuilder();
 
             try
             {
+                var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
+
+                // Log all needed
+                foreach (var tool in toolsToCall)
+                {
+                    Debug.WriteLine(tool?.Function?.Name);
+                }
+
                 // Stream the AI response and update the message for each token
                 await foreach (
                     var answerToken in ollamaService.ExternalChat.SendAsync(
@@ -180,7 +186,7 @@ namespace LibreOfficeAI.Models
         [RelayCommand]
         private void NewChat()
         {
-            ollamaService.RefreshExternalChat();
+            ollamaService.RefreshChat();
             ChatMessages.Clear();
         }
 

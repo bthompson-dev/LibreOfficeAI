@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace LibreOfficeAI.Models
 {
-    internal class MessageTemplateSelector : DataTemplateSelector
+    internal partial class MessageTemplateSelector : DataTemplateSelector
     {
         public DataTemplate UserTemplate { get; set; }
         public DataTemplate AITemplate { get; set; }
@@ -18,6 +18,7 @@ namespace LibreOfficeAI.Models
                 MessageType.User => UserTemplate,
                 MessageType.AI => AITemplate,
                 MessageType.Error => ErrorTemplate,
+                _ => ErrorTemplate,
             };
         }
     }

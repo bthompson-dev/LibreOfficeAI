@@ -78,4 +78,7 @@
     <AppInstallerUri>C:\Users\ben_t\source\repos\LibreOfficeAI\bin\Release</AppInstallerUri>
     <AppxPackageDir>C:\Users\ben_t\Documents\MSc Computer Science\Summer Project\Publish\</AppxPackageDir>
   </PropertyGroup>
+  <PropertyGroup>
+		      <LangVersion>preview</LangVersion>
+  </PropertyGroup>
 </Project>
