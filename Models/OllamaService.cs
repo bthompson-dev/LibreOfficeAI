@@ -14,6 +14,12 @@ namespace LibreOfficeAI.Models
         public ToolService ToolService { get; set; }
         private string IntentPrompt { get; set; }
 
+        private readonly string documentsPath = Environment.GetFolderPath(
+            Environment.SpecialFolder.MyDocuments
+        );
+
+        private readonly string systemPrompt;
+
         public OllamaService()
         {
             var ollamaUri = new Uri("http://localhost:11434");
@@ -25,11 +31,14 @@ namespace LibreOfficeAI.Models
                 Timeout = TimeSpan.FromMinutes(5),
             };
 
-            string selectedModel = "kitsonk/watt-tool-8B:latest";
+            string selectedModel = "qwen3:8b";
 
             Client = new OllamaApiClient(httpClient, selectedModel);
 
-            ExternalChat = new Chat(Client);
+            systemPrompt =
+                $"If there are missing parameters for a tool you need to use, make up suitable ones. Do not ask the user for clarification. All documents should be saved and found in {documentsPath}. If you create a new document, use further tools to add content to it. Don't ask for confirmation, just use the tools immediately.";
+
+            ExternalChat = new Chat(Client, systemPrompt);
 
             IntentPrompt = File.ReadAllText(
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\IntentPrompt.txt"

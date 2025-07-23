@@ -48,9 +48,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MCPServer\" />
-  </ItemGroup>
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
@@ -77,8 +74,5 @@
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <AppInstallerUri>C:\Users\ben_t\source\repos\LibreOfficeAI\bin\Release</AppInstallerUri>
     <AppxPackageDir>C:\Users\ben_t\Documents\MSc Computer Science\Summer Project\Publish\</AppxPackageDir>
-  </PropertyGroup>
-  <PropertyGroup>
-		      <LangVersion>preview</LangVersion>
   </PropertyGroup>
 </Project>
