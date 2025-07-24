@@ -35,8 +35,10 @@ namespace LibreOfficeAI.Models
 
             Client = new OllamaApiClient(httpClient, selectedModel);
 
-            systemPrompt =
-                $"If there are missing parameters for a tool you need to use, make up suitable ones. Do not ask the user for clarification. All documents should be saved and found in {documentsPath}. If you create a new document, use further tools to add content to it. Don't ask for confirmation, just use the tools immediately.";
+            systemPrompt = File.ReadAllText(
+                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt"
+            );
+            systemPrompt += $"All documents should be saved and found in {documentsPath}.";
 
             ExternalChat = new Chat(Client, systemPrompt);
 
