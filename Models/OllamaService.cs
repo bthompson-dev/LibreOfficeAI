@@ -14,13 +14,9 @@ namespace LibreOfficeAI.Models
         public ToolService ToolService { get; set; }
         private string IntentPrompt { get; set; }
 
-        private readonly string documentsPath = Environment.GetFolderPath(
-            Environment.SpecialFolder.MyDocuments
-        );
-
         private readonly string systemPrompt;
 
-        public OllamaService()
+        public OllamaService(DocumentService documentService)
         {
             var ollamaUri = new Uri("http://localhost:11434");
 
@@ -38,7 +34,20 @@ namespace LibreOfficeAI.Models
             systemPrompt = File.ReadAllText(
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt"
             );
-            systemPrompt += $"All documents should be saved and found in {documentsPath}.";
+
+            systemPrompt += $"Documents folder: {DocumentService.GetDocumentsPath()}.";
+
+            string documentsString = documentService.GetAvailableDocumentsString();
+            if (!string.IsNullOrEmpty(documentsString))
+            {
+                systemPrompt += $"Available documents in Documents folder: {documentsString}.";
+            }
+
+            string documentsInUseString = documentService.GetDocumentsInUseString();
+            if (!string.IsNullOrEmpty(documentsInUseString))
+            {
+                systemPrompt += $"Current documents: {documentsInUseString}.";
+            }
 
             ExternalChat = new Chat(Client, systemPrompt);
 

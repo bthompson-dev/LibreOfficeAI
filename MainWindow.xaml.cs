@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Text.Json;
 using LibreOfficeAI.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -15,11 +18,13 @@ namespace LibreOfficeAI
         {
             InitializeComponent();
 
+            var documentService = new DocumentService();
+
             // Setting up Ollama
-            var ollamaService = new OllamaService();
+            var ollamaService = new OllamaService(documentService);
 
             // Create ViewModel with dependencies
-            ViewModel = new MainViewModel(ollamaService, this.DispatcherQueue);
+            ViewModel = new MainViewModel(ollamaService, documentService, this.DispatcherQueue);
 
             // Set DataContext on the root Grid
             RootGrid.DataContext = ViewModel;
@@ -29,7 +34,7 @@ namespace LibreOfficeAI
             ViewModel.FocusTextBox += FocusTextBox;
 
             // Focus TextBox
-            PromptTextBox.Loaded += (object sender, RoutedEventArgs args) =>
+            PromptTextBox.Loaded += (_, _) =>
             {
                 PromptTextBox.Focus(FocusState.Programmatic);
             };

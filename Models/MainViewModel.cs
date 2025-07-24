@@ -14,11 +14,15 @@ using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
-    public partial class MainViewModel(OllamaService ollamaService, DispatcherQueue dispatcherQueue)
-        : ObservableObject
+    public partial class MainViewModel(
+        OllamaService ollamaService,
+        DocumentService documentService,
+        DispatcherQueue dispatcherQueue
+    ) : ObservableObject
     {
         private readonly OllamaService ollamaService = ollamaService;
         private readonly DispatcherQueue dispatcherQueue = dispatcherQueue;
+        private readonly DocumentService documentService = documentService;
 
         [ObservableProperty]
         private bool aiTurn = false;
@@ -110,9 +114,12 @@ namespace LibreOfficeAI.Models
                 var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
 
                 // Log all needed
-                foreach (var tool in toolsToCall)
+                if (toolsToCall != null)
                 {
-                    Debug.WriteLine(tool?.Function?.Name);
+                    foreach (var tool in toolsToCall)
+                    {
+                        Debug.WriteLine(tool?.Function?.Name);
+                    }
                 }
 
                 // Stream the AI response and update the message for each token
