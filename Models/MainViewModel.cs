@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
-using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
@@ -32,6 +30,8 @@ namespace LibreOfficeAI.Models
 
         [ObservableProperty]
         private bool isSendButtonVisible = false;
+
+        public ObservableCollection<Document> DocumentsInUse => documentService.DocumentsInUse;
 
         // Cancellation token
         CancellationTokenSource cts = new();

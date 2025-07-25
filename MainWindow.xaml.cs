@@ -18,7 +18,7 @@ namespace LibreOfficeAI
             var documentService = new DocumentService();
 
             // Setting up Ollama
-            var ollamaService = new OllamaService(documentService);
+            var ollamaService = new OllamaService(documentService, this.DispatcherQueue);
 
             // Create ViewModel with dependencies
             ViewModel = new MainViewModel(ollamaService, documentService, this.DispatcherQueue);

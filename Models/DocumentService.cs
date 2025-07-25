@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -14,9 +15,9 @@ namespace LibreOfficeAI.Models
     /// use.</remarks>
     public class DocumentService
     {
-        public List<Document> DocumentsInUse { get; set; } = [];
+        public ObservableCollection<Document> DocumentsInUse { get; set; } = [];
 
-        public List<Document> AllDocuments { get; set; } = [];
+        public ObservableCollection<Document> AllDocuments { get; set; } = [];
 
         private readonly string[] writerExtensions =
         [
@@ -30,17 +31,19 @@ namespace LibreOfficeAI.Models
             ".wpd",
         ];
 
+        public string DocumentsPath { get; set; }
+
         public DocumentService()
         {
-            string folderPath = GetDocumentsPath();
+            DocumentsPath = GetDocumentsPath();
 
-            foreach (string filePath in Directory.GetFiles(folderPath))
+            foreach (string filePath in Directory.GetFiles(DocumentsPath))
             {
                 AddDocument(filePath, AllDocuments);
             }
         }
 
-        public static string GetDocumentsPath()
+        private string GetDocumentsPath()
         {
             string settings = File.ReadAllText(
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\settings.json"
@@ -85,9 +88,18 @@ namespace LibreOfficeAI.Models
             AddDocument(filePath, DocumentsInUse);
         }
 
-        private void AddDocument(string filePath, List<Document> collection)
+        public void ClearDocumentsInUse()
+        {
+            DocumentsInUse.Clear();
+        }
+
+        private void AddDocument(string filePath, ObservableCollection<Document> collection)
         {
             FileInfo info = new(filePath);
+
+            // Return if the file path is invalid or document is already added
+            if (!info.Exists || collection.Any(doc => doc.Path == filePath))
+                return;
 
             if (writerExtensions.Contains(info.Extension))
             {
@@ -96,14 +108,7 @@ namespace LibreOfficeAI.Models
         }
     }
 
-    public class Document(string name, string extension, string path, DocType docType)
-    {
-        public string Name { get; set; } = name;
-
-        public string Extension { get; set; } = extension;
-        public string Path { get; set; } = path;
-        public DocType DocType { get; set; } = docType;
-    }
+    public record Document(string Name, string Extension, string Path, DocType DocType) { }
 
     public enum DocType
     {
