@@ -12,12 +12,16 @@ namespace LibreOfficeAI.Models
         private Chat InternalChat { get; set; }
         public OllamaApiClient Client { get; }
         public ToolService ToolService { get; set; }
+
+        private readonly DocumentService _documentService;
         private string IntentPrompt { get; set; }
 
         private readonly string systemPrompt;
 
         public OllamaService(DocumentService documentService)
         {
+            _documentService = documentService;
+
             var ollamaUri = new Uri("http://localhost:11434");
 
             // Define an httpClient to allow the timeout to be extended
@@ -27,6 +31,7 @@ namespace LibreOfficeAI.Models
                 Timeout = TimeSpan.FromMinutes(5),
             };
 
+            // AI Model
             string selectedModel = "qwen3:8b";
 
             Client = new OllamaApiClient(httpClient, selectedModel);
@@ -35,21 +40,20 @@ namespace LibreOfficeAI.Models
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt"
             );
 
-            systemPrompt += $"Documents folder: {DocumentService.GetDocumentsPath()}.";
+            // Add Document Folder Path
+            systemPrompt += $" Documents folder: {DocumentService.GetDocumentsPath()}.";
 
-            string documentsString = documentService.GetAvailableDocumentsString();
+            // Add list of all available documents
+            string documentsString = _documentService.GetAvailableDocumentsString();
             if (!string.IsNullOrEmpty(documentsString))
             {
-                systemPrompt += $"Available documents in Documents folder: {documentsString}.";
-            }
-
-            string documentsInUseString = documentService.GetDocumentsInUseString();
-            if (!string.IsNullOrEmpty(documentsInUseString))
-            {
-                systemPrompt += $"Current documents: {documentsInUseString}.";
+                systemPrompt += $" Available documents in Documents folder: {documentsString}.";
             }
 
             ExternalChat = new Chat(Client, systemPrompt);
+
+            // Optionally configure Ollama hyperparameters (e.g. NumCtx, NumBatch, NumThread)
+            //ExternalChat.Options = new RequestOptions { UseMmap = false };
 
             IntentPrompt = File.ReadAllText(
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\IntentPrompt.txt"
@@ -57,15 +61,12 @@ namespace LibreOfficeAI.Models
 
             InternalChat = new Chat(Client, IntentPrompt);
 
-            // Optionally configure Ollama hyperparameters (e.g. NumCtx, NumBatch, NumThread)
-            //Chat.Options = new RequestOptions { UseMmap = false };
-
             ToolService = new ToolService(InternalChat);
 
             SetupToolEventHandlers();
         }
 
-        //
+        // Create a new chat
         public void RefreshChat()
         {
             ExternalChat = new Chat(Client);
@@ -79,6 +80,23 @@ namespace LibreOfficeAI.Models
             ExternalChat.OnToolCall += (sender, toolCall) =>
             {
                 Debug.WriteLine($"Tool called: {toolCall.Function?.Name}");
+
+                var arguments = toolCall.Function?.Arguments;
+
+                // Add any documents used to the list of current documents
+                if (arguments != null)
+                {
+                    if (arguments.TryGetValue("file_path", out var value))
+                    {
+                        // value is returned as an object
+                        var filePath = value as string ?? value?.ToString();
+                        if (!string.IsNullOrEmpty(filePath))
+                        {
+                            Debug.WriteLine($"Adding file to docs in use: {filePath}");
+                            _documentService.AddDocumentInUse(filePath);
+                        }
+                    }
+                }
             };
 
             // Add event listener for tool results

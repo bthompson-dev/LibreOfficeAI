@@ -6,38 +6,37 @@ using System.Text.Json;
 
 namespace LibreOfficeAI.Models
 {
+    /// <summary>
+    /// Provides services for managing and accessing documents within a specified directory.
+    /// </summary>
+    /// <remarks>The <see cref="DocumentService"/> class initializes by loading all documents from a
+    /// configured directory. It offers functionality to retrieve document names and manage documents currently in
+    /// use.</remarks>
     public class DocumentService
     {
         public List<Document> DocumentsInUse { get; set; } = [];
 
         public List<Document> AllDocuments { get; set; } = [];
 
+        private readonly string[] writerExtensions =
+        [
+            ".odt",
+            ".docx",
+            ".dotx",
+            ".xml",
+            ".doc",
+            ".dot",
+            ".rtf",
+            ".wpd",
+        ];
+
         public DocumentService()
         {
-            string[] writerExtensions =
-            [
-                ".odt",
-                ".docx",
-                ".dotx",
-                ".xml",
-                ".doc",
-                ".dot",
-                ".rtf",
-                ".wpd",
-            ];
-
             string folderPath = GetDocumentsPath();
 
             foreach (string filePath in Directory.GetFiles(folderPath))
             {
-                FileInfo info = new(filePath);
-
-                if (writerExtensions.Contains(info.Extension))
-                {
-                    AllDocuments.Add(
-                        new Document(info.Name, info.Extension, filePath, DocType.Writer)
-                    );
-                }
+                AddDocument(filePath, AllDocuments);
             }
         }
 
@@ -79,6 +78,21 @@ namespace LibreOfficeAI.Models
             }
 
             return documentsString.TrimEnd([' ', ',']);
+        }
+
+        public void AddDocumentInUse(string filePath)
+        {
+            AddDocument(filePath, DocumentsInUse);
+        }
+
+        private void AddDocument(string filePath, List<Document> collection)
+        {
+            FileInfo info = new(filePath);
+
+            if (writerExtensions.Contains(info.Extension))
+            {
+                collection.Add(new Document(info.Name, info.Extension, filePath, DocType.Writer));
+            }
         }
     }
 

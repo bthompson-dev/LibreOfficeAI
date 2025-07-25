@@ -113,13 +113,20 @@ namespace LibreOfficeAI.Models
             {
                 var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
 
-                // Log all needed
+                // Log all needed tools
                 if (toolsToCall != null)
                 {
                     foreach (var tool in toolsToCall)
                     {
                         Debug.WriteLine(tool?.Function?.Name);
                     }
+                }
+
+                // If any documents are in use, add the file paths to the user prompt
+                string documentsInUseString = documentService.GetDocumentsInUseString();
+                if (!string.IsNullOrEmpty(documentsInUseString))
+                {
+                    prompt += $" Current documents: {documentsInUseString}.";
                 }
 
                 // Stream the AI response and update the message for each token
