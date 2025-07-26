@@ -1,4 +1,6 @@
+using System;
 using LibreOfficeAI.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 
@@ -11,17 +13,12 @@ namespace LibreOfficeAI
     {
         public MainViewModel ViewModel { get; }
 
-        public MainWindow()
+        public MainWindow(IServiceProvider serviceProvider)
         {
             InitializeComponent();
 
-            var documentService = new DocumentService();
-
-            // Setting up Ollama
-            var ollamaService = new OllamaService(documentService, this.DispatcherQueue);
-
-            // Create ViewModel with dependencies
-            ViewModel = new MainViewModel(ollamaService, documentService, this.DispatcherQueue);
+            // Get ViewModel from dependency injection container
+            ViewModel = serviceProvider.GetRequiredService<MainViewModel>();
 
             // Set DataContext on the root Grid
             RootGrid.DataContext = ViewModel;

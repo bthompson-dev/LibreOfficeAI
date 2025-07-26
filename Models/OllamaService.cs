@@ -2,30 +2,30 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.UI.Dispatching;
-using ModelContextProtocol.Protocol;
 using OllamaSharp;
-using static OllamaSharp.Models.Chat.Message;
 
 namespace LibreOfficeAI.Models
 {
     public class OllamaService
     {
+        // Delegate for UI thread
+        public Action<Action>? RunOnUIThread { get; set; }
+
         public Chat ExternalChat { get; set; }
         private Chat InternalChat { get; set; }
         public OllamaApiClient Client { get; }
         public ToolService ToolService { get; set; }
 
         private readonly DocumentService _documentService;
-        private readonly DispatcherQueue _dispatcherQueue;
         private string IntentPrompt { get; set; }
 
         private readonly string systemPrompt;
 
-        public OllamaService(DocumentService documentService, DispatcherQueue dispatcherQueue)
+        public OllamaService(DocumentService documentService)
         {
             _documentService = documentService;
-            _dispatcherQueue = dispatcherQueue;
 
             var ollamaUri = new Uri("http://localhost:11434");
 
@@ -108,11 +108,10 @@ namespace LibreOfficeAI.Models
                             {
                                 Debug.WriteLine($"Adding file to docs in use: {filePath}");
 
-                                // Use dispatcher queue as this will not take place on the UI thread
-                                _dispatcherQueue.TryEnqueue(() =>
-                                {
-                                    _documentService.AddDocumentInUse(filePath);
-                                });
+                                // Updating the UI must take place on UI thread
+                                RunOnUIThread?.Invoke(() =>
+                                    _documentService.AddDocumentInUse(filePath)
+                                );
                             }
                         }
                     }
@@ -128,11 +127,8 @@ namespace LibreOfficeAI.Models
 
                         Debug.WriteLine($"Adding file to docs in use: {filePath}");
 
-                        // Use dispatcher queue as this will not take place on the UI thread
-                        _dispatcherQueue.TryEnqueue(() =>
-                        {
-                            _documentService.AddDocumentInUse(filePath);
-                        });
+                        // Updating the UI must take place on UI thread
+                        RunOnUIThread?.Invoke(() => _documentService.AddDocumentInUse(filePath));
                     }
                 }
             };

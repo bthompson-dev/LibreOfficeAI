@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -43,7 +42,7 @@ namespace LibreOfficeAI.Models
             }
         }
 
-        private string GetDocumentsPath()
+        private static string GetDocumentsPath()
         {
             string settings = File.ReadAllText(
                 "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\settings.json"

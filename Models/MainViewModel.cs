@@ -12,15 +12,11 @@ using Microsoft.UI.Dispatching;
 
 namespace LibreOfficeAI.Models
 {
-    public partial class MainViewModel(
-        OllamaService ollamaService,
-        DocumentService documentService,
-        DispatcherQueue dispatcherQueue
-    ) : ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
-        private readonly OllamaService ollamaService = ollamaService;
-        private readonly DispatcherQueue dispatcherQueue = dispatcherQueue;
-        private readonly DocumentService documentService = documentService;
+        private readonly OllamaService ollamaService;
+        private readonly DispatcherQueue dispatcherQueue;
+        private readonly DocumentService documentService;
 
         [ObservableProperty]
         private bool aiTurn = false;
@@ -42,6 +38,25 @@ namespace LibreOfficeAI.Models
         // Events linked to Main Window
         public event Action? RequestScrollToBottom;
         public event Action? FocusTextBox;
+
+        public MainViewModel(
+            OllamaService ollamaService,
+            DocumentService documentService,
+            Func<DispatcherQueue> dispatcherQueueFactory
+        )
+        {
+            this.ollamaService = ollamaService;
+            this.documentService = documentService;
+            this.dispatcherQueue = dispatcherQueueFactory();
+
+            ollamaService.RunOnUIThread = action =>
+            {
+                if (!dispatcherQueue.TryEnqueue(() => action()))
+                {
+                    action();
+                }
+            };
+        }
 
         // Sets send button visibility if text is present
         partial void OnPromptTextChanged(string value)
