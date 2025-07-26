@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using LibreOfficeAI.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -60,6 +61,24 @@ namespace LibreOfficeAI
                     _ = ViewModel.SendMessageCommand.ExecuteAsync(null);
                 }
                 e.Handled = true; // Prevents newline in TextBox
+            }
+        }
+
+        // Double click to open files in use
+        private void FilesListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (FilesListView.SelectedItem is Document doc)
+            {
+                try
+                {
+                    Process.Start(
+                        new ProcessStartInfo { FileName = doc.Path, UseShellExecute = true }
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Could not open file: {ex.Message}");
+                }
             }
         }
     }
