@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 
 namespace LibreOfficeAI.Models
 {
@@ -30,34 +29,12 @@ namespace LibreOfficeAI.Models
             ".wpd",
         ];
 
-        public string DocumentsPath { get; set; }
-
-        public DocumentService()
+        public DocumentService(ConfigurationService config)
         {
-            DocumentsPath = GetDocumentsPath();
-
-            foreach (string filePath in Directory.GetFiles(DocumentsPath))
+            foreach (string filePath in Directory.GetFiles(config.DocumentsPath))
             {
                 AddDocument(filePath, AllDocuments);
             }
-        }
-
-        private static string GetDocumentsPath()
-        {
-            string settings = File.ReadAllText(
-                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\settings.json"
-            );
-            JsonDocument jsonSettings = JsonDocument.Parse(settings);
-            string? documentsPath = jsonSettings
-                .RootElement.GetProperty("documentsFolderPath")
-                .GetString();
-
-            if (string.IsNullOrEmpty(documentsPath))
-            {
-                documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            }
-
-            return documentsPath;
         }
 
         public string GetAvailableDocumentsString()

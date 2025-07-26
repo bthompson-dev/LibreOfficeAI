@@ -19,50 +19,33 @@ namespace LibreOfficeAI.Models
         public ToolService ToolService { get; set; }
 
         private readonly DocumentService _documentService;
+        private readonly ConfigurationService _config;
         private string IntentPrompt { get; set; }
 
         private readonly string systemPrompt;
 
-        public OllamaService(DocumentService documentService)
+        public OllamaService(DocumentService documentService, ConfigurationService config)
         {
             _documentService = documentService;
-
-            var ollamaUri = new Uri("http://localhost:11434");
+            _config = config;
 
             // Define an httpClient to allow the timeout to be extended
             var httpClient = new HttpClient()
             {
-                BaseAddress = ollamaUri,
+                BaseAddress = _config.OllamaUri,
                 Timeout = TimeSpan.FromMinutes(5),
             };
 
-            // AI Model
-            string selectedModel = "qwen3:8b";
+            Client = new OllamaApiClient(httpClient, _config.SelectedModel);
 
-            Client = new OllamaApiClient(httpClient, selectedModel);
-
-            systemPrompt = File.ReadAllText(
-                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt"
-            );
-
-            // Add Document Folder Path
-            systemPrompt += $" Documents folder: {_documentService.DocumentsPath}.";
-
-            // Add list of all available documents
-            string documentsString = _documentService.GetAvailableDocumentsString();
-            if (!string.IsNullOrEmpty(documentsString))
-            {
-                systemPrompt += $" Available documents in Documents folder: {documentsString}.";
-            }
+            systemPrompt = LoadSystemPrompt();
 
             ExternalChat = new Chat(Client, systemPrompt);
 
             // Optionally configure Ollama hyperparameters (e.g. NumCtx, NumBatch, NumThread)
             //ExternalChat.Options = new RequestOptions { UseMmap = false };
 
-            IntentPrompt = File.ReadAllText(
-                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\IntentPrompt.txt"
-            );
+            IntentPrompt = File.ReadAllText(config.IntentPromptPath);
 
             InternalChat = new Chat(Client, IntentPrompt);
 
@@ -71,12 +54,29 @@ namespace LibreOfficeAI.Models
             SetupToolEventHandlers();
         }
 
+        private string LoadSystemPrompt()
+        {
+            var prompt = File.ReadAllText(_config.SystemPromptPath);
+
+            // Add Document Folder Path
+            prompt += $" Documents folder: {_config.DocumentsPath}.";
+
+            // Add list of all available documents
+            string documentsString = _documentService.GetAvailableDocumentsString();
+            if (!string.IsNullOrEmpty(documentsString))
+            {
+                prompt += $" Available documents in Documents folder: {documentsString}.";
+            }
+
+            return prompt;
+        }
+
         // Create a new chat
         public void RefreshChat()
         {
             ExternalChat = new Chat(Client);
             ToolService.RefreshChat();
-            SetupToolEventHandlers();
+            //SetupToolEventHandlers(); Not needed?
             _documentService.ClearDocumentsInUse();
         }
 
@@ -123,7 +123,7 @@ namespace LibreOfficeAI.Models
                         var filePath = fileName as string ?? fileName?.ToString();
 
                         // Add the base documents path
-                        filePath = $"{_documentService.DocumentsPath}\\{filePath}";
+                        filePath = $"{_config.DocumentsPath}\\{filePath}";
 
                         Debug.WriteLine($"Adding file to docs in use: {filePath}");
 

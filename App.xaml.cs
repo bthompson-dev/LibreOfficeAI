@@ -33,11 +33,14 @@ namespace LibreOfficeAI
                 .ConfigureServices(
                     (context, services) =>
                     {
-                        // Register services
+                        // Configuration
+                        services.AddSingleton<ConfigurationService>();
+
+                        // Core services
                         services.AddSingleton<DocumentService>();
                         services.AddSingleton<OllamaService>();
 
-                        // Register DispatcherQueue factory
+                        // DispatcherQueue factory
                         services.AddSingleton<Func<DispatcherQueue>>(provider =>
                             () =>
                             {
@@ -45,6 +48,7 @@ namespace LibreOfficeAI
                             }
                         );
 
+                        // ViewModels
                         services.AddTransient<MainViewModel>();
                     }
                 )
