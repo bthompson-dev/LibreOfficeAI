@@ -10,7 +10,7 @@ Functions available to you:
 8. add_paragraph - Add a paragraph with optional styling
 9. add_table - Add a table to a document
 10. insert_image - Insert an image into a document with optional resizing
-11. insert_page_break - Insert a page break in a document
+11. insert_page_break - Insert a page break at the end of a document
 12. format_text - Format specific text in a document
 13. search_replace_text - Search and replace text throughout a document
 14. delete_text - Delete specific text from a document

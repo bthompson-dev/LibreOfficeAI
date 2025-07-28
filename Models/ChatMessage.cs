@@ -10,6 +10,10 @@ namespace LibreOfficeAI.Models
 
         [ObservableProperty]
         private bool isLoading = false;
+
+        [ObservableProperty]
+        private bool isThinking = false;
+
         public MessageType Type { get; set; }
         public ObservableCollection<string> ToolCalls { get; set; } = [];
     }

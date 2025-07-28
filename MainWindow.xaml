@@ -74,10 +74,7 @@
                 VerticalAlignment="Top"
                 Background="#F2F2F2"
                 CornerRadius="16">
-                <StackPanel
-                    MaxHeight="120"
-                    VerticalAlignment="Top"
-                    Orientation="Vertical">
+                <StackPanel VerticalAlignment="Top" Orientation="Vertical">
                     <!--  LibreOffice Logo  -->
                     <Image Height="32" Margin="4,6">
                         <Image.Source>
@@ -86,6 +83,7 @@
                     </Image>
                     <ListView
                         x:Name="FilesListView"
+                        MaxHeight="80"
                         DoubleTapped="FilesListView_DoubleTapped"
                         ItemsSource="{Binding DocumentsInUse}">
                         <ListView.ItemContainerStyle>
@@ -158,7 +156,7 @@
                             CornerRadius="16"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
                             <StackPanel>
-                                <ItemsControl Margin="0,0,0,8" ItemsSource="{Binding ToolCalls}">
+                                <ItemsControl ItemsSource="{Binding ToolCalls}">
                                     <ItemsControl.ItemContainerTransitions>
                                         <TransitionCollection>
                                             <EntranceThemeTransition />
@@ -166,7 +164,7 @@
                                     </ItemsControl.ItemContainerTransitions>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
+                                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
                                                 <FontIcon Glyph="&#xE90F;" />
                                                 <TextBlock
                                                     Padding="8,0,0,0"

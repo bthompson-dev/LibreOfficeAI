@@ -34,7 +34,7 @@ namespace LibreOfficeAI.Models
 
             systemPrompt = LoadSystemPrompt();
 
-            ExternalChat = new Chat(Client, systemPrompt) { Think = false };
+            ExternalChat = new Chat(Client, systemPrompt);
 
             // Optionally configure Ollama hyperparameters (e.g. NumCtx, NumBatch, NumThread)
             //ExternalChat.Options = new RequestOptions { UseMmap = false };

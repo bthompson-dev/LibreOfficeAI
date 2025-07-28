@@ -113,10 +113,11 @@ namespace LibreOfficeAI.Models
                 Text = "",
                 Type = MessageType.AI,
                 IsLoading = true,
+                IsThinking = false,
             };
             ChatMessages.Add(aiMessage);
 
-            // Waits for UI to update
+            // Wait for UI to update
             await Task.Delay(2);
             RequestScrollToBottom?.Invoke();
 
@@ -124,6 +125,7 @@ namespace LibreOfficeAI.Models
 
             try
             {
+                // First run the prompt on the internal chat, to find useful tools
                 var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
 
                 // Log all suggested tools
@@ -153,18 +155,38 @@ namespace LibreOfficeAI.Models
                     )
                 )
                 {
-                    response.Append(answerToken);
-                    dispatcherQueue.TryEnqueue(() =>
+                    // Check if the model has started thinking
+                    if (answerToken == "<think>")
                     {
-                        aiMessage.Text = response.ToString();
-                        if (aiMessage.IsLoading)
-                            aiMessage.IsLoading = false;
+                        aiMessage.IsThinking = true;
+                    }
 
-                        // Scroll to the bottom
-                        RequestScrollToBottom?.Invoke();
-                    });
+                    // Once the model has stopped thinking, print tokens
+                    if (!aiMessage.IsThinking)
+                    {
+                        // Prevent newlines being added after thinking
+                        if (response.Length != 0 || !string.IsNullOrWhiteSpace(answerToken))
+                        {
+                            response.Append(answerToken);
+                            dispatcherQueue.TryEnqueue(() =>
+                            {
+                                aiMessage.Text = response.ToString();
+                                if (aiMessage.IsLoading)
+                                    aiMessage.IsLoading = false;
 
-                    await Task.Delay(10); // Slightly longer delay for better visual effect
+                                // Scroll to the bottom
+                                RequestScrollToBottom?.Invoke();
+                            });
+                        }
+
+                        await Task.Delay(10); // Slightly longer delay for better visual effect
+                    }
+
+                    // If the model has stopped thinking, we can show the next token
+                    if (answerToken == "</think>")
+                    {
+                        aiMessage.IsThinking = false;
+                    }
                 }
             }
             catch (HttpRequestException)
@@ -226,6 +248,11 @@ namespace LibreOfficeAI.Models
                 {
                     Debug.WriteLine($"Tool called: {toolCall.Function.Name}");
                     RegisterToolCall(toolCall.Function.Name);
+
+                    foreach (var argument in toolCall.Function.Arguments)
+                    {
+                        Debug.WriteLine(argument.ToString());
+                    }
                 }
             };
 
