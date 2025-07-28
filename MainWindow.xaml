@@ -157,12 +157,36 @@
                             Background="#d9dbf5"
                             CornerRadius="16"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
-                            <TextBlock
-                                HorizontalAlignment="Left"
-                                FontSize="16"
-                                IsTextSelectionEnabled="True"
-                                Text="{Binding Text}"
-                                TextWrapping="Wrap" />
+                            <StackPanel>
+                                <ItemsControl Margin="0,0,0,8" ItemsSource="{Binding ToolCalls}">
+                                    <ItemsControl.ItemContainerTransitions>
+                                        <TransitionCollection>
+                                            <EntranceThemeTransition />
+                                        </TransitionCollection>
+                                    </ItemsControl.ItemContainerTransitions>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <FontIcon Glyph="&#xE90F;" />
+                                                <TextBlock
+                                                    Padding="8,0,0,0"
+                                                    FontWeight="Medium"
+                                                    Text="Tool called:" />
+                                                <TextBlock
+                                                    Padding="2,0,0,0"
+                                                    FontWeight="Medium"
+                                                    Text="{Binding}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock
+                                    HorizontalAlignment="Left"
+                                    FontSize="16"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{Binding Text}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </DataTemplate>

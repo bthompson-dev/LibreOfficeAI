@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LibreOfficeAI.Models
 {
@@ -10,12 +11,13 @@ namespace LibreOfficeAI.Models
         [ObservableProperty]
         private bool isLoading = false;
         public MessageType Type { get; set; }
+        public ObservableCollection<string> ToolCalls { get; set; } = [];
     }
-}
 
-public enum MessageType
-{
-    User,
-    AI,
-    Error,
+    public enum MessageType
+    {
+        User,
+        AI,
+        Error,
+    }
 }

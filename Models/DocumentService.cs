@@ -17,7 +17,7 @@ namespace LibreOfficeAI.Models
 
         public ObservableCollection<Document> AllDocuments { get; set; } = [];
 
-        private readonly string[] writerExtensions =
+        public readonly string[] writerExtensions =
         [
             ".odt",
             ".docx",

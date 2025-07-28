@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using OllamaSharp.ModelContextProtocol.Server;
 
 namespace LibreOfficeAI.Models
 {
@@ -17,6 +18,7 @@ namespace LibreOfficeAI.Models
         private readonly OllamaService ollamaService;
         private readonly DispatcherQueue dispatcherQueue;
         private readonly DocumentService documentService;
+        private readonly ConfigurationService config;
 
         [ObservableProperty]
         private bool aiTurn = false;
@@ -42,20 +44,16 @@ namespace LibreOfficeAI.Models
         public MainViewModel(
             OllamaService ollamaService,
             DocumentService documentService,
-            Func<DispatcherQueue> dispatcherQueueFactory
+            Func<DispatcherQueue> dispatcherQueueFactory,
+            ConfigurationService config
         )
         {
             this.ollamaService = ollamaService;
             this.documentService = documentService;
             this.dispatcherQueue = dispatcherQueueFactory();
+            this.config = config;
 
-            ollamaService.RunOnUIThread = action =>
-            {
-                if (!dispatcherQueue.TryEnqueue(() => action()))
-                {
-                    action();
-                }
-            };
+            SetupToolEventHandlers();
         }
 
         // Sets send button visibility if text is present
@@ -128,7 +126,7 @@ namespace LibreOfficeAI.Models
             {
                 var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
 
-                // Log all needed tools
+                // Log all suggested tools
                 if (toolsToCall != null)
                 {
                     foreach (var tool in toolsToCall)
@@ -179,20 +177,6 @@ namespace LibreOfficeAI.Models
             AiTurn = false;
             SendMessageCommand.NotifyCanExecuteChanged();
             FocusTextBox?.Invoke();
-
-            // Look for any tool calls
-            var lastMessage = ollamaService.ExternalChat.Messages.Last();
-            Debug.WriteLine(lastMessage.Content);
-            if (lastMessage.ToolCalls?.Any() == true)
-            {
-                foreach (var toolCall in lastMessage.ToolCalls)
-                {
-                    Debug.WriteLine($"Tool called: {toolCall.Function?.Name}");
-                    Debug.WriteLine(
-                        $"Arguments: {string.Join(", ", toolCall.Function?.Arguments?.Select(kvp => $"{kvp.Key}: {kvp.Value}") ?? [])}"
-                    );
-                }
-            }
         }
 
         [RelayCommand]
@@ -217,12 +201,91 @@ namespace LibreOfficeAI.Models
         {
             ollamaService.RefreshChat();
             ChatMessages.Clear();
+            SetupToolEventHandlers();
         }
 
         private void SendErrorMessage(string message)
         {
             var errorMessage = new ChatMessage { Text = message, Type = MessageType.Error };
             ChatMessages.Add(errorMessage);
+        }
+
+        public void RegisterToolCall(string tool)
+        {
+            var currentMessage = ChatMessages[^1];
+            currentMessage.ToolCalls.Add(tool);
+            Debug.WriteLine(tool);
+        }
+
+        private void SetupToolEventHandlers()
+        {
+            // Add event listener for tool calls
+            ollamaService.ExternalChat.OnToolCall += (sender, toolCall) =>
+            {
+                if (toolCall.Function?.Name != null)
+                {
+                    Debug.WriteLine($"Tool called: {toolCall.Function.Name}");
+                    RegisterToolCall(toolCall.Function.Name);
+                }
+            };
+
+            // Add event listener for tool results
+            ollamaService.ExternalChat.OnToolResult += (sender, result) =>
+            {
+                Debug.WriteLine($"Tool result: {result.Result}");
+
+                var arguments = result.ToolCall.Function?.Arguments;
+
+                // Add any documents used to the list of current documents
+                if (arguments != null)
+                {
+                    foreach (var key in new[] { "file_path", "source_path", "target_path" })
+                    {
+                        if (arguments.TryGetValue(key, out var value))
+                        {
+                            // value is returned as an object
+                            var filePath = value as string ?? value?.ToString();
+                            if (!string.IsNullOrEmpty(filePath))
+                            {
+                                Debug.WriteLine($"Adding file to docs in use: {filePath}");
+                                dispatcherQueue.TryEnqueue(() =>
+                                {
+                                    documentService.AddDocumentInUse(filePath);
+                                });
+                            }
+                        }
+                    }
+
+                    // Specific to create_blank_document function
+                    if (arguments.TryGetValue("filename", out var fileNameObj))
+                    {
+                        // value is returned as an object - cast to string
+                        string? fileName = fileNameObj as string ?? fileNameObj?.ToString();
+                        if (string.IsNullOrEmpty(fileName))
+                            return;
+
+                        // Add file extension if not included in the fileName
+                        string? fileExtension = documentService.writerExtensions.FirstOrDefault(
+                            ext => fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
+                        );
+
+                        if (string.IsNullOrEmpty(fileExtension))
+                        {
+                            fileExtension = ".odt";
+                            fileName += fileExtension;
+                        }
+
+                        // Add the base documents path
+                        string filePath = $"{config.DocumentsPath}\\{fileName}";
+
+                        Debug.WriteLine($"Adding file to docs in use: {filePath}");
+                        dispatcherQueue.TryEnqueue(() =>
+                        {
+                            documentService.AddDocumentInUse(filePath);
+                        });
+                    }
+                }
+            };
         }
     }
 }
