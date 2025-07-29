@@ -41,7 +41,7 @@ namespace LibreOfficeAI.Models
 
             IntentPrompt = File.ReadAllText(config.IntentPromptPath);
 
-            InternalChat = new Chat(Client, IntentPrompt) { Think = false };
+            InternalChat = new Chat(Client, IntentPrompt);
 
             ToolService = new ToolService(InternalChat);
         }

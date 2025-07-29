@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
-using OllamaSharp.ModelContextProtocol.Server;
 
 namespace LibreOfficeAI.Models
 {
@@ -122,6 +121,7 @@ namespace LibreOfficeAI.Models
             RequestScrollToBottom?.Invoke();
 
             var response = new StringBuilder();
+            var fullResponse = new StringBuilder();
 
             try
             {
@@ -155,6 +155,9 @@ namespace LibreOfficeAI.Models
                     )
                 )
                 {
+                    fullResponse.Append(answerToken);
+                    aiMessage.IsLoading = false;
+
                     // Check if the model has started thinking
                     if (answerToken == "<think>")
                     {
@@ -171,8 +174,6 @@ namespace LibreOfficeAI.Models
                             dispatcherQueue.TryEnqueue(() =>
                             {
                                 aiMessage.Text = response.ToString();
-                                if (aiMessage.IsLoading)
-                                    aiMessage.IsLoading = false;
 
                                 // Scroll to the bottom
                                 RequestScrollToBottom?.Invoke();
@@ -196,6 +197,7 @@ namespace LibreOfficeAI.Models
                 SendErrorMessage("Error connecting - please click to retry.");
             }
 
+            Debug.WriteLine(fullResponse);
             AiTurn = false;
             SendMessageCommand.NotifyCanExecuteChanged();
             FocusTextBox?.Invoke();
@@ -234,9 +236,12 @@ namespace LibreOfficeAI.Models
 
         public void RegisterToolCall(string tool)
         {
-            var currentMessage = ChatMessages[^1];
-            currentMessage.ToolCalls.Add(tool);
-            Debug.WriteLine(tool);
+            dispatcherQueue.TryEnqueue(() =>
+            {
+                var currentMessage = ChatMessages[^1];
+                currentMessage.ToolCalls.Add(tool);
+                Debug.WriteLine(tool);
+            });
         }
 
         private void SetupToolEventHandlers()
@@ -262,6 +267,7 @@ namespace LibreOfficeAI.Models
                 Debug.WriteLine($"Tool result: {result.Result}");
 
                 var arguments = result.ToolCall.Function?.Arguments;
+                var function = result.ToolCall.Function?.Name;
 
                 // Add any documents used to the list of current documents
                 if (arguments != null)
@@ -283,7 +289,7 @@ namespace LibreOfficeAI.Models
                         }
                     }
 
-                    // Specific to create_blank_document function
+                    // Specific to create_blank_document and create_blank_presentation functions
                     if (arguments.TryGetValue("filename", out var fileNameObj))
                     {
                         // value is returned as an object - cast to string
@@ -292,14 +298,31 @@ namespace LibreOfficeAI.Models
                             return;
 
                         // Add file extension if not included in the fileName
-                        string? fileExtension = documentService.writerExtensions.FirstOrDefault(
-                            ext => fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
-                        );
-
-                        if (string.IsNullOrEmpty(fileExtension))
+                        if (function == "create_blank_document")
                         {
-                            fileExtension = ".odt";
-                            fileName += fileExtension;
+                            string? fileExtension = documentService.writerExtensions.FirstOrDefault(
+                                ext => fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
+                            );
+
+                            if (string.IsNullOrEmpty(fileExtension))
+                            {
+                                fileExtension = ".odt";
+                                fileName += fileExtension;
+                            }
+                        }
+
+                        if (function == "create_blank_presentation")
+                        {
+                            string? fileExtension =
+                                documentService.impressExtensions.FirstOrDefault(ext =>
+                                    fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
+                                );
+
+                            if (string.IsNullOrEmpty(fileExtension))
+                            {
+                                fileExtension = ".odp";
+                                fileName += fileExtension;
+                            }
                         }
 
                         // Add the base documents path

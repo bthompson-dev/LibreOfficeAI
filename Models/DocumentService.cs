@@ -29,6 +29,21 @@ namespace LibreOfficeAI.Models
             ".wpd",
         ];
 
+        public readonly string[] impressExtensions =
+        [
+            ".odp",
+            ".pptx",
+            ".ppsx",
+            ".ppmx",
+            ".potx",
+            ".pomx",
+            ".ppt",
+            ".pps",
+            ".ppm",
+            ".pot",
+            ".pom",
+        ];
+
         public DocumentService(ConfigurationService config)
         {
             foreach (string filePath in Directory.GetFiles(config.DocumentsPath))
@@ -80,6 +95,11 @@ namespace LibreOfficeAI.Models
             if (writerExtensions.Contains(info.Extension))
             {
                 collection.Add(new Document(info.Name, info.Extension, filePath, DocType.Writer));
+            }
+
+            if (impressExtensions.Contains(info.Extension))
+            {
+                collection.Add(new Document(info.Name, info.Extension, filePath, DocType.Impress));
             }
         }
     }
