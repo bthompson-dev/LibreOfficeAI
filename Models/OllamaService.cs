@@ -60,6 +60,12 @@ namespace LibreOfficeAI.Models
                 prompt += $" Available documents in Documents folder: {documentsString}.";
             }
 
+            string presentationTemplatesString = _documentService.GetPresentationTemplatesString();
+            if (!string.IsNullOrEmpty(presentationTemplatesString))
+            {
+                prompt += $" Presentation Template Names: {presentationTemplatesString}";
+            }
+
             return prompt;
         }
 

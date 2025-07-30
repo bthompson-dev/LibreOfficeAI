@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,9 @@ namespace LibreOfficeAI.Models
     {
         public ObservableCollection<Document> DocumentsInUse { get; set; } = [];
 
-        public ObservableCollection<Document> AllDocuments { get; set; } = [];
+        private ObservableCollection<Document> AllDocuments { get; set; } = [];
+
+        private List<string?> PresentationTemplates { get; set; } = [];
 
         public readonly string[] writerExtensions =
         [
@@ -50,6 +53,24 @@ namespace LibreOfficeAI.Models
             {
                 AddDocument(filePath, AllDocuments);
             }
+
+            var templatePaths = config.PresentationTemplatesPaths;
+            var allTemplateFiles = new List<string>();
+
+            foreach (var folderPath in templatePaths)
+            {
+                if (Directory.Exists(folderPath))
+                {
+                    var otpFiles = Directory.GetFiles(
+                        folderPath,
+                        "*.otp",
+                        SearchOption.AllDirectories
+                    );
+                    allTemplateFiles.AddRange(otpFiles);
+                }
+            }
+
+            PresentationTemplates = [.. allTemplateFiles.Select(Path.GetFileNameWithoutExtension)];
         }
 
         public string GetAvailableDocumentsString()
@@ -72,6 +93,20 @@ namespace LibreOfficeAI.Models
             }
 
             return documentsString.TrimEnd([' ', ',']);
+        }
+
+        public string GetPresentationTemplatesString()
+        {
+            string presentationsTemplatesString = "";
+            foreach (string? templateName in PresentationTemplates)
+            {
+                if (!string.IsNullOrEmpty(templateName))
+                {
+                    presentationsTemplatesString += templateName + ", ";
+                }
+            }
+
+            return presentationsTemplatesString.TrimEnd([' ', ',']);
         }
 
         public void AddDocumentInUse(string filePath)

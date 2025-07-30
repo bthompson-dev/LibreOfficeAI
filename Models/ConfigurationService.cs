@@ -7,6 +7,8 @@ namespace LibreOfficeAI.Models
     public class ConfigurationService
     {
         public string DocumentsPath { get; private set; }
+
+        public string?[] PresentationTemplatesPaths { get; private set; } = new string?[2];
         public string SystemPromptPath { get; private set; }
         public string IntentPromptPath { get; private set; }
         public Uri OllamaUri { get; private set; }
@@ -30,6 +32,18 @@ namespace LibreOfficeAI.Models
             }
 
             DocumentsPath = documentsPath;
+
+            // Multiple possible folders for presentations
+            PresentationTemplatesPaths[0] = jsonSettings
+                .RootElement.GetProperty("presentationTemplatesPath")
+                .GetString();
+            PresentationTemplatesPaths[1] = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "LibreOffice",
+                "4",
+                "user",
+                "template"
+            );
 
             // Set hard-coded values
             SystemPromptPath = "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt";

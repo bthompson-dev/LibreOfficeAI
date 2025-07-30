@@ -26,6 +26,7 @@ Impress Functions:
 1. create_blank_presentation - Use to create a new presentation for any purpose
 2. read_presentation - Open and read the text in a presentation
 3. add_slide - Add a new slide to a presentation
+4. apply_presentation_template - Apply a built-in LibreOffice template to a presentation
 
 Read the user prompt and decide which of these functions may be useful to answer their request. Choose multiple functions if they might be useful.
 Respond with ONLY the names of the functions you choose. If no functions are relevant, respond with only 'None'.

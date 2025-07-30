@@ -1,11 +1,4 @@
 {
   "documentsFolderPath": "",
-  "exclude": [
-    "**/bin",
-    "**/bower_components",
-    "**/jspm_packages",
-    "**/node_modules",
-    "**/obj",
-    "**/platforms"
-  ]
+  "presentationTemplatesPath": "C:\\Program Files\\LibreOffice\\share\\template\\common\\presnt"
 }
