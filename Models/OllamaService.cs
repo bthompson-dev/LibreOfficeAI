@@ -63,7 +63,9 @@ namespace LibreOfficeAI.Models
             string presentationTemplatesString = _documentService.GetPresentationTemplatesString();
             if (!string.IsNullOrEmpty(presentationTemplatesString))
             {
-                prompt += $" Presentation Template Names: {presentationTemplatesString}";
+                prompt += $" Presentation Template Names: {presentationTemplatesString}.";
+                prompt +=
+                    " If the user gives you a template, make sure the name exactly matches one of these.";
             }
 
             return prompt;
