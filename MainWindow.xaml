@@ -241,7 +241,11 @@
                 <ItemsRepeater
                     x:Name="ChatItemsRepeater"
                     ItemTemplate="{StaticResource MessageTemplateSelector}"
-                    ItemsSource="{Binding ChatMessages}" />
+                    ItemsSource="{Binding ChatMessages}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Vertical" />
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
             </ScrollViewer>
         </Grid>
 
