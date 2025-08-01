@@ -88,7 +88,10 @@ namespace LibreOfficeAI.Models
 
         public void RefreshChat()
         {
-            InternalChat.Messages.Clear();
+            Debug.WriteLine(InternalChat.Messages.Count);
+            // Remove all messages except the first which is the intent prompt
+            InternalChat.Messages.RemoveRange(1, InternalChat.Messages.Count - 1);
+            Debug.WriteLine(InternalChat.Messages.Count);
             NeededTools.Clear();
         }
     }

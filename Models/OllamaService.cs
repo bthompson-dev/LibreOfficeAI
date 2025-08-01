@@ -74,7 +74,9 @@ namespace LibreOfficeAI.Models
         // Create a new chat
         public void RefreshChat()
         {
-            ExternalChat = new Chat(Client);
+            string systemPrompt = LoadSystemPrompt();
+
+            ExternalChat = new Chat(Client, systemPrompt);
             ToolService.RefreshChat();
             _documentService.ClearDocumentsInUse();
         }
