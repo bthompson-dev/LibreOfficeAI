@@ -16,23 +16,31 @@ namespace LibreOfficeAI
 
         public MainWindow(IServiceProvider serviceProvider)
         {
-            InitializeComponent();
-
-            // Get ViewModel from dependency injection container
-            ViewModel = serviceProvider.GetRequiredService<MainViewModel>();
-
-            // Set DataContext on the root Grid
-            RootGrid.DataContext = ViewModel;
-
-            // Subscribe to ViewModel events
-            ViewModel.RequestScrollToBottom += OnRequestScrollToBottom;
-            ViewModel.FocusTextBox += FocusTextBox;
-
-            // Focus TextBox
-            PromptTextBox.Loaded += (_, _) =>
+            try
             {
-                PromptTextBox.Focus(FocusState.Programmatic);
-            };
+                InitializeComponent();
+
+                // Get ViewModel from dependency injection container
+                ViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+
+                // Set DataContext on the root Grid
+                RootGrid.DataContext = ViewModel;
+
+                // Subscribe to ViewModel events
+                ViewModel.RequestScrollToBottom += OnRequestScrollToBottom;
+                ViewModel.FocusTextBox += FocusTextBox;
+
+                // Focus TextBox
+                PromptTextBox.Loaded += (_, _) =>
+                {
+                    PromptTextBox.Focus(FocusState.Programmatic);
+                };
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.WriteAllText("mainwindow_exception.txt", ex.ToString());
+                throw;
+            }
         }
 
         private void FocusTextBox()

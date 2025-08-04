@@ -73,11 +73,21 @@ namespace LibreOfficeAI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            var ollamaService = _host.Services.GetRequiredService<OllamaService>();
+            _ = ollamaService.StartAsync();
+
             _window = new MainWindow(_host.Services);
+
+            // Dispose of Ollama when app is closed
+            _window.Closed += (s, e) =>
+            {
+                ollamaService.Dispose();
+            };
+
             _window.Activate();
         }
 
-        //Expose service provider for other components
+        // Expose service provider for other components
         public static IServiceProvider Services => ((App)Current)._host.Services;
     }
 }
