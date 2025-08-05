@@ -28,6 +28,7 @@ namespace LibreOfficeAI.Models
         [ObservableProperty]
         private bool isSendButtonVisible = false;
 
+        public bool OllamaReady => ollamaService.OllamaReady;
         public ObservableCollection<Document> DocumentsInUse => documentService.DocumentsInUse;
 
         // Cancellation token
@@ -52,7 +53,21 @@ namespace LibreOfficeAI.Models
             this.dispatcherQueue = dispatcherQueueFactory();
             this.config = config;
 
+            this.ollamaService.PropertyChanged += OnOllamaServicePropertyChanged;
+
             SetupToolEventHandlers();
+        }
+
+        private void OnOllamaServicePropertyChanged(
+            object? sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
+        {
+            if (e.PropertyName == nameof(OllamaService.OllamaReady))
+            {
+                // Notify the UI that OllamaReady has changed
+                OnPropertyChanged(nameof(OllamaReady));
+            }
         }
 
         // Sets send button visibility if text is present

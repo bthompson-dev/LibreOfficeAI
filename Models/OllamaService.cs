@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using OllamaSharp;
 
 namespace LibreOfficeAI.Models
 {
-    public partial class OllamaService : IDisposable
+    public partial class OllamaService : ObservableObject, IDisposable
     {
         private Process? _ollamaProcess;
+
+        [ObservableProperty]
+        private bool _ollamaReady = false;
         public Chat ExternalChat { get; set; }
         private Chat InternalChat { get; set; }
         public OllamaApiClient Client { get; }
@@ -85,53 +88,63 @@ namespace LibreOfficeAI.Models
             _documentService.ClearDocumentsInUse();
         }
 
+        // Run Ollama
         public async Task StartAsync()
         {
             await StopExistingOllamaProcesses();
-
+            await StartOllamaServerAsync();
             bool modelLoaded = await CheckModelLoadedAsync();
 
-            if (modelLoaded)
+            Debug.WriteLine(modelLoaded);
+
+            if (!modelLoaded)
             {
-                await Task.Run(() =>
-                {
-                    var psi = new ProcessStartInfo
-                    {
-                        FileName = _config.OllamaPath,
-                        Arguments = "serve",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                    };
-
-                    psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
-
-                    _ollamaProcess = new Process { StartInfo = psi, EnableRaisingEvents = true };
-
-                    _ollamaProcess.OutputDataReceived += (s, e) =>
-                    {
-                        if (!string.IsNullOrEmpty(e.Data))
-                            Debug.WriteLine($"Ollama: {e.Data}");
-                    };
-
-                    _ollamaProcess.ErrorDataReceived += (s, e) =>
-                    {
-                        if (!string.IsNullOrEmpty(e.Data))
-                            Debug.WriteLine($"Ollama: {e.Data}");
-                    };
-
-                    _ollamaProcess.Start();
-                    _ollamaProcess.BeginOutputReadLine();
-                    _ollamaProcess.BeginErrorReadLine();
-                });
+                OllamaReady = await PullModelAsync();
             }
             else
             {
-                Debug.WriteLine("Model could not be loaded.");
+                OllamaReady = true;
             }
         }
 
+        private async Task StartOllamaServerAsync()
+        {
+            Debug.WriteLine("Starting Ollama server");
+            await Task.Run(() =>
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = _config.OllamaPath,
+                    Arguments = "serve",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+
+                psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
+
+                _ollamaProcess = new Process { StartInfo = psi, EnableRaisingEvents = true };
+
+                _ollamaProcess.OutputDataReceived += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        Debug.WriteLine($"Ollama: {e.Data}");
+                };
+
+                _ollamaProcess.ErrorDataReceived += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        Debug.WriteLine($"Ollama: {e.Data}");
+                };
+
+                _ollamaProcess.Start();
+                _ollamaProcess.BeginOutputReadLine();
+                _ollamaProcess.BeginErrorReadLine();
+            });
+        }
+
+        // Stop the Ollama process
         public void Stop()
         {
             if (_ollamaProcess != null && !_ollamaProcess.HasExited)
@@ -154,10 +167,73 @@ namespace LibreOfficeAI.Models
             GC.SuppressFinalize(this);
         }
 
-        private async Task<bool> CheckModelLoadedAsync()
+        // Verify that the correct model exists in the models folder
+        public async Task<bool> CheckModelLoadedAsync()
         {
+            Debug.WriteLine("Checking if model loaded");
+            var outputBuilder = new System.Text.StringBuilder();
+            var errorBuilder = new System.Text.StringBuilder();
+
+            return await Task.Run(() =>
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = _config.OllamaPath,
+                    Arguments = "ls",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+
+                psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
+                Debug.WriteLine($"OLLAMA_MODELS set to: {_config.OllamaModelsDir}");
+
+                using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+
+                try
+                {
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    process.WaitForExit();
+
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        outputBuilder.Append(output);
+                        Debug.WriteLine($"Ollama output: {output}");
+                    }
+
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        errorBuilder.Append(error);
+                        Debug.WriteLine($"Ollama error: {error}");
+                    }
+
+                    string modelList = outputBuilder.ToString();
+                    Debug.WriteLine($"Model list: {modelList}");
+
+                    return modelList.Contains(
+                        _config.SelectedModel,
+                        StringComparison.OrdinalIgnoreCase
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error running ollama ls: {ex.Message}");
+                    return false;
+                }
+            });
+        }
+
+        private async Task<bool> PullModelAsync()
+        {
+            Debug.WriteLine("Pulling ollama model");
             string command = $"pull {_config.SelectedModel}";
             var outputBuilder = new System.Text.StringBuilder();
+            var errorBuilder = new System.Text.StringBuilder();
 
             await Task.Run(() =>
             {
@@ -172,20 +248,24 @@ namespace LibreOfficeAI.Models
                 };
 
                 psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
-                Debug.WriteLine($"OLLAMA_MODELS set to: {_config.OllamaModelsDir}");
 
-                using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
-
+                using var process = new Process { StartInfo = psi };
                 process.OutputDataReceived += (s, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
+                    {
                         outputBuilder.AppendLine(e.Data);
+                        Debug.WriteLine(e.Data);
+                    }
                 };
 
                 process.ErrorDataReceived += (s, e) =>
                 {
                     if (!string.IsNullOrEmpty(e.Data))
-                        Debug.WriteLine($"Ollama: {e.Data}");
+                    {
+                        errorBuilder.AppendLine(e.Data);
+                        Debug.WriteLine(e.Data);
+                    }
                 };
 
                 process.Start();
@@ -194,27 +274,33 @@ namespace LibreOfficeAI.Models
                 process.WaitForExit();
             });
 
-            string response = outputBuilder.ToString();
-            return response.Contains("success", StringComparison.OrdinalIgnoreCase);
+            string allOutput = outputBuilder.ToString() + errorBuilder.ToString();
+            return allOutput.Contains("success", StringComparison.OrdinalIgnoreCase);
         }
 
-        private async Task StopExistingOllamaProcesses()
+        private static async Task StopExistingOllamaProcesses()
         {
+            Debug.WriteLine("Stopping existing Ollama Processes");
             try
             {
-                var existingProcesses = Process.GetProcessesByName("ollama");
-                foreach (var process in existingProcesses)
+                var processNames = new[] { "ollama", "ollama app" };
+
+                foreach (var name in processNames)
                 {
-                    try
+                    var processes = Process.GetProcessesByName(name);
+                    foreach (var process in processes)
                     {
-                        process.Kill();
-                        process.WaitForExit(5000); // Wait up to 5 seconds
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(
-                            $"Failed to stop Ollama process {process.Id}: {ex.Message}"
-                        );
+                        try
+                        {
+                            process.Kill();
+                            process.WaitForExit(5000); // Wait up to 5 seconds
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(
+                                $"Failed to stop Ollama process {process.Id}: {ex.Message}"
+                            );
+                        }
                     }
                 }
 

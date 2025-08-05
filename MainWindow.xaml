@@ -16,300 +16,324 @@
     </Window.SystemBackdrop>
 
     <Grid x:Name="RootGrid" Background="#F2F6FA">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
 
-        <!--  Top bar  -->
-        <Grid
-            Grid.Row="0"
-            Margin="0,0,0,0"
-            VerticalAlignment="Top">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <!--  Loading UI - Show when OllamaReady is false  -->
+        <Grid Visibility="{Binding OllamaReady, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
             <StackPanel
-                Margin="24,24,0,0"
-                VerticalAlignment="Top"
-                Orientation="Horizontal"
-                Spacing="16">
-                <!--  Settings Button  -->
-                <Button
-                    Width="40"
-                    Height="40"
-                    Padding="0"
-                    Background="White"
-                    BorderThickness="0"
-                    CornerRadius="40"
-                    ToolTipService.ToolTip="Settings">
-                    <Button.Resources>
-                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
-                    </Button.Resources>
-                    <FontIcon Glyph="&#xE713;" />
-                </Button>
-                <!--  New Chat Button  -->
-                <Button
-                    Width="40"
-                    Height="40"
-                    Padding="0"
-                    Background="White"
-                    BorderThickness="0"
-                    Command="{Binding NewChatCommand}"
-                    CornerRadius="40"
-                    ToolTipService.ToolTip="New Chat">
-                    <Button.Resources>
-                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
-                    </Button.Resources>
-                    <FontIcon Glyph="&#xE932;" />
-                </Button>
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="24">
+                <ProgressRing
+                    Width="60"
+                    Height="60"
+                    IsActive="True" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="24"
+                    Foreground="#666666"
+                    Text="Loading LibreOffice AI..." />
             </StackPanel>
-            <!--  LibreOffice Box  -->
-            <Border
-                Grid.Column="1"
-                Margin="0,16,24,0"
-                Padding="16,4"
-                VerticalAlignment="Top"
-                Background="#F2F2F2"
-                CornerRadius="16">
-                <StackPanel VerticalAlignment="Top" Orientation="Vertical">
-                    <!--  Writer and Impress Doc display templates  -->
-                    <StackPanel.Resources>
-                        <DataTemplate x:Key="WriterDocTemplate">
-                            <controls:HandCursorStackPanel Margin="0" Orientation="Horizontal">
-                                <Image Height="14" Margin="0">
-                                    <Image.Source>
-                                        <SvgImageSource UriSource="ms-appx:///Assets/Writer_Icon.svg" />
-                                    </Image.Source>
-                                </Image>
-                                <TextBlock
-                                    Margin="2,0,0,0"
-                                    FontSize="12"
-                                    Text="{Binding Name}" />
-                            </controls:HandCursorStackPanel>
-                        </DataTemplate>
-                        <DataTemplate x:Key="ImpressDocTemplate">
-                            <controls:HandCursorStackPanel Margin="0" Orientation="Horizontal">
-                                <Image Height="14" Margin="0">
-                                    <Image.Source>
-                                        <SvgImageSource UriSource="ms-appx:///Assets/Impress_Icon.svg" />
-                                    </Image.Source>
-                                </Image>
-                                <TextBlock
-                                    Margin="2,0,0,0"
-                                    FontSize="12"
-                                    Text="{Binding Name}" />
-                            </controls:HandCursorStackPanel>
-                        </DataTemplate>
-                        <models:DocTemplateSelector
-                            x:Key="DocTemplateSelector"
-                            ImpressDocTemplate="{StaticResource ImpressDocTemplate}"
-                            WriterDocTemplate="{StaticResource WriterDocTemplate}" />
-                    </StackPanel.Resources>
-                    <!--  LibreOffice Logo  -->
-                    <Image Height="32" Margin="4,6">
-                        <Image.Source>
-                            <SvgImageSource UriSource="ms-appx:///Assets/LibreOffice_logo.svg" />
-                        </Image.Source>
-                    </Image>
-                    <!--  List of files being used  -->
-                    <ListView
-                        x:Name="FilesListView"
-                        MaxHeight="80"
-                        DoubleTapped="FilesListView_DoubleTapped"
-                        ItemTemplateSelector="{StaticResource DocTemplateSelector}"
-                        ItemsSource="{Binding DocumentsInUse}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding" Value="4" />
-                                <Setter Property="Margin" Value="0" />
-                                <Setter Property="MinHeight" Value="0" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
-
-                </StackPanel>
-            </Border>
         </Grid>
 
-        <!--  Chat area  -->
-        <Grid Grid.Row="1" Margin="64,0,96,0">
-            <Grid.Resources>
-                <DataTemplate x:Key="UserMessageTemplate">
-                    <Border
-                        MaxWidth="400"
-                        Margin="100,8,0,8"
-                        Padding="16"
-                        HorizontalAlignment="Right"
+        <!--  Main App UI - Show when OllamaReady is true  -->
+
+        <Grid Visibility="{Binding OllamaReady, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+
+            <!--  Top bar  -->
+            <Grid
+                Grid.Row="0"
+                Margin="0,0,0,0"
+                VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel
+                    Margin="24,24,0,0"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal"
+                    Spacing="16">
+                    <!--  Settings Button  -->
+                    <Button
+                        Width="40"
+                        Height="40"
+                        Padding="0"
                         Background="White"
-                        CornerRadius="16">
-                        <TextBlock
+                        BorderThickness="0"
+                        CornerRadius="40"
+                        ToolTipService.ToolTip="Settings">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                        </Button.Resources>
+                        <FontIcon Glyph="&#xE713;" />
+                    </Button>
+                    <!--  New Chat Button  -->
+                    <Button
+                        Width="40"
+                        Height="40"
+                        Padding="0"
+                        Background="White"
+                        BorderThickness="0"
+                        Command="{Binding NewChatCommand}"
+                        CornerRadius="40"
+                        ToolTipService.ToolTip="New Chat">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                        </Button.Resources>
+                        <FontIcon Glyph="&#xE932;" />
+                    </Button>
+                </StackPanel>
+                <!--  LibreOffice Box  -->
+                <Border
+                    Grid.Column="1"
+                    Margin="0,16,24,0"
+                    Padding="16,4"
+                    VerticalAlignment="Top"
+                    Background="#F2F2F2"
+                    CornerRadius="16">
+                    <StackPanel VerticalAlignment="Top" Orientation="Vertical">
+                        <!--  Writer and Impress Doc display templates  -->
+                        <StackPanel.Resources>
+                            <DataTemplate x:Key="WriterDocTemplate">
+                                <controls:HandCursorStackPanel Margin="0" Orientation="Horizontal">
+                                    <Image Height="14" Margin="0">
+                                        <Image.Source>
+                                            <SvgImageSource UriSource="ms-appx:///Assets/Writer_Icon.svg" />
+                                        </Image.Source>
+                                    </Image>
+                                    <TextBlock
+                                        Margin="2,0,0,0"
+                                        FontSize="12"
+                                        Text="{Binding Name}" />
+                                </controls:HandCursorStackPanel>
+                            </DataTemplate>
+                            <DataTemplate x:Key="ImpressDocTemplate">
+                                <controls:HandCursorStackPanel Margin="0" Orientation="Horizontal">
+                                    <Image Height="14" Margin="0">
+                                        <Image.Source>
+                                            <SvgImageSource UriSource="ms-appx:///Assets/Impress_Icon.svg" />
+                                        </Image.Source>
+                                    </Image>
+                                    <TextBlock
+                                        Margin="2,0,0,0"
+                                        FontSize="12"
+                                        Text="{Binding Name}" />
+                                </controls:HandCursorStackPanel>
+                            </DataTemplate>
+                            <models:DocTemplateSelector
+                                x:Key="DocTemplateSelector"
+                                ImpressDocTemplate="{StaticResource ImpressDocTemplate}"
+                                WriterDocTemplate="{StaticResource WriterDocTemplate}" />
+                        </StackPanel.Resources>
+                        <!--  LibreOffice Logo  -->
+                        <Image Height="32" Margin="4,6">
+                            <Image.Source>
+                                <SvgImageSource UriSource="ms-appx:///Assets/LibreOffice_logo.svg" />
+                            </Image.Source>
+                        </Image>
+                        <!--  List of files being used  -->
+                        <ListView
+                            x:Name="FilesListView"
+                            MaxHeight="80"
+                            DoubleTapped="FilesListView_DoubleTapped"
+                            ItemTemplateSelector="{StaticResource DocTemplateSelector}"
+                            ItemsSource="{Binding DocumentsInUse}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="4" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="MinHeight" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!--  Chat area  -->
+            <Grid Grid.Row="1" Margin="64,0,96,0">
+                <Grid.Resources>
+                    <DataTemplate x:Key="UserMessageTemplate">
+                        <Border
+                            MaxWidth="400"
+                            Margin="100,8,0,8"
+                            Padding="16"
                             HorizontalAlignment="Right"
-                            FontSize="16"
-                            IsTextSelectionEnabled="True"
-                            Text="{Binding Text}"
-                            TextWrapping="Wrap" />
-                    </Border>
-                </DataTemplate>
-                <DataTemplate x:Key="AIMessageTemplate">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ProgressRing
-                                Margin="0,0,20,0"
+                            Background="White"
+                            CornerRadius="16">
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                FontSize="16"
+                                IsTextSelectionEnabled="True"
+                                Text="{Binding Text}"
+                                TextWrapping="Wrap" />
+                        </Border>
+                    </DataTemplate>
+                    <DataTemplate x:Key="AIMessageTemplate">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <ProgressRing
+                                    Margin="0,0,20,0"
+                                    HorizontalAlignment="Left"
+                                    IsActive="{Binding IsLoading}"
+                                    Visibility="{Binding IsLoading}" />
+                                <Button
+                                    Command="{Binding DataContext.CancelPromptCommand, ElementName=RootGrid}"
+                                    IsEnabled="{Binding IsLoading}"
+                                    Visibility="{Binding IsLoading}">
+                                    Cancel request
+                                </Button>
+                            </StackPanel>
+                            <Border
+                                Margin="0,8,100,8"
+                                Padding="16"
                                 HorizontalAlignment="Left"
-                                IsActive="{Binding IsLoading}"
-                                Visibility="{Binding IsLoading}" />
-                            <Button
-                                Command="{Binding DataContext.CancelPromptCommand, ElementName=RootGrid}"
-                                IsEnabled="{Binding IsLoading}"
-                                Visibility="{Binding IsLoading}">
-                                Cancel request
-                            </Button>
+                                Background="#d9dbf5"
+                                CornerRadius="16"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{Binding ToolCalls}">
+                                        <ItemsControl.ItemContainerTransitions>
+                                            <TransitionCollection>
+                                                <EntranceThemeTransition />
+                                            </TransitionCollection>
+                                        </ItemsControl.ItemContainerTransitions>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
+                                                    <FontIcon Glyph="&#xE90F;" />
+                                                    <TextBlock
+                                                        Padding="8,0,0,0"
+                                                        FontWeight="Medium"
+                                                        Text="Tool called:" />
+                                                    <TextBlock
+                                                        Padding="2,0,0,0"
+                                                        FontWeight="Medium"
+                                                        Text="{Binding}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock
+                                        HorizontalAlignment="Left"
+                                        FontSize="16"
+                                        IsTextSelectionEnabled="True"
+                                        Text="{Binding Text}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
+                    </DataTemplate>
+                    <DataTemplate x:Key="ErrorMessageTemplate">
                         <Border
                             Margin="0,8,100,8"
                             Padding="16"
                             HorizontalAlignment="Left"
-                            Background="#d9dbf5"
-                            CornerRadius="16"
-                            Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
-                            <StackPanel>
-                                <ItemsControl ItemsSource="{Binding ToolCalls}">
-                                    <ItemsControl.ItemContainerTransitions>
-                                        <TransitionCollection>
-                                            <EntranceThemeTransition />
-                                        </TransitionCollection>
-                                    </ItemsControl.ItemContainerTransitions>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
-                                                <FontIcon Glyph="&#xE90F;" />
-                                                <TextBlock
-                                                    Padding="8,0,0,0"
-                                                    FontWeight="Medium"
-                                                    Text="Tool called:" />
-                                                <TextBlock
-                                                    Padding="2,0,0,0"
-                                                    FontWeight="Medium"
-                                                    Text="{Binding}" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <TextBlock
-                                    HorizontalAlignment="Left"
-                                    FontSize="16"
-                                    IsTextSelectionEnabled="True"
-                                    Text="{Binding Text}"
-                                    TextWrapping="Wrap" />
-                            </StackPanel>
+                            Background="red"
+                            CornerRadius="16">
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                FontSize="16"
+                                IsTextSelectionEnabled="True"
+                                Text="{Binding Text}"
+                                TextWrapping="Wrap" />
                         </Border>
-                    </StackPanel>
-                </DataTemplate>
-                <DataTemplate x:Key="ErrorMessageTemplate">
-                    <Border
-                        Margin="0,8,100,8"
-                        Padding="16"
-                        HorizontalAlignment="Left"
-                        Background="red"
-                        CornerRadius="16">
-                        <TextBlock
-                            HorizontalAlignment="Left"
-                            FontSize="16"
-                            IsTextSelectionEnabled="True"
-                            Text="{Binding Text}"
-                            TextWrapping="Wrap" />
-                    </Border>
-                </DataTemplate>
+                    </DataTemplate>
 
-                <models:MessageTemplateSelector
-                    x:Key="MessageTemplateSelector"
-                    AITemplate="{StaticResource AIMessageTemplate}"
-                    ErrorTemplate="{StaticResource ErrorMessageTemplate}"
-                    UserTemplate="{StaticResource UserMessageTemplate}" />
-            </Grid.Resources>
-            <ScrollViewer
-                x:Name="ChatScrollViewer"
-                Padding="12,16"
-                Background="Transparent"
-                HorizontalScrollBarVisibility="Disabled"
-                HorizontalScrollMode="Disabled"
-                VerticalScrollBarVisibility="Auto"
-                ZoomMode="Disabled">
-                <ItemsRepeater
-                    x:Name="ChatItemsRepeater"
-                    ItemTemplate="{StaticResource MessageTemplateSelector}"
-                    ItemsSource="{Binding ChatMessages}">
-                    <ItemsRepeater.Layout>
-                        <StackLayout Orientation="Vertical" />
-                    </ItemsRepeater.Layout>
-                </ItemsRepeater>
-            </ScrollViewer>
-        </Grid>
+                    <models:MessageTemplateSelector
+                        x:Key="MessageTemplateSelector"
+                        AITemplate="{StaticResource AIMessageTemplate}"
+                        ErrorTemplate="{StaticResource ErrorMessageTemplate}"
+                        UserTemplate="{StaticResource UserMessageTemplate}" />
+                </Grid.Resources>
+                <ScrollViewer
+                    x:Name="ChatScrollViewer"
+                    Padding="12,16"
+                    Background="Transparent"
+                    HorizontalScrollBarVisibility="Disabled"
+                    HorizontalScrollMode="Disabled"
+                    VerticalScrollBarVisibility="Auto"
+                    ZoomMode="Disabled">
+                    <ItemsRepeater
+                        x:Name="ChatItemsRepeater"
+                        ItemTemplate="{StaticResource MessageTemplateSelector}"
+                        ItemsSource="{Binding ChatMessages}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Orientation="Vertical" />
+                        </ItemsRepeater.Layout>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </Grid>
 
-        <!--  Bottom input area  -->
-        <Grid
-            Grid.Row="2"
-            Margin="0,0,0,32"
-            VerticalAlignment="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <!--  Bottom input area  -->
+            <Grid
+                Grid.Row="2"
+                Margin="0,0,0,32"
+                VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <!--  Input area  -->
-            <Grid Grid.Column="0" Margin="64,0,96,0">
-                <TextBox
-                    x:Name="PromptTextBox"
-                    MinHeight="56"
-                    MaxHeight="250"
-                    Padding="28,15,56,15"
-                    VerticalAlignment="Bottom"
-                    VerticalContentAlignment="Center"
-                    Background="White"
-                    BorderBrush="#E0E0E0"
-                    BorderThickness="1"
-                    CornerRadius="28"
-                    FontSize="16"
-                    IsEnabled="{Binding AiTurn, Converter={StaticResource BoolNegationConverter}}"
-                    KeyDown="PromptTextBox_KeyDown"
-                    Text="{Binding PromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    TextWrapping="Wrap" />
-                <!--  Send button  -->
+                <!--  Input area  -->
+                <Grid Grid.Column="0" Margin="64,0,96,0">
+                    <TextBox
+                        x:Name="PromptTextBox"
+                        MinHeight="56"
+                        MaxHeight="250"
+                        Padding="28,15,56,15"
+                        VerticalAlignment="Bottom"
+                        VerticalContentAlignment="Center"
+                        Background="White"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1"
+                        CornerRadius="28"
+                        FontSize="16"
+                        IsEnabled="{Binding AiTurn, Converter={StaticResource BoolNegationConverter}}"
+                        KeyDown="PromptTextBox_KeyDown"
+                        Text="{Binding PromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="Wrap" />
+                    <!--  Send button  -->
+                    <Button
+                        x:Name="SendButton"
+                        Width="35"
+                        Height="35"
+                        Margin="0,0,8,0"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="#4CAF50"
+                        BorderThickness="0"
+                        Command="{Binding SendMessageCommand}"
+                        CornerRadius="20"
+                        Visibility="{Binding IsSendButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <FontIcon
+                            Margin="3,0,0,0"
+                            FontSize="18"
+                            Foreground="White"
+                            Glyph="&#xE724;" />
+                    </Button>
+                </Grid>
+                <!--  Microphone Button  -->
                 <Button
-                    x:Name="SendButton"
-                    Width="35"
-                    Height="35"
-                    Margin="0,0,8,0"
-                    Padding="0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Background="#4CAF50"
-                    BorderThickness="0"
-                    Command="{Binding SendMessageCommand}"
-                    CornerRadius="20"
-                    Visibility="{Binding IsSendButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <FontIcon
-                        Margin="3,0,0,0"
-                        FontSize="18"
-                        Foreground="White"
-                        Glyph="&#xE724;" />
+                    Grid.Column="1"
+                    Width="56"
+                    Height="56"
+                    Margin="-80,0,24,0"
+                    VerticalAlignment="Bottom"
+                    Background="White"
+                    BorderThickness="1"
+                    CornerRadius="28">
+                    <FontIcon Glyph="&#xE720;" />
                 </Button>
             </Grid>
-            <!--  Microphone Button  -->
-            <Button
-                Grid.Column="1"
-                Width="56"
-                Height="56"
-                Margin="-80,0,24,0"
-                VerticalAlignment="Bottom"
-                Background="White"
-                BorderThickness="1"
-                CornerRadius="28">
-                <FontIcon Glyph="&#xE720;" />
-            </Button>
         </Grid>
     </Grid>
 </Window>
