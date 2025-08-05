@@ -24,14 +24,6 @@
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
-  <!--
-    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-    Tools extension to be activated for this project even if the Windows App SDK Nuget
-    package has not yet been restored.
-  -->
-  <!--<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>-->
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
@@ -41,6 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OllamaSharp" Version="5.3.3" />
     <PackageReference Include="OllamaSharp.ModelContextProtocol" Version="5.3.3" />
   </ItemGroup>
@@ -57,14 +50,11 @@
   <ItemGroup>
     <Folder Include="Ollama\lib\models\" />
   </ItemGroup>
-  <!--
-    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
-    Explorer "Package and Publish" context menu entry to be enabled for this project even if
-    the Windows App SDK Nuget package has not yet been restored.
-  -->
-  <!--<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>-->
+  <ItemGroup>
+    <Content Include="MCPServer\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <!-- Publish Properties -->
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
@@ -72,16 +62,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <!--<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>-->
-    <!--<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>-->
-    <!--<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>-->
-    <!--<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>-->
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <!--<AppxBundle>Always</AppxBundle>-->
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <!--<PackageCertificateThumbprint>082B20341CE98940AAD226BE7C7D1A5752BCD308</PackageCertificateThumbprint>-->
-    <!--<AppxBundlePlatforms>x64</AppxBundlePlatforms>-->
-    <!--<AppInstallerUri>C:\Users\ben_t\source\repos\LibreOfficeAI\bin\Release</AppInstallerUri>-->
-    <!--<AppxPackageDir>C:\Users\ben_t\Documents\MSc Computer Science\Summer Project\Publish\</AppxPackageDir>-->
   </PropertyGroup>
 </Project>

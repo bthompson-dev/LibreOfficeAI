@@ -50,7 +50,7 @@ namespace LibreOfficeAI.Models
 
             InternalChat = new Chat(Client, IntentPrompt);
 
-            ToolService = new ToolService(InternalChat);
+            ToolService = new ToolService(InternalChat, config);
         }
 
         private string LoadSystemPrompt()
@@ -95,7 +95,7 @@ namespace LibreOfficeAI.Models
             await StartOllamaServerAsync();
             bool modelLoaded = await CheckModelLoadedAsync();
 
-            Debug.WriteLine(modelLoaded);
+            Debug.WriteLine($"Model loaded: {modelLoaded}");
 
             if (!modelLoaded)
             {

@@ -1,13 +1,8 @@
 {
   "mcpServers": {
     "libreoffice-server": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\MCPServer\\libre-office-mcp\\libre-writer\\",
-        "run",
-        "main.py"
-      ]
+      "command": "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\MCPServer\\main.cmd",
+      "args": []
     }
   }
-  }
+}

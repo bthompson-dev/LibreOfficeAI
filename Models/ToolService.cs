@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ namespace LibreOfficeAI.Models
     /// chat.</remarks>
     public class ToolService
     {
+        private ConfigurationService _config;
         private McpClientTool[]? AvailableTools { get; set; }
         private HashSet<McpClientTool> NeededTools { get; set; } = [];
 
@@ -25,11 +27,12 @@ namespace LibreOfficeAI.Models
 
         private Chat InternalChat { get; set; }
 
-        public ToolService(Chat internalChat)
+        public ToolService(Chat internalChat, ConfigurationService config)
         {
             // Async call to find tools from MCP server
             _ = Task.Run(async () => await FindTools());
             InternalChat = internalChat;
+            _config = config;
         }
 
         // Get list of tools from MCP Server
@@ -43,16 +46,7 @@ namespace LibreOfficeAI.Models
 
             var options = new McpClientOptions { LoggerFactory = loggerFactory };
 
-            AvailableTools = await Tools.GetFromMcpServers(
-                @"C:\Users\ben_t\source\repos\LibreOfficeAI\server_config.json",
-                options
-            );
-
-            // Log all tools found
-            //foreach (var tool in AvailableTools)
-            //{
-            //    Debug.WriteLine(tool?.Function?.Name);
-            //}
+            AvailableTools = await Tools.GetFromMcpServers(_config.ServerConfigPath, options);
 
             ToolsLoaded = true;
         }

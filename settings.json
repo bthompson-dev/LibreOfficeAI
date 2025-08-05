@@ -1,4 +1,6 @@
 {
-  "documentsFolderPath": "",
-  "presentationTemplatesPath": "C:\\Program Files\\LibreOffice\\share\\template\\common\\presnt"
+  "documentsFolderPath": "C:\\Users\\ben_t\\Documents",
+  "presentationTemplatesPath": "C:\\Program Files\\LibreOffice\\share\\template\\common\\presnt",
+  "ollamaUri": "http://localhost:11434",
+  "selectedModel": "qwen3:4b"
 }
