@@ -28,7 +28,12 @@ namespace LibreOfficeAI.Models
         [ObservableProperty]
         private bool isSendButtonVisible = false;
 
+        // Variables for Ollama loading screen
         public bool OllamaReady => ollamaService.OllamaReady;
+        public string OllamaStatus => ollamaService.OllamaStatus;
+        public int ModelPercentage => ollamaService.ModelPercentage;
+
+        // Documents to display in UI
         public ObservableCollection<Document> DocumentsInUse => documentService.DocumentsInUse;
 
         // Cancellation token
@@ -65,8 +70,32 @@ namespace LibreOfficeAI.Models
         {
             if (e.PropertyName == nameof(OllamaService.OllamaReady))
             {
+                Debug.WriteLine(
+                    "MainViewModel: OllamaReady property changed notification received"
+                );
                 // Notify the UI that OllamaReady has changed
-                OnPropertyChanged(nameof(OllamaReady));
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(OllamaReady));
+                });
+            }
+
+            if (e.PropertyName == nameof(OllamaService.OllamaStatus))
+            {
+                // Notify the UI that OllamaStatus has changed
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(OllamaStatus));
+                });
+            }
+
+            if (e.PropertyName == nameof(OllamaService.ModelPercentage))
+            {
+                // Notify the UI that OllamaStatus has changed
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(ModelPercentage));
+                });
             }
         }
 

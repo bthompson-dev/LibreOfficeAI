@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 using OllamaSharp;
 
 namespace LibreOfficeAI.Models
@@ -14,6 +16,12 @@ namespace LibreOfficeAI.Models
 
         [ObservableProperty]
         private bool _ollamaReady = false;
+
+        [ObservableProperty]
+        private string _ollamaStatus = "";
+
+        [ObservableProperty]
+        private int _modelPercentage = 0;
         public Chat ExternalChat { get; set; }
         private Chat InternalChat { get; set; }
         public OllamaApiClient Client { get; }
@@ -99,7 +107,7 @@ namespace LibreOfficeAI.Models
 
             if (!modelLoaded)
             {
-                OllamaReady = await PullModelAsync();
+                OllamaReady = await Task.Run(() => PullModelAsync());
             }
             else
             {
@@ -171,111 +179,75 @@ namespace LibreOfficeAI.Models
         public async Task<bool> CheckModelLoadedAsync()
         {
             Debug.WriteLine("Checking if model loaded");
-            var outputBuilder = new System.Text.StringBuilder();
-            var errorBuilder = new System.Text.StringBuilder();
 
-            return await Task.Run(() =>
+            try
             {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = _config.OllamaPath,
-                    Arguments = "ls",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                };
+                var models = await Client.ListLocalModelsAsync();
 
-                psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
-                Debug.WriteLine($"OLLAMA_MODELS set to: {_config.OllamaModelsDir}");
+                Debug.WriteLine(
+                    $"Available models: {string.Join(", ", models.Select(m => m.Name))}"
+                );
 
-                using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+                bool modelFound = models.Any(m =>
+                    m.Name.Contains(_config.SelectedModel, StringComparison.OrdinalIgnoreCase)
+                );
 
-                try
-                {
-                    process.Start();
+                Debug.WriteLine($"Model '{_config.SelectedModel}' found: {modelFound}");
 
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    process.WaitForExit();
-
-                    if (!string.IsNullOrEmpty(output))
-                    {
-                        outputBuilder.Append(output);
-                        Debug.WriteLine($"Ollama output: {output}");
-                    }
-
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        errorBuilder.Append(error);
-                        Debug.WriteLine($"Ollama error: {error}");
-                    }
-
-                    string modelList = outputBuilder.ToString();
-                    Debug.WriteLine($"Model list: {modelList}");
-
-                    return modelList.Contains(
-                        _config.SelectedModel,
-                        StringComparison.OrdinalIgnoreCase
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error running ollama ls: {ex.Message}");
-                    return false;
-                }
-            });
+                return modelFound;
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(
+                    $"HTTP error checking models (server might not be ready): {ex.Message}"
+                );
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error checking if model loaded: {ex.Message}");
+                return false;
+            }
         }
 
         private async Task<bool> PullModelAsync()
         {
-            Debug.WriteLine("Pulling ollama model");
-            string command = $"pull {_config.SelectedModel}";
-            var outputBuilder = new System.Text.StringBuilder();
-            var errorBuilder = new System.Text.StringBuilder();
+            Debug.WriteLine($"Pulling ollama model: {_config.SelectedModel}");
 
-            await Task.Run(() =>
+            OllamaStatus = $"Pulling ollama model: {_config.SelectedModel}";
+
+            double lastPercent = -1; // Track the last percentage to avoid duplicate updates
+
+            try
             {
-                var psi = new ProcessStartInfo
+                await foreach (var response in Client.PullModelAsync(_config.SelectedModel))
                 {
-                    FileName = _config.OllamaPath,
-                    Arguments = command,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                };
-
-                psi.EnvironmentVariables["OLLAMA_MODELS"] = _config.OllamaModelsDir;
-
-                using var process = new Process { StartInfo = psi };
-                process.OutputDataReceived += (s, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    // Show update when percentage has changed significantly
+                    if (response?.Percent > 0 && Math.Abs(response.Percent - lastPercent) >= 0.1)
                     {
-                        outputBuilder.AppendLine(e.Data);
-                        Debug.WriteLine(e.Data);
+                        lastPercent = response.Percent;
+                        Debug.WriteLine($"Pull progress: {response.Percent:F1}%");
+
+                        OllamaStatus =
+                            $"Pulling ollama model: {_config.SelectedModel} - {response.Percent:F1}% complete.";
+                        ModelPercentage = Convert.ToInt32(response.Percent);
                     }
-                };
+                }
 
-                process.ErrorDataReceived += (s, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        errorBuilder.AppendLine(e.Data);
-                        Debug.WriteLine(e.Data);
-                    }
-                };
-
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-            });
-
-            string allOutput = outputBuilder.ToString() + errorBuilder.ToString();
-            return allOutput.Contains("success", StringComparison.OrdinalIgnoreCase);
+                Debug.WriteLine($"Successfully pulled model: {_config.SelectedModel}");
+                OllamaStatus = "";
+                return true;
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"HTTP error pulling model: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error pulling model: {ex.Message}");
+                return false;
+            }
         }
 
         private static async Task StopExistingOllamaProcesses()

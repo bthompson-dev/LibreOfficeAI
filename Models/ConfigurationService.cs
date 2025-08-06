@@ -29,7 +29,7 @@ namespace LibreOfficeAI.Models
 
             ServerConfigPath = "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\server_config.json";
             string serverCommand =
-                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\MCPServer\\main.cmd";
+                "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\MCPServer\\main.exe";
 
             SystemPromptPath = "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\SystemPrompt.txt";
             IntentPromptPath = "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\IntentPrompt.txt";
@@ -39,7 +39,7 @@ namespace LibreOfficeAI.Models
             OllamaModelsDir = Path.Combine(AppContext.BaseDirectory, "Ollama", "lib", "models");
 
             string settingsPath = Path.Combine(AppContext.BaseDirectory, "settings.json");
-            string serverCommand = Path.Combine(AppContext.BaseDirectory, "MCPServer", "main.cmd");
+            string serverCommand = Path.Combine(AppContext.BaseDirectory, "MCPServer", "main.exe");
             ServerConfigPath = Path.Combine(AppContext.BaseDirectory, "server_config.json");
 
             SystemPromptPath = Path.Combine(AppContext.BaseDirectory, "SystemPrompt.txt");

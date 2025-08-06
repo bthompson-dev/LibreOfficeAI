@@ -32,6 +32,16 @@
                     FontSize="24"
                     Foreground="#666666"
                     Text="Loading LibreOffice AI..." />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="24"
+                    Foreground="#666666"
+                    Text="{Binding OllamaStatus}" />
+                <ProgressBar
+                    Width="200"
+                    Visibility="{Binding OllamaStatus, Converter={StaticResource StringVisibilityConverter}}"
+                    Value="{Binding ModelPercentage}" />
+
             </StackPanel>
         </Grid>
 
