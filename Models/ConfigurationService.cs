@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
@@ -46,65 +47,74 @@ namespace LibreOfficeAI.Models
             IntentPromptPath = Path.Combine(AppContext.BaseDirectory, "IntentPrompt.txt");
 
 #endif
-            // Set correct Documents path in settings if it is not already set
-
-            var settingsJson = JObject.Parse(File.ReadAllText(settingsPath));
-
-            // Deserialize the JSON to a dictionary
-
-            var documentsPath = (string?)settingsJson["documentsFolderPath"];
-
-            if (string.IsNullOrEmpty(documentsPath))
+            try
             {
-                documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                settingsJson["documentsFolderPath"] = documentsPath;
-                File.WriteAllText(settingsPath, settingsJson.ToString());
-            }
+                // Set correct Documents path in settings if it is not already set
 
-            DocumentsPath = documentsPath;
+                var settingsJson = JObject.Parse(File.ReadAllText(settingsPath));
 
-            // Get all possible folders for presentations
-            PresentationTemplatesPaths[0] = (string?)settingsJson["presentationTemplatesPath"];
-            PresentationTemplatesPaths[1] = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "LibreOffice",
-                "4",
-                "user",
-                "template"
-            );
+                // Deserialize the JSON to a dictionary
 
-            // Ollama URI
-            var ollamaUriString = (string?)settingsJson["ollamaUri"];
-            if (string.IsNullOrEmpty(ollamaUriString))
-            {
-                throw new InvalidOperationException(
-                    "The 'ollamaUri' setting is missing or empty in settings.json."
-                );
-            }
-            OllamaUri = new Uri(ollamaUriString);
+                var documentsPath = (string?)settingsJson["documentsFolderPath"];
 
-            // Ollama Model
-            var selectedModel = (string?)settingsJson["selectedModel"];
-            if (string.IsNullOrEmpty(selectedModel))
-            {
-                throw new InvalidOperationException(
-                    "The 'selectedModel' setting is missing or empty in settings.json."
-                );
-            }
-            SelectedModel = selectedModel;
-
-            // Add command to run MCP server in server config
-            var json = File.ReadAllText(ServerConfigPath);
-            var jObject = JObject.Parse(json);
-
-            if (jObject["mcpServers"]?["libreoffice-server"] is JObject libreOfficeServer)
-            {
-                var command = (string?)libreOfficeServer["command"];
-                if (string.IsNullOrEmpty(command))
+                if (string.IsNullOrEmpty(documentsPath) || !File.Exists(documentsPath))
                 {
-                    libreOfficeServer["command"] = serverCommand;
-                    File.WriteAllText(ServerConfigPath, jObject.ToString());
+                    documentsPath = Environment.GetFolderPath(
+                        Environment.SpecialFolder.MyDocuments
+                    );
+                    settingsJson["documentsFolderPath"] = documentsPath;
+                    File.WriteAllText(settingsPath, settingsJson.ToString());
                 }
+
+                DocumentsPath = documentsPath;
+
+                // Get all possible folders for presentations
+                PresentationTemplatesPaths[0] = (string?)settingsJson["presentationTemplatesPath"];
+                PresentationTemplatesPaths[1] = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "LibreOffice",
+                    "4",
+                    "user",
+                    "template"
+                );
+
+                // Ollama URI
+                var ollamaUriString = (string?)settingsJson["ollamaUri"];
+                if (string.IsNullOrEmpty(ollamaUriString))
+                {
+                    throw new InvalidOperationException(
+                        "The 'ollamaUri' setting is missing or empty in settings.json."
+                    );
+                }
+                OllamaUri = new Uri(ollamaUriString);
+
+                // Ollama Model
+                var selectedModel = (string?)settingsJson["selectedModel"];
+                if (string.IsNullOrEmpty(selectedModel))
+                {
+                    throw new InvalidOperationException(
+                        "The 'selectedModel' setting is missing or empty in settings.json."
+                    );
+                }
+                SelectedModel = selectedModel;
+
+                // Add command to run MCP server in server config
+                var json = File.ReadAllText(ServerConfigPath);
+                var jObject = JObject.Parse(json);
+
+                if (jObject["mcpServers"]?["libreoffice-server"] is JObject libreOfficeServer)
+                {
+                    var command = (string?)libreOfficeServer["command"];
+                    if (string.IsNullOrEmpty(command) || !File.Exists(command))
+                    {
+                        libreOfficeServer["command"] = serverCommand;
+                        File.WriteAllText(ServerConfigPath, jObject.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting up config: {ex}");
             }
         }
     }

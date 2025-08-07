@@ -70,9 +70,6 @@ namespace LibreOfficeAI.Models
         {
             if (e.PropertyName == nameof(OllamaService.OllamaReady))
             {
-                Debug.WriteLine(
-                    "MainViewModel: OllamaReady property changed notification received"
-                );
                 // Notify the UI that OllamaReady has changed
                 dispatcherQueue.TryEnqueue(() =>
                 {
