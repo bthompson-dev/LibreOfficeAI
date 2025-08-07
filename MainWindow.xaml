@@ -35,7 +35,7 @@
                     Visibility="{Binding OllamaStatus, Converter={StaticResource StringVisibilityConverter}}" />
                 <ProgressBar
                     Width="200"
-                    Visibility="{Binding ModelPercentage, Converter={StaticResource DoubleVisibilityConverter}}"
+                    Visibility="{Binding ModelPercentage, Converter={StaticResource DoubleToVisibilityConverter}}"
                     Value="{Binding ModelPercentage}" />
                 <TextBlock
                     HorizontalAlignment="Center"

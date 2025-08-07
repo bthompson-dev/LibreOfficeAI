@@ -180,6 +180,8 @@ namespace LibreOfficeAI.Models
             RequestScrollToBottom?.Invoke();
 
             var response = new StringBuilder();
+
+            // Full response for debugging
             var fullResponse = new StringBuilder();
 
             try
@@ -206,50 +208,59 @@ namespace LibreOfficeAI.Models
                 }
 
                 // Stream the AI response and update the message for each token
-                await foreach (
-                    var answerToken in ollamaService.ExternalChat.SendAsync(
-                        prompt,
-                        toolsToCall,
-                        null, // imagesAsBase64
-                        null, // format
-                        cts.Token
-                    )
-                )
+                await Task.Run(async () =>
                 {
-                    fullResponse.Append(answerToken);
-                    aiMessage.IsLoading = false;
-
-                    // Check if the model has started thinking
-                    if (answerToken == "<think>")
+                    await foreach (
+                        var answerToken in ollamaService.ExternalChat.SendAsync(
+                            prompt,
+                            toolsToCall,
+                            null, // imagesAsBase64
+                            null, // format
+                            cts.Token
+                        )
+                    )
                     {
-                        aiMessage.IsThinking = true;
-                    }
+                        fullResponse.Append(answerToken);
 
-                    // Once the model has stopped thinking, print tokens
-                    if (!aiMessage.IsThinking)
-                    {
-                        // Prevent newlines being added after thinking
-                        if (response.Length != 0 || !string.IsNullOrWhiteSpace(answerToken))
+                        if (aiMessage.IsLoading)
                         {
-                            response.Append(answerToken);
-                            dispatcherQueue.TryEnqueue(() =>
-                            {
-                                aiMessage.Text = response.ToString();
-
-                                // Scroll to the bottom
-                                RequestScrollToBottom?.Invoke();
-                            });
+                            dispatcherQueue.TryEnqueue(() => aiMessage.IsLoading = false);
                         }
 
-                        await Task.Delay(10); // Slightly longer delay for better visual effect
-                    }
+                        // Check if the model has started thinking
+                        if (answerToken == "<think>")
+                        {
+                            dispatcherQueue.TryEnqueue(() => aiMessage.IsThinking = true);
+                            continue;
+                        }
 
-                    // If the model has stopped thinking, we can show the next token
-                    if (answerToken == "</think>")
-                    {
-                        aiMessage.IsThinking = false;
+                        // If the model has stopped thinking, we can show the next token
+                        if (answerToken == "</think>")
+                        {
+                            dispatcherQueue.TryEnqueue(() => aiMessage.IsThinking = false);
+                            continue;
+                        }
+
+                        // If the model is not thinking, print tokens
+                        if (!aiMessage.IsThinking)
+                        {
+                            // Prevent newlines being added after thinking
+                            if (response.Length != 0 || !string.IsNullOrWhiteSpace(answerToken))
+                            {
+                                response.Append(answerToken);
+                                dispatcherQueue.TryEnqueue(() =>
+                                {
+                                    aiMessage.Text = response.ToString();
+
+                                    // Scroll to the bottom
+                                    RequestScrollToBottom?.Invoke();
+                                });
+                            }
+
+                            await Task.Delay(10); // Slightly longer delay for better visual effect
+                        }
                     }
-                }
+                });
             }
             catch (HttpRequestException)
             {
