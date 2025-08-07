@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using LibreOfficeAI.Models;
+using LibreOfficeAI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Dispatching;
@@ -39,6 +40,8 @@ namespace LibreOfficeAI
                         // Core services
                         services.AddSingleton<DocumentService>();
                         services.AddSingleton<OllamaService>();
+                        services.AddSingleton<ChatService>();
+                        services.AddSingleton<UIStateService>();
 
                         // DispatcherQueue factory
                         services.AddSingleton<Func<DispatcherQueue>>(provider =>
@@ -49,7 +52,8 @@ namespace LibreOfficeAI
                         );
 
                         // ViewModels
-                        services.AddTransient<MainViewModel>();
+                        services.AddSingleton<MainViewModel>();
+                        services.AddTransient<SettingsViewModel>();
                     }
                 )
                 .Build();

@@ -55,6 +55,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\MainPage.xaml" />
+    <None Remove="Views\SettingsPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -69,6 +73,16 @@
     <Content Include="IntentPrompt.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\SettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <!-- Publish Properties -->
   <PropertyGroup>

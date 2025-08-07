@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,111 +9,71 @@ namespace LibreOfficeAI.Models
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly OllamaService ollamaService;
-        private readonly DispatcherQueue dispatcherQueue;
-        private readonly DocumentService documentService;
-        private readonly ConfigurationService config;
+        private readonly OllamaService _ollamaService;
+        private readonly DocumentService _documentService;
+        private readonly ChatService _chatService;
+        private readonly UIStateService _uiStateService;
+        private readonly DispatcherQueue _dispatcherQueue;
 
-        [ObservableProperty]
-        private bool aiTurn = false;
-
-        [ObservableProperty]
-        private string promptText = string.Empty;
-
-        [ObservableProperty]
-        private bool isSendButtonVisible = false;
-
+        // Properties needed for UI
         public bool AppLoaded => OllamaReady && ToolsLoaded;
+        public bool OllamaReady => _ollamaService.OllamaReady;
+        public string? OllamaStatus => _ollamaService.OllamaStatus;
+        public double ModelPercentage => _ollamaService.ModelPercentage;
+        public bool ToolsLoaded => _ollamaService.ToolService.ToolsLoaded;
+        public string? ToolsStatus => _ollamaService.ToolService.ToolsStatus;
 
-        // Variables for Ollama loading screen
-        public bool OllamaReady => ollamaService.OllamaReady;
-        public string OllamaStatus => ollamaService.OllamaStatus;
-        public double ModelPercentage => ollamaService.ModelPercentage;
+        // Prompt handled by UIStateService
+        public string PromptText
+        {
+            get => _uiStateService.PromptText;
+            set => _uiStateService.PromptText = value;
+        }
+        public bool IsSendButtonVisible => _uiStateService.IsSendButtonVisible;
 
-        public bool ToolsLoaded => ollamaService.ToolService.ToolsLoaded;
-        public string? ToolsStatus => ollamaService.ToolService.ToolsStatus;
+        // Chat handled by ChatService
+        public ObservableCollection<ChatMessage> ChatMessages => _chatService.ChatMessages;
+        public bool AiTurn => _chatService.AiTurn;
 
-        // Documents to display in UI
-        public ObservableCollection<Document> DocumentsInUse => documentService.DocumentsInUse;
+        // Documents
+        public ObservableCollection<Document> DocumentsInUse => _documentService.DocumentsInUse;
 
-        // Cancellation token
-        CancellationTokenSource cts = new();
+        // Events - delegate to services
+        public event Action? RequestScrollToBottom
+        {
+            add => _chatService.RequestScrollToBottom += value;
+            remove => _chatService.RequestScrollToBottom -= value;
+        }
 
-        // Dynamic collection of user messages - automatically updates
-        public ObservableCollection<ChatMessage> ChatMessages { get; set; } = [];
+        public event Action? FocusTextBox
+        {
+            add => _uiStateService.FocusTextBox += value;
+            remove => _uiStateService.FocusTextBox -= value;
+        }
 
-        // Events linked to Main Window
-        public event Action? RequestScrollToBottom;
-        public event Action? FocusTextBox;
+        public event Action? OnRequestNavigateToSettings;
 
         public MainViewModel(
             OllamaService ollamaService,
             DocumentService documentService,
-            Func<DispatcherQueue> dispatcherQueueFactory,
-            ConfigurationService config
+            ChatService chatService,
+            UIStateService uiStateService,
+            Func<DispatcherQueue> dispatcherQueueFactory
         )
         {
-            this.ollamaService = ollamaService;
-            this.documentService = documentService;
-            this.dispatcherQueue = dispatcherQueueFactory();
-            this.config = config;
+            _ollamaService = ollamaService;
+            _documentService = documentService;
+            _chatService = chatService;
+            _uiStateService = uiStateService;
+            _dispatcherQueue = dispatcherQueueFactory();
 
-            this.ollamaService.PropertyChanged += OnOllamaServicePropertyChanged;
-            this.ollamaService.ToolService.PropertyChanged += OnToolServicePropertyChanged;
-
-            SetupToolEventHandlers();
-        }
-
-        // PropertyChanged handler for OllamaService observable properties
-        private void OnOllamaServicePropertyChanged(
-            object? sender,
-            System.ComponentModel.PropertyChangedEventArgs e
-        )
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(OllamaService.OllamaReady):
-                    dispatcherQueue.TryEnqueue(() =>
-                    {
-                        OnPropertyChanged(nameof(OllamaReady));
-                        OnPropertyChanged(nameof(AppLoaded));
-                    });
-                    break;
-                case nameof(OllamaService.OllamaStatus):
-                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(OllamaStatus)));
-                    break;
-                case nameof(OllamaService.ModelPercentage):
-                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(ModelPercentage)));
-                    break;
-            }
-        }
-
-        // PropertyChanged handler for ToolService observable properties
-        private void OnToolServicePropertyChanged(
-            object? sender,
-            System.ComponentModel.PropertyChangedEventArgs e
-        )
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(ToolService.ToolsStatus):
-                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(ToolsStatus)));
-                    break;
-                case nameof(ToolService.ToolsLoaded):
-                    dispatcherQueue.TryEnqueue(() =>
-                    {
-                        OnPropertyChanged(nameof(ToolsLoaded));
-                        OnPropertyChanged(nameof(AppLoaded));
-                    });
-                    break;
-            }
-        }
-
-        // Sets send button visibility if text is present
-        partial void OnPromptTextChanged(string value)
-        {
-            IsSendButtonVisible = !string.IsNullOrWhiteSpace(value);
-            SendMessageCommand.NotifyCanExecuteChanged();
+            // Subscribe to property changes for UI updates
+            _ollamaService.PropertyChanged += OnServicePropertyChanged;
+            _ollamaService.ToolService.PropertyChanged += OnServicePropertyChanged;
+            _uiStateService.PropertyChanged += OnUIStatePropertyChanged;
+            _chatService.PropertyChanged += OnChatServicePropertyChanged;
+            _chatService.RequestCommandRefresh += OnRequestCommandRefresh;
+            _chatService.RequestFocusTextBox += OnRequestFocusTextBox;
         }
 
         [RelayCommand(CanExecute = nameof(CanSendMessage))]
@@ -128,286 +83,88 @@ namespace LibreOfficeAI.Models
             if (string.IsNullOrEmpty(userInput))
                 return;
 
-            // Add user message
-            ChatMessages.Add(new ChatMessage { Text = userInput, Type = MessageType.User });
-
-            // Clear input
-            PromptText = string.Empty;
-
-            // Request scroll to bottom
-            RequestScrollToBottom?.Invoke();
-
-            // Send to AI
-            await SendPromptAsync(userInput);
+            // Delegate to services
+            _uiStateService.ClearPrompt();
+            await _chatService.SendMessageAsync(userInput);
+            _uiStateService.RequestFocus();
         }
 
-        // Can only send a message once AI is ready, if it is not the AI's turn, and the prompt is not empty
-        private bool CanSendMessage() =>
-            !AiTurn
-            && !string.IsNullOrWhiteSpace(PromptText)
-            && ollamaService.ToolService.ToolsLoaded;
-
-        // Sending a prompt to the LLM model
-        private async Task SendPromptAsync(string prompt)
-        {
-            // Check that the service is running
-            try
-            {
-                bool connected = await ollamaService.Client.IsRunningAsync();
-                if (connected)
-                    Debug.WriteLine("Ollama Client running");
-            }
-            catch (HttpRequestException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                SendErrorMessage("Could not find the AI service.");
-                return;
-            }
-
-            // Create a new AI message
-            AiTurn = true;
-            var aiMessage = new ChatMessage
-            {
-                Text = "",
-                Type = MessageType.AI,
-                IsLoading = true,
-                IsThinking = false,
-            };
-            ChatMessages.Add(aiMessage);
-
-            // Wait for UI to update
-            await Task.Delay(2);
-            RequestScrollToBottom?.Invoke();
-
-            var response = new StringBuilder();
-
-            // Full response for debugging
-            var fullResponse = new StringBuilder();
-
-            try
-            {
-                // First run the prompt on the internal chat, to find useful tools
-                var toolsToCall = await Task.Run(async () =>
-                    await ollamaService.ToolService.FindNeededTools(prompt)
-                );
-
-                // Log all suggested tools
-                if (toolsToCall != null)
-                {
-                    foreach (var tool in toolsToCall)
-                    {
-                        Debug.WriteLine(tool?.Function?.Name);
-                    }
-                }
-
-                // If any documents are in use, add the file paths to the user prompt
-                string documentsInUseString = documentService.GetDocumentsInUseString();
-                if (!string.IsNullOrEmpty(documentsInUseString))
-                {
-                    prompt += $" Current documents: {documentsInUseString}.";
-                }
-
-                // Stream the AI response and update the message for each token
-                await Task.Run(async () =>
-                {
-                    await foreach (
-                        var answerToken in ollamaService.ExternalChat.SendAsync(
-                            prompt,
-                            toolsToCall,
-                            null, // imagesAsBase64
-                            null, // format
-                            cts.Token
-                        )
-                    )
-                    {
-                        fullResponse.Append(answerToken);
-
-                        if (aiMessage.IsLoading)
-                        {
-                            dispatcherQueue.TryEnqueue(() => aiMessage.IsLoading = false);
-                        }
-
-                        // Check if the model has started thinking
-                        if (answerToken == "<think>")
-                        {
-                            dispatcherQueue.TryEnqueue(() => aiMessage.IsThinking = true);
-                            continue;
-                        }
-
-                        // If the model has stopped thinking, we can show the next token
-                        if (answerToken == "</think>")
-                        {
-                            dispatcherQueue.TryEnqueue(() => aiMessage.IsThinking = false);
-                            continue;
-                        }
-
-                        // If the model is not thinking, print tokens
-                        if (!aiMessage.IsThinking)
-                        {
-                            // Prevent newlines being added after thinking
-                            if (response.Length != 0 || !string.IsNullOrWhiteSpace(answerToken))
-                            {
-                                response.Append(answerToken);
-                                dispatcherQueue.TryEnqueue(() =>
-                                {
-                                    aiMessage.Text = response.ToString();
-
-                                    // Scroll to the bottom
-                                    RequestScrollToBottom?.Invoke();
-                                });
-                            }
-
-                            await Task.Delay(10); // Slightly longer delay for better visual effect
-                        }
-                    }
-                });
-            }
-            catch (HttpRequestException)
-            {
-                aiMessage.IsLoading = false;
-                AiTurn = false;
-                SendErrorMessage("Error connecting - please click to retry.");
-            }
-
-            Debug.WriteLine(fullResponse);
-            AiTurn = false;
-            SendMessageCommand.NotifyCanExecuteChanged();
-            FocusTextBox?.Invoke();
-        }
+        private bool CanSendMessage() => _chatService.CanSendMessage(PromptText);
 
         [RelayCommand]
         private void CancelPrompt()
         {
-            // Use the cancellation token service to cancel the request
-            cts.Cancel();
-
-            // Remove the last chat message (AI)
-            ChatMessages.RemoveAt(ChatMessages.Count - 1);
-
-            // Enable the chat input
-            AiTurn = false;
+            _chatService.CancelPrompt();
             SendMessageCommand.NotifyCanExecuteChanged();
-
-            // Reset the cancellation token
-            cts = new CancellationTokenSource();
         }
 
         [RelayCommand]
         private void NewChat()
         {
-            ollamaService.RefreshChat();
-            ChatMessages.Clear();
-            SetupToolEventHandlers();
+            _chatService.NewChat();
         }
 
-        private void SendErrorMessage(string message)
+        [RelayCommand]
+        private void SettingsButton_Click()
         {
-            var errorMessage = new ChatMessage { Text = message, Type = MessageType.Error };
-            ChatMessages.Add(errorMessage);
+            OnRequestNavigateToSettings?.Invoke();
         }
 
-        public void RegisterToolCall(string tool)
+        // Property change handlers
+        private void OnServicePropertyChanged(
+            object? sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
         {
-            dispatcherQueue.TryEnqueue(() =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                var currentMessage = ChatMessages[^1];
-                currentMessage.ToolCalls.Add(tool);
-                Debug.WriteLine(tool);
+                OnPropertyChanged(nameof(OllamaReady));
+                OnPropertyChanged(nameof(OllamaStatus));
+                OnPropertyChanged(nameof(ModelPercentage));
+                OnPropertyChanged(nameof(ToolsLoaded));
+                OnPropertyChanged(nameof(ToolsStatus));
+                OnPropertyChanged(nameof(AppLoaded));
+                SendMessageCommand.NotifyCanExecuteChanged();
             });
         }
 
-        private void SetupToolEventHandlers()
+        private void OnUIStatePropertyChanged(
+            object? sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
         {
-            // Add event listener for tool calls
-            ollamaService.ExternalChat.OnToolCall += (sender, toolCall) =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                if (toolCall.Function?.Name != null)
-                {
-                    Debug.WriteLine($"Tool called: {toolCall.Function.Name}");
-                    RegisterToolCall(toolCall.Function.Name);
+                OnPropertyChanged(nameof(PromptText));
+                OnPropertyChanged(nameof(IsSendButtonVisible));
+                SendMessageCommand.NotifyCanExecuteChanged();
+            });
+        }
 
-                    foreach (var argument in toolCall.Function.Arguments)
-                    {
-                        Debug.WriteLine(argument.ToString());
-                    }
-                }
-            };
-
-            // Add event listener for tool results
-            ollamaService.ExternalChat.OnToolResult += (sender, result) =>
+        private void OnChatServicePropertyChanged(
+            object? sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
+        {
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                Debug.WriteLine($"Tool result: {result.Result}");
+                OnPropertyChanged(nameof(AiTurn));
+                SendMessageCommand.NotifyCanExecuteChanged();
+            });
+        }
 
-                var arguments = result.ToolCall.Function?.Arguments;
-                var function = result.ToolCall.Function?.Name;
+        // Event handlers for ChatService events
+        private void OnRequestCommandRefresh()
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                SendMessageCommand.NotifyCanExecuteChanged();
+            });
+        }
 
-                // Add any documents used to the list of current documents
-                if (arguments != null)
-                {
-                    foreach (var key in new[] { "file_path", "source_path", "target_path" })
-                    {
-                        if (arguments.TryGetValue(key, out var value))
-                        {
-                            // value is returned as an object
-                            var filePath = value as string ?? value?.ToString();
-                            if (!string.IsNullOrEmpty(filePath))
-                            {
-                                Debug.WriteLine($"Adding file to docs in use: {filePath}");
-                                dispatcherQueue.TryEnqueue(() =>
-                                {
-                                    documentService.AddDocumentInUse(filePath);
-                                });
-                            }
-                        }
-                    }
-
-                    // Specific to create_blank_document and create_blank_presentation functions
-                    if (arguments.TryGetValue("filename", out var fileNameObj))
-                    {
-                        // value is returned as an object - cast to string
-                        string? fileName = fileNameObj as string ?? fileNameObj?.ToString();
-                        if (string.IsNullOrEmpty(fileName))
-                            return;
-
-                        // Add file extension if not included in the fileName
-                        if (function == "create_blank_document")
-                        {
-                            string? fileExtension = documentService.writerExtensions.FirstOrDefault(
-                                ext => fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
-                            );
-
-                            if (string.IsNullOrEmpty(fileExtension))
-                            {
-                                fileExtension = ".odt";
-                                fileName += fileExtension;
-                            }
-                        }
-
-                        if (function == "create_blank_presentation")
-                        {
-                            string? fileExtension =
-                                documentService.impressExtensions.FirstOrDefault(ext =>
-                                    fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase)
-                                );
-
-                            if (string.IsNullOrEmpty(fileExtension))
-                            {
-                                fileExtension = ".odp";
-                                fileName += fileExtension;
-                            }
-                        }
-
-                        // Add the base documents path
-                        string filePath = $"{config.DocumentsPath}\\{fileName}";
-
-                        Debug.WriteLine($"Adding file to docs in use: {filePath}");
-                        dispatcherQueue.TryEnqueue(() =>
-                        {
-                            documentService.AddDocumentInUse(filePath);
-                        });
-                    }
-                }
-            };
+        private void OnRequestFocusTextBox()
+        {
+            _uiStateService.RequestFocus();
         }
     }
 }
