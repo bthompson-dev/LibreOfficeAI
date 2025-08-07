@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using OllamaSharp;
 using OllamaSharp.ModelContextProtocol;
@@ -17,13 +17,17 @@ namespace LibreOfficeAI.Models
     /// <remarks>The <see cref="ToolService"/> class is responsible for asynchronously retrieving a list of
     /// tools from the MCP server and determining which tools are needed based on user input through an internal
     /// chat.</remarks>
-    public class ToolService
+    public partial class ToolService : ObservableObject
     {
-        private ConfigurationService _config;
+        private readonly ConfigurationService _config;
         private McpClientTool[]? AvailableTools { get; set; }
         private HashSet<McpClientTool> NeededTools { get; set; } = [];
 
-        public bool ToolsLoaded { get; set; } = false;
+        [ObservableProperty]
+        public string? _toolsStatus = null;
+
+        [ObservableProperty]
+        public bool _toolsLoaded = false;
 
         private Chat InternalChat { get; set; }
 
@@ -38,6 +42,7 @@ namespace LibreOfficeAI.Models
         // Get list of tools from MCP Server
         private async Task FindTools()
         {
+            ToolsStatus = "Connecting to LibreOffice...";
             // Detailed logging for McpClient
             var loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -49,6 +54,8 @@ namespace LibreOfficeAI.Models
             AvailableTools = await Tools.GetFromMcpServers(_config.ServerConfigPath, options);
 
             ToolsLoaded = true;
+            ToolsStatus = null;
+            Debug.WriteLine("Tools loaded");
         }
 
         // Use internal chat to decide which tools the user may need

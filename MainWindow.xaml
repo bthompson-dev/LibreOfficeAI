@@ -17,8 +17,8 @@
 
     <Grid x:Name="RootGrid" Background="#F2F6FA">
 
-        <!--  Loading UI - Show when OllamaReady is false  -->
-        <Grid Visibility="{Binding OllamaReady, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
+        <!--  Loading UI - Show when AppLoaded is false  -->
+        <Grid Visibility="{Binding AppLoaded, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}">
             <StackPanel
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -31,23 +31,23 @@
                     HorizontalAlignment="Center"
                     FontSize="24"
                     Foreground="#666666"
-                    Text="Loading LibreOffice AI..." />
+                    Text="{Binding OllamaStatus}"
+                    Visibility="{Binding OllamaStatus, Converter={StaticResource StringVisibilityConverter}}" />
+                <ProgressBar
+                    Width="200"
+                    Visibility="{Binding ModelPercentage, Converter={StaticResource DoubleVisibilityConverter}}"
+                    Value="{Binding ModelPercentage}" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="24"
                     Foreground="#666666"
-                    Text="{Binding OllamaStatus}" />
-                <ProgressBar
-                    Width="200"
-                    Visibility="{Binding OllamaStatus, Converter={StaticResource StringVisibilityConverter}}"
-                    Value="{Binding ModelPercentage}" />
-
+                    Text="{Binding ToolsStatus}" />
             </StackPanel>
         </Grid>
 
-        <!--  Main App UI - Show when OllamaReady is true  -->
+        <!--  Main App UI - Show when AppLoaded is true  -->
 
-        <Grid Visibility="{Binding OllamaReady, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid Visibility="{Binding AppLoaded, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

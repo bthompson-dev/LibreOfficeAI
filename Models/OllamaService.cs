@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Dispatching;
 using OllamaSharp;
 
 namespace LibreOfficeAI.Models
@@ -18,10 +17,10 @@ namespace LibreOfficeAI.Models
         private bool _ollamaReady = false;
 
         [ObservableProperty]
-        private string _ollamaStatus = "";
+        private string? _ollamaStatus = null;
 
         [ObservableProperty]
-        private int _modelPercentage = 0;
+        private double _modelPercentage = 0;
         public Chat ExternalChat { get; set; }
         private Chat InternalChat { get; set; }
         public OllamaApiClient Client { get; }
@@ -58,6 +57,7 @@ namespace LibreOfficeAI.Models
 
             InternalChat = new Chat(Client, IntentPrompt);
 
+            // Initialise the ToolService with its own chat
             ToolService = new ToolService(InternalChat, config);
         }
 
@@ -99,6 +99,7 @@ namespace LibreOfficeAI.Models
         // Run Ollama
         public async Task StartAsync()
         {
+            OllamaStatus = "Loading AI model...";
             await StopExistingOllamaProcesses();
             await StartOllamaServerAsync();
             bool modelLoaded = await CheckModelLoadedAsync();
@@ -112,6 +113,7 @@ namespace LibreOfficeAI.Models
             else
             {
                 OllamaReady = true;
+                OllamaStatus = null;
             }
         }
 
@@ -230,7 +232,7 @@ namespace LibreOfficeAI.Models
 
                         OllamaStatus =
                             $"Pulling ollama model: {_config.SelectedModel} - {response.Percent:F1}% complete.";
-                        ModelPercentage = Convert.ToInt32(response.Percent);
+                        ModelPercentage = response.Percent;
                     }
                 }
 

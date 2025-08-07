@@ -28,10 +28,15 @@ namespace LibreOfficeAI.Models
         [ObservableProperty]
         private bool isSendButtonVisible = false;
 
+        public bool AppLoaded => OllamaReady && ToolsLoaded;
+
         // Variables for Ollama loading screen
         public bool OllamaReady => ollamaService.OllamaReady;
         public string OllamaStatus => ollamaService.OllamaStatus;
-        public int ModelPercentage => ollamaService.ModelPercentage;
+        public double ModelPercentage => ollamaService.ModelPercentage;
+
+        public bool ToolsLoaded => ollamaService.ToolService.ToolsLoaded;
+        public string? ToolsStatus => ollamaService.ToolService.ToolsStatus;
 
         // Documents to display in UI
         public ObservableCollection<Document> DocumentsInUse => documentService.DocumentsInUse;
@@ -59,40 +64,53 @@ namespace LibreOfficeAI.Models
             this.config = config;
 
             this.ollamaService.PropertyChanged += OnOllamaServicePropertyChanged;
+            this.ollamaService.ToolService.PropertyChanged += OnToolServicePropertyChanged;
 
             SetupToolEventHandlers();
         }
 
+        // PropertyChanged handler for OllamaService observable properties
         private void OnOllamaServicePropertyChanged(
             object? sender,
             System.ComponentModel.PropertyChangedEventArgs e
         )
         {
-            if (e.PropertyName == nameof(OllamaService.OllamaReady))
+            switch (e.PropertyName)
             {
-                // Notify the UI that OllamaReady has changed
-                dispatcherQueue.TryEnqueue(() =>
-                {
-                    OnPropertyChanged(nameof(OllamaReady));
-                });
+                case nameof(OllamaService.OllamaReady):
+                    dispatcherQueue.TryEnqueue(() =>
+                    {
+                        OnPropertyChanged(nameof(OllamaReady));
+                        OnPropertyChanged(nameof(AppLoaded));
+                    });
+                    break;
+                case nameof(OllamaService.OllamaStatus):
+                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(OllamaStatus)));
+                    break;
+                case nameof(OllamaService.ModelPercentage):
+                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(ModelPercentage)));
+                    break;
             }
+        }
 
-            if (e.PropertyName == nameof(OllamaService.OllamaStatus))
+        // PropertyChanged handler for ToolService observable properties
+        private void OnToolServicePropertyChanged(
+            object? sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
+        {
+            switch (e.PropertyName)
             {
-                // Notify the UI that OllamaStatus has changed
-                dispatcherQueue.TryEnqueue(() =>
-                {
-                    OnPropertyChanged(nameof(OllamaStatus));
-                });
-            }
-
-            if (e.PropertyName == nameof(OllamaService.ModelPercentage))
-            {
-                // Notify the UI that OllamaStatus has changed
-                dispatcherQueue.TryEnqueue(() =>
-                {
-                    OnPropertyChanged(nameof(ModelPercentage));
-                });
+                case nameof(ToolService.ToolsStatus):
+                    dispatcherQueue.TryEnqueue(() => OnPropertyChanged(nameof(ToolsStatus)));
+                    break;
+                case nameof(ToolService.ToolsLoaded):
+                    dispatcherQueue.TryEnqueue(() =>
+                    {
+                        OnPropertyChanged(nameof(ToolsLoaded));
+                        OnPropertyChanged(nameof(AppLoaded));
+                    });
+                    break;
             }
         }
 
@@ -167,7 +185,9 @@ namespace LibreOfficeAI.Models
             try
             {
                 // First run the prompt on the internal chat, to find useful tools
-                var toolsToCall = await ollamaService.ToolService.FindNeededTools(prompt);
+                var toolsToCall = await Task.Run(async () =>
+                    await ollamaService.ToolService.FindNeededTools(prompt)
+                );
 
                 // Log all suggested tools
                 if (toolsToCall != null)
