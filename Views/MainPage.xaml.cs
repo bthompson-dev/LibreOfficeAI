@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using LibreOfficeAI.Models;
+using LibreOfficeAI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -45,7 +46,7 @@ namespace LibreOfficeAI.Views
             }
             catch (Exception ex)
             {
-                System.IO.File.WriteAllText("mainwindow_exception.txt", ex.ToString());
+                System.IO.File.WriteAllText("mainpage_exception.txt", ex.ToString());
                 throw;
             }
         }

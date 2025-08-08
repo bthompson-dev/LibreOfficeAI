@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.Services
 {
     /// <summary>
     /// Provides services for managing and accessing documents within a specified directory.

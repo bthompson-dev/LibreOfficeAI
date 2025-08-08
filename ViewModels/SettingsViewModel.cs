@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LibreOfficeAI.Models;
+using LibreOfficeAI.Services;
 
 namespace LibreOfficeAI.Views
 {

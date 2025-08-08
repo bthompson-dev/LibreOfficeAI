@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using LibreOfficeAI.Services;
 using Microsoft.Extensions.Logging;
 using OllamaSharp;
 using OllamaSharp.ModelContextProtocol;

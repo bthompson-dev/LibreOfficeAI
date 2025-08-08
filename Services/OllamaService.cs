@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using LibreOfficeAI.Services;
 using OllamaSharp;
 
 namespace LibreOfficeAI.Models

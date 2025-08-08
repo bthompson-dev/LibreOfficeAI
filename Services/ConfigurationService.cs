@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.Services
 {
     public class ConfigurationService
     {
