@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using LibreOfficeAI.Models;
 using LibreOfficeAI.Services;
-using LibreOfficeAI.Views;
+using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Dispatching;

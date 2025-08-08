@@ -1,5 +1,5 @@
 using System;
-using LibreOfficeAI.Models;
+using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 

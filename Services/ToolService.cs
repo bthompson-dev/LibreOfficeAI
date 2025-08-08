@@ -4,13 +4,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using LibreOfficeAI.Services;
 using Microsoft.Extensions.Logging;
 using OllamaSharp;
 using OllamaSharp.ModelContextProtocol;
 using OllamaSharp.ModelContextProtocol.Server;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.Services
 {
     /// <summary>
     /// Provides services for managing and identifying tools available from the MCP server.

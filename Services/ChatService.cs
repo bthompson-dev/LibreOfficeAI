@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using LibreOfficeAI.Services;
+using LibreOfficeAI.Models;
 using Microsoft.UI.Dispatching;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.Services
 {
     public partial class ChatService : ObservableObject
     {
@@ -47,6 +47,7 @@ namespace LibreOfficeAI.Models
             SetupToolEventHandlers();
         }
 
+        // Create ChatMessage and send input to AI
         public async Task SendMessageAsync(string userInput)
         {
             // Add user message
@@ -118,8 +119,8 @@ namespace LibreOfficeAI.Models
             try
             {
                 // First run the prompt on the internal chat, to find useful tools
-                var toolsToCall = await Task.Run(async () =>
-                    await ollamaService.ToolService.FindNeededTools(prompt)
+                var toolsToCall = await Task.Run(() =>
+                    ollamaService.ToolService.FindNeededTools(prompt)
                 );
 
                 // Log all suggested tools

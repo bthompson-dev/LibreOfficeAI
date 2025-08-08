@@ -1,7 +1,7 @@
 ﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.Services
 {
     public partial class UIStateService : ObservableObject
     {

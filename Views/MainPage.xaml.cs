@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
-using LibreOfficeAI.Models;
 using LibreOfficeAI.Services;
+using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

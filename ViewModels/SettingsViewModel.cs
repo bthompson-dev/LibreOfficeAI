@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using LibreOfficeAI.Services;
 
-namespace LibreOfficeAI.Views
+namespace LibreOfficeAI.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject
     {

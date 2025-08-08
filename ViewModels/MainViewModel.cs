@@ -3,10 +3,11 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibreOfficeAI.Models;
 using LibreOfficeAI.Services;
 using Microsoft.UI.Dispatching;
 
-namespace LibreOfficeAI.Models
+namespace LibreOfficeAI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
@@ -39,7 +40,7 @@ namespace LibreOfficeAI.Models
         // Documents
         public ObservableCollection<Document> DocumentsInUse => _documentService.DocumentsInUse;
 
-        // Events - delegate to services
+        // Events
         public event Action? RequestScrollToBottom
         {
             add => _chatService.RequestScrollToBottom += value;
@@ -77,6 +78,9 @@ namespace LibreOfficeAI.Models
             _chatService.RequestFocusTextBox += OnRequestFocusTextBox;
         }
 
+        // Commands
+
+        // Sends a message to the AI Chat service
         [RelayCommand(CanExecute = nameof(CanSendMessage))]
         private async Task SendMessageAsync()
         {
@@ -90,6 +94,7 @@ namespace LibreOfficeAI.Models
             _uiStateService.RequestFocus();
         }
 
+        // Determines if a message can be sent based on current state
         private bool CanSendMessage() => _chatService.CanSendMessage(PromptText);
 
         [RelayCommand]
@@ -119,13 +124,28 @@ namespace LibreOfficeAI.Models
         {
             _dispatcherQueue.TryEnqueue(() =>
             {
-                OnPropertyChanged(nameof(OllamaReady));
-                OnPropertyChanged(nameof(OllamaStatus));
-                OnPropertyChanged(nameof(ModelPercentage));
-                OnPropertyChanged(nameof(ToolsLoaded));
-                OnPropertyChanged(nameof(ToolsStatus));
-                OnPropertyChanged(nameof(AppLoaded));
-                SendMessageCommand.NotifyCanExecuteChanged();
+                switch (e.PropertyName)
+                {
+                    case nameof(OllamaService.OllamaReady):
+                        OnPropertyChanged(nameof(OllamaReady));
+                        OnPropertyChanged(nameof(AppLoaded));
+                        SendMessageCommand.NotifyCanExecuteChanged();
+                        break;
+                    case nameof(OllamaService.OllamaStatus):
+                        OnPropertyChanged(nameof(OllamaStatus));
+                        break;
+                    case nameof(OllamaService.ModelPercentage):
+                        OnPropertyChanged(nameof(ModelPercentage));
+                        break;
+                    case nameof(OllamaService.ToolService.ToolsLoaded):
+                        OnPropertyChanged(nameof(ToolsLoaded));
+                        OnPropertyChanged(nameof(AppLoaded));
+                        SendMessageCommand.NotifyCanExecuteChanged();
+                        break;
+                    case nameof(OllamaService.ToolService.ToolsStatus):
+                        OnPropertyChanged(nameof(ToolsStatus));
+                        break;
+                }
             });
         }
 
