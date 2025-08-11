@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json.Linq;
 
 namespace LibreOfficeAI.Services
 {
-    public class ConfigurationService
+    public partial class ConfigurationService : ObservableObject
     {
         public string DocumentsPath { get; private set; }
-
-        public string?[] PresentationTemplatesPaths { get; private set; } = new string?[2];
+        public List<string> PresentationTemplatesPaths { get; private set; } = [];
         public string SystemPromptPath { get; private set; }
         public string IntentPromptPath { get; private set; }
         public string ServerConfigPath { get; private set; }
@@ -17,6 +19,18 @@ namespace LibreOfficeAI.Services
         public string OllamaModelsDir { get; private set; }
         public Uri OllamaUri { get; private set; }
         public string SelectedModel { get; private set; }
+
+        private readonly string[] defaultTemplatePaths =
+        [
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "LibreOffice",
+                "4",
+                "user",
+                "template"
+            ),
+            "C:\\Program Files\\LibreOffice\\share\\template\\common\\presnt",
+        ];
 
         public ConfigurationService()
         {
@@ -49,14 +63,13 @@ namespace LibreOfficeAI.Services
 #endif
             try
             {
-                // Set correct Documents path in settings if it is not already set
-
+                // Get all settings from settings.json
                 var settingsJson = JObject.Parse(File.ReadAllText(settingsPath));
 
-                // Deserialize the JSON to a dictionary
-
+                // Documents Folder
                 var documentsPath = (string?)settingsJson["documentsFolderPath"];
 
+                // Set correct Documents path in settings if it is not already set
                 if (string.IsNullOrEmpty(documentsPath) || !File.Exists(documentsPath))
                 {
                     documentsPath = Environment.GetFolderPath(
@@ -68,15 +81,38 @@ namespace LibreOfficeAI.Services
 
                 DocumentsPath = documentsPath;
 
-                // Get all possible folders for presentations
-                PresentationTemplatesPaths[0] = (string?)settingsJson["presentationTemplatesPath"];
-                PresentationTemplatesPaths[1] = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "LibreOffice",
-                    "4",
-                    "user",
-                    "template"
-                );
+                // Presentation Template Folders
+                var templatesToken = settingsJson["presentationTemplatesPaths"];
+                bool templatesPathsChanged = false;
+
+                if (templatesToken is JArray templatesArray)
+                {
+                    foreach (var pathToken in templatesArray)
+                    {
+                        var path = (string?)pathToken;
+                        if (!string.IsNullOrWhiteSpace(path))
+                            PresentationTemplatesPaths.Add(path);
+                    }
+                }
+
+                // Optionally add default paths if not already present
+                foreach (string templatePath in defaultTemplatePaths)
+                {
+                    if (!PresentationTemplatesPaths.Contains(templatePath))
+                    {
+                        PresentationTemplatesPaths.Add(templatePath);
+                        templatesPathsChanged = true;
+                    }
+                }
+
+                // Write default paths to settings.json if not present
+                if (templatesPathsChanged)
+                {
+                    settingsJson["presentationTemplatesPaths"] = JArray.FromObject(
+                        PresentationTemplatesPaths
+                    );
+                    File.WriteAllText(settingsPath, settingsJson.ToString());
+                }
 
                 // Ollama URI
                 var ollamaUriString = (string?)settingsJson["ollamaUri"];
@@ -116,6 +152,51 @@ namespace LibreOfficeAI.Services
             {
                 Debug.WriteLine($"Error setting up config: {ex}");
             }
+        }
+
+        public async Task<bool> SaveChangedSettings(
+            string newDocumentsPath,
+            string newSelectedModel,
+            List<string> newPresentationTemplatesPaths
+        )
+        {
+#if DEBUG
+            string settingsPath = "C:\\Users\\ben_t\\source\\repos\\LibreOfficeAI\\settings.json";
+#else
+            string settingsPath = Path.Combine(AppContext.BaseDirectory, "settings.json");
+#endif
+
+            // Read, update and write settings.json
+            JObject settingsJson;
+            try
+            {
+                settingsJson = JObject.Parse(await File.ReadAllTextAsync(settingsPath));
+                settingsJson["documentsFolderPath"] = newDocumentsPath;
+                settingsJson["selectedModel"] = newSelectedModel;
+
+                // Store the array of template paths in settings.json
+                settingsJson["presentationTemplatesPaths"] =
+                    newPresentationTemplatesPaths != null
+                        ? JArray.FromObject(newPresentationTemplatesPaths)
+                        : new JArray();
+
+                await File.WriteAllTextAsync(settingsPath, settingsJson.ToString());
+
+                // Update the properties in the service as well
+                DocumentsPath = newDocumentsPath;
+                SelectedModel = newSelectedModel;
+                PresentationTemplatesPaths =
+                    newPresentationTemplatesPaths != null
+                        ? new List<string>(newPresentationTemplatesPaths)
+                        : new List<string>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to update settings.json: {ex}");
+                return false;
+            }
+
+            return true;
         }
     }
 }

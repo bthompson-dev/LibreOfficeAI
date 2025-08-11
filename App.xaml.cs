@@ -20,6 +20,8 @@ namespace LibreOfficeAI
         private Window? _window;
         private readonly IHost _host;
 
+        public static Window MainWindow => ((App)Current)._window;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -53,7 +55,7 @@ namespace LibreOfficeAI
 
                         // ViewModels
                         services.AddSingleton<MainViewModel>();
-                        services.AddTransient<SettingsViewModel>();
+                        services.AddSingleton<SettingsViewModel>();
                     }
                 )
                 .Build();

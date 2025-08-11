@@ -11,6 +11,7 @@ namespace LibreOfficeAI
     public sealed partial class MainWindow : Window
     {
         public MainViewModel ViewModel { get; }
+        public SettingsViewModel SettingsVM { get; }
 
         public MainWindow(IServiceProvider serviceProvider)
         {
@@ -21,10 +22,17 @@ namespace LibreOfficeAI
 
                 // Get ViewModel from dependency injection container
                 ViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+                SettingsVM = serviceProvider.GetRequiredService<SettingsViewModel>();
 
                 ViewModel.OnRequestNavigateToSettings += () =>
                 {
+                    SettingsVM.RefreshFromConfig();
                     MainFrame.Navigate(typeof(LibreOfficeAI.Views.SettingsPage));
+                };
+
+                SettingsVM.OnRequestNavigateToMainPage += () =>
+                {
+                    MainFrame.Navigate(typeof(LibreOfficeAI.Views.MainPage));
                 };
             }
             catch (Exception ex)
