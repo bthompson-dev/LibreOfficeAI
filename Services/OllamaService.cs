@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OllamaSharp;
+using OllamaSharp.Models;
 
 namespace LibreOfficeAI.Services
 {
@@ -23,7 +24,7 @@ namespace LibreOfficeAI.Services
         private double _modelPercentage = 0;
         public Chat ExternalChat { get; set; }
         private Chat InternalChat { get; set; }
-        public OllamaApiClient Client { get; }
+        public OllamaApiClient Client { get; private set; }
         public ToolService ToolService { get; set; }
 
         private readonly DocumentService _documentService;
@@ -212,6 +213,23 @@ namespace LibreOfficeAI.Services
             }
         }
 
+        public async Task<bool> CheckModelExists(string modelName)
+        {
+            try
+            {
+                var modelResponse = await Client.ShowModelAsync(modelName);
+
+                Debug.WriteLine(modelResponse);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
         private async Task<bool> PullModelAsync()
         {
             Debug.WriteLine($"Pulling ollama model: {_config.SelectedModel}");
@@ -283,6 +301,50 @@ namespace LibreOfficeAI.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error stopping existing Ollama processes: {ex.Message}");
+            }
+        }
+
+        // If the selected Model is updated, the OllamaService must be refreshed
+        public async Task RefreshAsync()
+        {
+            OllamaReady = false;
+            OllamaStatus = null;
+
+            // Recreate HttpClient
+            var httpClient = new HttpClient()
+            {
+                BaseAddress = _config.OllamaUri,
+                Timeout = TimeSpan.FromMinutes(5),
+            };
+
+            // Update client with the new model
+            Client = new OllamaApiClient(httpClient, _config.SelectedModel);
+
+            // Reload prompts
+            string newSystemPrompt = LoadSystemPrompt();
+            string newIntentPrompt = File.ReadAllText(_config.IntentPromptPath);
+
+            // Recreate chats
+            ExternalChat = new Chat(Client, newSystemPrompt);
+            InternalChat = new Chat(Client, newIntentPrompt);
+
+            // Recreate ToolService
+            ToolService = new ToolService(InternalChat, _config);
+
+            // Clear documents in use
+            _documentService.ClearDocumentsInUse();
+
+            // Check if the model is loaded, pull if not
+            OllamaStatus = "Checking model...";
+            bool modelLoaded = await CheckModelLoadedAsync();
+            if (!modelLoaded)
+            {
+                OllamaReady = await Task.Run(() => PullModelAsync());
+            }
+            else
+            {
+                OllamaReady = true;
+                OllamaStatus = null;
             }
         }
     }

@@ -11,6 +11,7 @@ namespace LibreOfficeAI.ViewModels
     public partial class SettingsViewModel : ObservableObject
     {
         private readonly ConfigurationService _config;
+        private readonly OllamaService _ollamaService;
 
         [ObservableProperty]
         private string? settingsChangedMessage = null;
@@ -20,6 +21,7 @@ namespace LibreOfficeAI.ViewModels
 
         [ObservableProperty]
         private string selectedModel;
+        public bool SelectedModelChanged { get; private set; } = false;
 
         [ObservableProperty]
         private List<string> presentationTemplatesPaths;
@@ -30,9 +32,10 @@ namespace LibreOfficeAI.ViewModels
 
         public event Action? OnRequestNavigateToMainPage;
 
-        public SettingsViewModel(ConfigurationService config)
+        public SettingsViewModel(ConfigurationService config, OllamaService ollamaService)
         {
             _config = config;
+            _ollamaService = ollamaService;
             DocumentsPath = config.DocumentsPath;
             SelectedModel = config.SelectedModel;
             PresentationTemplatesPaths = config.PresentationTemplatesPaths;
@@ -50,6 +53,14 @@ namespace LibreOfficeAI.ViewModels
             {
                 SettingsChangedMessage = "ℹ️ No changes made";
                 return;
+            }
+
+            bool validModel = true;
+
+            if (SelectedModel != _config.SelectedModel)
+            {
+                SelectedModelChanged = true;
+                validModel = await _ollamaService.CheckModelExists(SelectedModel);
             }
 
             bool settingsSaved = await _config.SaveChangedSettings(

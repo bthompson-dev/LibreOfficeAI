@@ -1,4 +1,5 @@
 using System;
+using LibreOfficeAI.Services;
 using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -13,7 +14,7 @@ namespace LibreOfficeAI
         public MainViewModel ViewModel { get; }
         public SettingsViewModel SettingsVM { get; }
 
-        public MainWindow(IServiceProvider serviceProvider)
+        public MainWindow(IServiceProvider serviceProvider, OllamaService ollamaService)
         {
             try
             {
@@ -32,6 +33,10 @@ namespace LibreOfficeAI
 
                 SettingsVM.OnRequestNavigateToMainPage += () =>
                 {
+                    if (SettingsVM.SelectedModelChanged)
+                    {
+                        ollamaService.RefreshAsync();
+                    }
                     MainFrame.Navigate(typeof(LibreOfficeAI.Views.MainPage));
                 };
             }

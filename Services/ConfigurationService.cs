@@ -90,7 +90,7 @@ namespace LibreOfficeAI.Services
                     foreach (var pathToken in templatesArray)
                     {
                         var path = (string?)pathToken;
-                        if (!string.IsNullOrWhiteSpace(path))
+                        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
                             PresentationTemplatesPaths.Add(path);
                     }
                 }

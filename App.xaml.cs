@@ -82,7 +82,7 @@ namespace LibreOfficeAI
             var ollamaService = _host.Services.GetRequiredService<OllamaService>();
             _ = ollamaService.StartAsync();
 
-            _window = new MainWindow(_host.Services);
+            _window = new MainWindow(_host.Services, ollamaService);
 
             // Dispose of Ollama when app is closed
             _window.Closed += (s, e) =>
