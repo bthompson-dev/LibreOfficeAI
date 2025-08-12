@@ -94,10 +94,6 @@
                     </SplitView.Pane>
 
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <ContentPresenter x:Name="ContentHost" />
                         </ScrollViewer>

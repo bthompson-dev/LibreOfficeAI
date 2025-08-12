@@ -3,6 +3,7 @@ using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Documents;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,6 +33,15 @@ namespace LibreOfficeAI.Views
                 ContentHost.ContentTemplate = (DataTemplate)Resources["HelpContentTemplate"];
             else if (navLink?.Label == "About")
                 ContentHost.ContentTemplate = (DataTemplate)Resources["AboutContentTemplate"];
+        }
+
+        private void OnLinkClick(Hyperlink sender, HyperlinkClickEventArgs e)
+        {
+            var uri = sender.NavigateUri;
+            if (uri != null)
+            {
+                Windows.System.Launcher.LaunchUriAsync(uri);
+            }
         }
     }
 }
