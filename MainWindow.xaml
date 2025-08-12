@@ -7,7 +7,7 @@
     xmlns:local="using:LibreOfficeAI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:LibreOfficeAI.Models"
-    Title="LibreOfficeAI"
+    Title="AI Assistant for LibreOffice"
     mc:Ignorable="d">
 
     <Window.SystemBackdrop>

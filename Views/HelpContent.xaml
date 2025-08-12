@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LibreOfficeAI.Views">
+
+    <DataTemplate x:Key="HelpContentTemplate">
+        <StackPanel Padding="20">
+
+            <RichTextBlock Margin="0,0,0,10" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="Bold">
+                    <Run>Welcome to the AI Assistant for LibreOffice</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>This application connects to LibreOffice to make and edit documents and presentations for you.</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>To use it, simply send it a message with your request!</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+            <RichTextBlock Margin="0,0,0,20" FontSize="18">
+                <Paragraph Margin="0,0,0,16">
+                    <LineBreak />
+                    <Run>Here’s a complete list of everything it can do, with examples of possible messsages for each function.</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+            <!--  General Capabilities  -->
+            <RichTextBlock Margin="0,0,0,20" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
+                    <LineBreak />
+                    <Run>General:</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Look at any document and tell you its properties, including the author, description, keywords, and word count</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you tell me the properties of the ‘True story’ document?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Show you a list of all of your documents</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you list all of the available documents?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Make a copy of a document</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you make a copy of the Sales Pitch document?"</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+            <!--  General Capabilities Table Layout Example  -->
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock
+                    Margin="0,0,0,16"
+                    FontSize="18"
+                    FontWeight="SemiBold">
+                    General:
+                </TextBlock>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <!--  Row 1  -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="0,0,10,10"
+                        Text="• Look at any document and tell you its properties, including the author, description, keywords, and word count"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="0,0,0,10"
+                        FontSize="16"
+                        FontStyle="Italic"
+                        Foreground="Gray"
+                        Text="e.g. &quot;Can you tell me the properties of the ‘True story’ document?&quot;"
+                        TextWrapping="Wrap" />
+                    <!--  Row 2  -->
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="0,0,10,10"
+                        Text="• Show you a list of all of your documents"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="0,0,0,10"
+                        FontSize="16"
+                        FontStyle="Italic"
+                        Foreground="Gray"
+                        Text="e.g. &quot;Can you list all of the available documents?&quot;"
+                        TextWrapping="Wrap" />
+                    <!--  Row 3  -->
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="0,0,10,0"
+                        Text="• Make a copy of a document"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        FontSize="16"
+                        FontStyle="Italic"
+                        Foreground="Gray"
+                        Text="e.g. &quot;Can you make a copy of the Sales Pitch document?&quot;"
+                        TextWrapping="Wrap" />
+                </Grid>
+            </StackPanel>
+
+
+            <!--  Writer Capabilities  -->
+            <RichTextBlock Margin="0,0,0,20" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
+                    <LineBreak />
+                    <Run>Using Writer for text documents:</Run>
+                </Paragraph>
+
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Create a new document</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you make a new document called ‘Board Meeting’?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Read the contents of a document</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you give me a summary of the Meeting Notes document?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Add text</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you add the sentence ‘All is fair in love and war’ to the quotes document?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Add headings</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you add a new heading, ‘How I found my true self’, to the Meditation document?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Add paragraphs</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you add a paragraph about dogs to the animals document?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Add tables</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you add a table about the pros and cons of capitalism?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Insert page breaks</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Insert a page break at the end of the Freedom document"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Format text</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please use a bigger font for the text ‘Things can only get better’ – make it green and use the Georgia font"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Find and replace text</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you replace the phrase ‘We shouldn’t speak any more’ with ‘You know where to find me’"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Delete specific text</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please delete ‘The time has come’ from the proposal document"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Format a table</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please give a header row and thicker borders to the second table in the ‘Product Review’ document"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Delete paragraphs</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Delete the first paragraph in the ‘Bird Species’ document"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Apply styling to the whole document</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please give the ‘Party invitation’ document fun styling, with big colourful text"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Insert images</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please insert the following image into the ‘Animals’ document: C:\Users\username\Downloads\monkey.png"</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+            <!--  Impress Capabilities  -->
+            <RichTextBlock Margin="0,0,0,20" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
+                    <LineBreak />
+                    <Run>Using Impress for presentations:</Run>
+                </Paragraph>
+
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Create a new presentation</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you create me a presentation called ‘Business Proposal’?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Read the contents of a presentation</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you give me a summary of the ‘Team Agenda’ presentation?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Add a slide with a title and content</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you add a slide about AI training to the Onboarding presentation?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Change the title of a slide</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you change the title of the second slide to ‘Supporting other team members’?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Change the content of a slide</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Can you change the content of the second slide to a list of how to support other members of your team?"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Delete a slide</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Delete the fourth slide"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Apply a template to a whole presentation</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please apply the Blue Curve template to the Lesson Plan presentation"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Format a slide title</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please make the title of the first slide bold, blue and centred"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Format the content of a slide</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please make the content of the first slide smaller and in italics, with a light blue background"</Run>
+                </Paragraph>
+                <Paragraph Margin="20,0,0,0">
+                    <Run>• Insert an image into a slide</Run>
+                </Paragraph>
+                <Paragraph Margin="40,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">e.g. "Please insert this image into the 5th slide of the ‘Roadmap’ presentation: C:\Users\username\Pictures\roadmap_diagram.jpeg"</Run>
+                </Paragraph>
+
+                <Paragraph Margin="0,0,0,0">
+                    <LineBreak />
+                    <Run>Note: When working with presentations, the AI assistant is limited to a simple slide layout with a title and content textbox. For more sophisticated layouts, you will need to make changes directly in Impress.</Run>
+                </Paragraph>
+
+            </RichTextBlock>
+
+            <!--  Guidelines  -->
+            <RichTextBlock Margin="0,0,0,10" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
+                    <LineBreak />
+                    <Run>General Guidelines:</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>The assistant knows the contents of your documents folder, so you don’t have to give the exact name of documents as long as it’s easy to tell which one you’re referring to.</Run>
+                    <Run>Once you've started working on a document, the assistant will know you're editing it, so you don't need to specify the document name, unless there are multiple documents you're using.</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Be as detailed as you can with your requests, so that the AI knows exactly what you want.</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>All documents must be closed before the assistant can interact with them.</Run>
+                </Paragraph>
+
+                <Paragraph Margin="0,0,0,16">
+                    <Run>If you want the AI to generate lots of content, it is a good idea to ask it to do this first, before putting it into a document.</Run>
+                </Paragraph>
+                <Paragraph Margin="20,8,0,16">
+                    <Run FontSize="16" FontStyle="Italic">
+                        Request 1 – “Can you give me a detailed explanation of the French Revolution?”
+                    </Run>
+                    <LineBreak />
+                    <Run FontSize="16" FontStyle="Italic">
+                        Request 2 – “Thanks! Can you save that in a document called ‘History of the French Revolution”?
+                    </Run>
+                </Paragraph>
+
+
+                <Paragraph Margin="0,0,0,16">
+                    <Run>
+                        For images, you need to tell the AI the exact path of the image you want to use.
+                        e.g. if the image was on your desktop, you should put: “C:\Users\
+                        username\Desktop”
+                    </Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>• For new tasks, start a new chat to improve memory handling</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="AboutContentTemplate">
+        <RichTextBlock FontSize="18">
+            <Paragraph Margin="0,0,0,16">
+                <Run>About Page</Run>
+            </Paragraph>
+            <Paragraph Margin="0,0,0,16">
+                <Run Text="This is the about page. Describe your app, version, credits, etc." />
+            </Paragraph>
+        </RichTextBlock>
+    </DataTemplate>
+
+</ResourceDictionary>

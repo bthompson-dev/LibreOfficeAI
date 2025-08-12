@@ -56,6 +56,7 @@ namespace LibreOfficeAI
                         // ViewModels
                         services.AddSingleton<MainViewModel>();
                         services.AddSingleton<SettingsViewModel>();
+                        services.AddSingleton<HelpViewModel>();
                     }
                 )
                 .Build();

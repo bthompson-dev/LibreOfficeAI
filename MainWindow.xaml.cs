@@ -13,6 +13,7 @@ namespace LibreOfficeAI
     {
         public MainViewModel ViewModel { get; }
         public SettingsViewModel SettingsVM { get; }
+        public HelpViewModel HelpVM { get; }
 
         public MainWindow(IServiceProvider serviceProvider, OllamaService ollamaService)
         {
@@ -24,11 +25,17 @@ namespace LibreOfficeAI
                 // Get ViewModel from dependency injection container
                 ViewModel = serviceProvider.GetRequiredService<MainViewModel>();
                 SettingsVM = serviceProvider.GetRequiredService<SettingsViewModel>();
+                HelpVM = serviceProvider.GetRequiredService<HelpViewModel>();
 
                 ViewModel.OnRequestNavigateToSettings += () =>
                 {
                     SettingsVM.RefreshFromConfig();
                     MainFrame.Navigate(typeof(LibreOfficeAI.Views.SettingsPage));
+                };
+
+                ViewModel.OnRequestNavigateToHelp += () =>
+                {
+                    MainFrame.Navigate(typeof(LibreOfficeAI.Views.HelpPage));
                 };
 
                 SettingsVM.OnRequestNavigateToMainPage += () =>
@@ -37,6 +44,11 @@ namespace LibreOfficeAI
                     {
                         ollamaService.RefreshAsync();
                     }
+                    MainFrame.Navigate(typeof(LibreOfficeAI.Views.MainPage));
+                };
+
+                HelpVM.OnRequestNavigateToMainPage += () =>
+                {
                     MainFrame.Navigate(typeof(LibreOfficeAI.Views.MainPage));
                 };
             }

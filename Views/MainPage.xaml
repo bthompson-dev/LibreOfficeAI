@@ -93,6 +93,21 @@
                         </Button.Resources>
                         <FontIcon Glyph="&#xE932;" />
                     </Button>
+                    <!--  Help Button  -->
+                    <Button
+                        Width="40"
+                        Height="40"
+                        Padding="0"
+                        Background="White"
+                        BorderThickness="0"
+                        Command="{x:Bind ViewModel.HelpButton_ClickCommand}"
+                        CornerRadius="40"
+                        ToolTipService.ToolTip="Help">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                        </Button.Resources>
+                        <FontIcon Glyph="&#xE897;" />
+                    </Button>
                 </StackPanel>
                 <!--  LibreOffice Box  -->
                 <Border
@@ -327,7 +342,7 @@
                     </Button>
                 </Grid>
                 <!--  Microphone Button  -->
-                <Button
+                <!--<Button
                     Grid.Column="1"
                     Width="56"
                     Height="56"
@@ -337,7 +352,7 @@
                     BorderThickness="1"
                     CornerRadius="28">
                     <FontIcon Glyph="&#xE720;" />
-                </Button>
+                </Button>-->
             </Grid>
         </Grid>
     </Grid>

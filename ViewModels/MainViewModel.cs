@@ -54,6 +54,7 @@ namespace LibreOfficeAI.ViewModels
         }
 
         public event Action? OnRequestNavigateToSettings;
+        public event Action? OnRequestNavigateToHelp;
 
         public MainViewModel(
             OllamaService ollamaService,
@@ -114,6 +115,12 @@ namespace LibreOfficeAI.ViewModels
         private void SettingsButton_Click()
         {
             OnRequestNavigateToSettings?.Invoke();
+        }
+
+        [RelayCommand]
+        private void HelpButton_Click()
+        {
+            OnRequestNavigateToHelp?.Invoke();
         }
 
         // Property change handlers
