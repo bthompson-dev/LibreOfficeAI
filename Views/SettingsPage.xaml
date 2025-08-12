@@ -106,7 +106,7 @@
                             IsReadOnly="True"
                             Text="{x:Bind ViewModel.DocumentsPath, Mode=TwoWay}" />
                         <Button
-                            x:Name="PickFolderButton"
+                            x:Name="PickDocumentsFolderButton"
                             Grid.Column="1"
                             Height="32"
                             Margin="8,0,0,0"
@@ -210,13 +210,60 @@
                             PreferredPlacement="Right"
                             Subtitle="The folders that the AI will search for Impress presentation templates." />
                     </StackPanel>
-                    <TextBox
-                        Width="500"
-                        Height="80"
-                        AcceptsReturn="True"
-                        IsReadOnly="True"
-                        Text="{x:Bind ViewModel.PresentationTemplatesPathsDisplay, Mode=OneWay}" />
-                    <!--  Add buttons for adding/removing paths as needed  -->
+
+
+                    <Grid Margin="0,0,0,10" VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <!--  Presentation Template Folders  -->
+                        <StackPanel Orientation="Vertical">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.DefaultPresentationTemplatesPaths}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
+                                            <TextBox
+                                                Width="420"
+                                                IsReadOnly="True"
+                                                Text="{x:Bind}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.AddedPresentationTemplatesPaths}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
+                                            <TextBox
+                                                Width="420"
+                                                IsReadOnly="True"
+                                                Text="{x:Bind}" />
+                                            <Button
+                                                Margin="8,0,0,0"
+                                                Click="RemovePath_Click"
+                                                Tag="{x:Bind}">
+                                                <FontIcon
+                                                    FontSize="14"
+                                                    Foreground="DarkBlue"
+                                                    Glyph="&#xE74D;" />
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <Button
+                            x:Name="PickTemplatesFolderButton"
+                            Grid.Column="1"
+                            Height="32"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Click="PickFolderButton_Click"
+                            Content="Add folder" />
+                    </Grid>
+
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
@@ -232,7 +279,7 @@
                         Width="120"
                         Margin="16,16,0,0"
                         HorizontalAlignment="Left"
-                        Command="{x:Bind ViewModel.SaveCommand}"
+                        Command="{x:Bind ViewModel.ResetDefaultsCommand}"
                         Content="Reset Defaults" />
                 </StackPanel>
                 <TextBlock Text="{Binding SettingsChangedMessage}" Visibility="{Binding SettingsChangedMessage, Converter={StaticResource StringVisibilityConverter}}" />

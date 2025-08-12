@@ -217,15 +217,22 @@ namespace LibreOfficeAI.Services
         {
             try
             {
-                var modelResponse = await Client.ShowModelAsync(modelName);
-
-                Debug.WriteLine(modelResponse);
-
-                return true;
+                await foreach (var response in Client.PullModelAsync(modelName))
+                {
+                    // If it is possible to pull any of the model, then it exists
+                    if (response?.Completed > 0)
+                        return true;
+                }
+                // If the stream completes without yielding, treat as not available
+                return false;
+            }
+            catch (OllamaSharp.Models.Exceptions.ResponseError)
+            {
+                return false;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Debug.WriteLine($"Error checking if model can be pulled: {ex.Message}");
                 return false;
             }
         }

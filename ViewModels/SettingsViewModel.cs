@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,12 +24,10 @@ namespace LibreOfficeAI.ViewModels
         private string selectedModel;
         public bool SelectedModelChanged { get; private set; } = false;
 
-        [ObservableProperty]
-        private List<string> presentationTemplatesPaths;
-        public string PresentationTemplatesPathsDisplay =>
-            PresentationTemplatesPaths == null
-                ? string.Empty
-                : string.Join(Environment.NewLine, PresentationTemplatesPaths);
+        public IEnumerable<string> DefaultPresentationTemplatesPaths =>
+            _config.defaultTemplatesPaths.AsEnumerable();
+
+        public ObservableCollection<string> AddedPresentationTemplatesPaths;
 
         public event Action? OnRequestNavigateToMainPage;
 
@@ -38,7 +37,9 @@ namespace LibreOfficeAI.ViewModels
             _ollamaService = ollamaService;
             DocumentsPath = config.DocumentsPath;
             SelectedModel = config.SelectedModel;
-            PresentationTemplatesPaths = config.PresentationTemplatesPaths;
+            AddedPresentationTemplatesPaths = new ObservableCollection<string>(
+                config.AddedPresentationTemplatesPaths
+            );
         }
 
         [RelayCommand]
@@ -48,35 +49,53 @@ namespace LibreOfficeAI.ViewModels
             if (
                 DocumentsPath == _config.DocumentsPath
                 && SelectedModel == _config.SelectedModel
-                && PresentationTemplatesPaths.SequenceEqual(_config.PresentationTemplatesPaths)
+                && AddedPresentationTemplatesPaths.SequenceEqual(
+                    _config.AddedPresentationTemplatesPaths
+                )
             )
             {
-                SettingsChangedMessage = "ℹ️ No changes made";
+                ShowSettingsChangedMessageAsync("ℹ️ No changes made");
                 return;
             }
 
-            bool validModel = true;
-
+            // If user has changed the AI model
             if (SelectedModel != _config.SelectedModel)
             {
-                SelectedModelChanged = true;
-                validModel = await _ollamaService.CheckModelExists(SelectedModel);
+                bool validModel = await _ollamaService.CheckModelExists(SelectedModel);
+
+                if (validModel)
+                {
+                    SelectedModelChanged = true;
+                }
+                else
+                {
+                    ShowSettingsChangedMessageAsync("❌ AI model could not be found.");
+                    return;
+                }
             }
 
             bool settingsSaved = await _config.SaveChangedSettings(
                 DocumentsPath,
                 SelectedModel,
-                PresentationTemplatesPaths
+                [.. AddedPresentationTemplatesPaths]
             );
 
             if (settingsSaved)
             {
-                SettingsChangedMessage = "✅ Changes saved";
+                await ShowSettingsChangedMessageAsync("✅ Changes saved");
             }
             else
             {
-                SettingsChangedMessage = "❌ Error saving changes";
+                await ShowSettingsChangedMessageAsync("❌ Error saving changes");
             }
+        }
+
+        [RelayCommand]
+        private void ResetDefaults()
+        {
+            DocumentsPath = _config.defaultDocumentsPath;
+            SelectedModel = _config.defaultModel;
+            AddedPresentationTemplatesPaths.Clear();
         }
 
         [RelayCommand]
@@ -85,11 +104,29 @@ namespace LibreOfficeAI.ViewModels
             OnRequestNavigateToMainPage?.Invoke();
         }
 
+        [RelayCommand]
+        private void RemovePresentationTemplatePath(string? path)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && AddedPresentationTemplatesPaths.Contains(path))
+            {
+                AddedPresentationTemplatesPaths.Remove(path);
+            }
+        }
+
         public void RefreshFromConfig()
         {
             DocumentsPath = _config.DocumentsPath;
             SelectedModel = _config.SelectedModel;
-            PresentationTemplatesPaths = _config.PresentationTemplatesPaths;
+            AddedPresentationTemplatesPaths = new ObservableCollection<string>(
+                _config.AddedPresentationTemplatesPaths
+            );
+        }
+
+        private async Task ShowSettingsChangedMessageAsync(string message)
+        {
+            SettingsChangedMessage = message;
+            await Task.Delay(5000);
+            SettingsChangedMessage = null;
         }
     }
 }

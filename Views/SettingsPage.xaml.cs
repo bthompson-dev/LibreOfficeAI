@@ -35,7 +35,7 @@ namespace LibreOfficeAI.Views
             senderButton.IsEnabled = false;
 
             // Create a folder picker
-            FolderPicker openPicker = new Windows.Storage.Pickers.FolderPicker();
+            FolderPicker openPicker = new();
 
             // See the sample code below for how to make the window accessible from the App class.
             var window = App.MainWindow;
@@ -54,7 +54,14 @@ namespace LibreOfficeAI.Views
             StorageFolder folder = await openPicker.PickSingleFolderAsync();
             if (folder != null)
             {
-                ViewModel.DocumentsPath = folder.Path;
+                if (senderButton.Name == "PickDocumentsFolderButton")
+                {
+                    ViewModel.DocumentsPath = folder.Path;
+                }
+                else if (senderButton.Name == "PickTemplatesFolderButton")
+                {
+                    ViewModel.AddedPresentationTemplatesPaths.Add(folder.Path);
+                }
             }
 
             //re-enable the button
@@ -74,12 +81,20 @@ namespace LibreOfficeAI.Views
         }
 
         // Open links
-        private void OnTeachingTipLinkClick(Hyperlink sender, HyperlinkClickEventArgs args)
+        private void OnTeachingTipLinkClick(Hyperlink sender, HyperlinkClickEventArgs e)
         {
             var uri = sender.NavigateUri;
             if (uri != null)
             {
                 Windows.System.Launcher.LaunchUriAsync(uri);
+            }
+        }
+
+        private void RemovePath_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string path)
+            {
+                ViewModel.RemovePresentationTemplatePathCommand.Execute(path);
             }
         }
     }

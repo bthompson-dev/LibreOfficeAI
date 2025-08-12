@@ -11,7 +11,7 @@ namespace LibreOfficeAI.Services
     public partial class ConfigurationService : ObservableObject
     {
         public string DocumentsPath { get; private set; }
-        public List<string> PresentationTemplatesPaths { get; private set; } = [];
+        public List<string> AddedPresentationTemplatesPaths { get; private set; } = [];
         public string SystemPromptPath { get; private set; }
         public string IntentPromptPath { get; private set; }
         public string ServerConfigPath { get; private set; }
@@ -20,7 +20,8 @@ namespace LibreOfficeAI.Services
         public Uri OllamaUri { get; private set; }
         public string SelectedModel { get; private set; }
 
-        private readonly string[] defaultTemplatePaths =
+        // System settings defaults - to be used as fallback options
+        public readonly string[] defaultTemplatesPaths =
         [
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -31,6 +32,12 @@ namespace LibreOfficeAI.Services
             ),
             "C:\\Program Files\\LibreOffice\\share\\template\\common\\presnt",
         ];
+
+        public readonly string defaultModel = "qwen3:8b";
+
+        public readonly string defaultDocumentsPath = Environment.GetFolderPath(
+            Environment.SpecialFolder.MyDocuments
+        );
 
         public ConfigurationService()
         {
@@ -72,18 +79,15 @@ namespace LibreOfficeAI.Services
                 // Set correct Documents path in settings if it is not already set
                 if (string.IsNullOrEmpty(documentsPath) || !File.Exists(documentsPath))
                 {
-                    documentsPath = Environment.GetFolderPath(
-                        Environment.SpecialFolder.MyDocuments
-                    );
+                    documentsPath = defaultDocumentsPath;
                     settingsJson["documentsFolderPath"] = documentsPath;
                     File.WriteAllText(settingsPath, settingsJson.ToString());
                 }
 
                 DocumentsPath = documentsPath;
 
-                // Presentation Template Folders
-                var templatesToken = settingsJson["presentationTemplatesPaths"];
-                bool templatesPathsChanged = false;
+                // Additional Presentation Template Folders
+                var templatesToken = settingsJson["addedPresentationTemplatesPaths"];
 
                 if (templatesToken is JArray templatesArray)
                 {
@@ -91,27 +95,8 @@ namespace LibreOfficeAI.Services
                     {
                         var path = (string?)pathToken;
                         if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
-                            PresentationTemplatesPaths.Add(path);
+                            AddedPresentationTemplatesPaths.Add(path);
                     }
-                }
-
-                // Optionally add default paths if not already present
-                foreach (string templatePath in defaultTemplatePaths)
-                {
-                    if (!PresentationTemplatesPaths.Contains(templatePath))
-                    {
-                        PresentationTemplatesPaths.Add(templatePath);
-                        templatesPathsChanged = true;
-                    }
-                }
-
-                // Write default paths to settings.json if not present
-                if (templatesPathsChanged)
-                {
-                    settingsJson["presentationTemplatesPaths"] = JArray.FromObject(
-                        PresentationTemplatesPaths
-                    );
-                    File.WriteAllText(settingsPath, settingsJson.ToString());
                 }
 
                 // Ollama URI
@@ -175,20 +160,16 @@ namespace LibreOfficeAI.Services
                 settingsJson["selectedModel"] = newSelectedModel;
 
                 // Store the array of template paths in settings.json
-                settingsJson["presentationTemplatesPaths"] =
-                    newPresentationTemplatesPaths != null
-                        ? JArray.FromObject(newPresentationTemplatesPaths)
-                        : new JArray();
+                settingsJson["addedPresentationTemplatesPaths"] = new JArray(
+                    newPresentationTemplatesPaths ?? []
+                );
 
                 await File.WriteAllTextAsync(settingsPath, settingsJson.ToString());
 
                 // Update the properties in the service as well
                 DocumentsPath = newDocumentsPath;
                 SelectedModel = newSelectedModel;
-                PresentationTemplatesPaths =
-                    newPresentationTemplatesPaths != null
-                        ? new List<string>(newPresentationTemplatesPaths)
-                        : new List<string>();
+                AddedPresentationTemplatesPaths = newPresentationTemplatesPaths ?? [];
             }
             catch (Exception ex)
             {

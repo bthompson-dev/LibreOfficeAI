@@ -54,7 +54,9 @@ namespace LibreOfficeAI.Services
                 AddDocument(filePath, AllDocuments);
             }
 
-            var templatePaths = config.PresentationTemplatesPaths;
+            var templatePaths = config
+                .defaultTemplatesPaths.Concat(config.AddedPresentationTemplatesPaths)
+                .ToList();
             var allTemplateFiles = new List<string>();
 
             foreach (var folderPath in templatePaths)
