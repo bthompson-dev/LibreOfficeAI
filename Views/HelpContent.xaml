@@ -776,6 +776,18 @@
                 <Paragraph Margin="0,0,0,16">
                     <Run>September 2025</Run>
                 </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Email:</Run>
+                    <Hyperlink NavigateUri="mailto:ucl.ixn@ucl.ac.uk">
+                        <Run Text="ucl.ixn@ucl.ac.uk" />
+                    </Hyperlink>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>URL:</Run>
+                    <Hyperlink Click="OnLinkClick" NavigateUri="https://www.ucl.ac.uk/engineering/computer-science/collaborate/ucl-industry-exchange-network-ucl-ixn">
+                        <Run Text="UCL Industry Exchange Network" />
+                    </Hyperlink>
+                </Paragraph>
             </RichTextBlock>
 
             <Grid
