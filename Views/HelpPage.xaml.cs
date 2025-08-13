@@ -1,4 +1,3 @@
-using System;
 using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -24,6 +23,8 @@ namespace LibreOfficeAI.Views
             ViewModel = App.Services.GetRequiredService<HelpViewModel>();
 
             RootGrid.DataContext = ViewModel;
+
+            ContentHost.ContentTemplate = (DataTemplate)Resources["HelpContentTemplate"];
         }
 
         private void NavLinksList_ItemClick(object sender, ItemClickEventArgs e)

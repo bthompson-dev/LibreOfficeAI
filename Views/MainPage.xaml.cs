@@ -43,6 +43,8 @@ namespace LibreOfficeAI.Views
                 {
                     PromptTextBox.Focus(FocusState.Programmatic);
                 };
+
+                WelcomeBorder.SizeChanged += WelcomeBorder_SizeChanged;
             }
             catch (Exception ex)
             {
@@ -96,6 +98,12 @@ namespace LibreOfficeAI.Views
                     Debug.WriteLine($"Could not open file: {ex.Message}");
                 }
             }
+        }
+
+        private void WelcomeBorder_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            BackgroundRectangle.Width = WelcomeBorder.ActualWidth - 30; // 20px smaller
+            BackgroundRectangle.Height = WelcomeBorder.ActualHeight - 30;
         }
     }
 }

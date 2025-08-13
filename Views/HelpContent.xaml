@@ -5,12 +5,9 @@
     xmlns:local="using:LibreOfficeAI.Views">
 
     <DataTemplate x:Key="HelpContentTemplate">
-        <StackPanel Padding="40,40,80,40">
+        <StackPanel Padding="40,0,80,40">
 
             <RichTextBlock Margin="0,0,0,10" FontSize="18">
-                <Paragraph Margin="0,0,0,16" FontWeight="Bold">
-                    <Run>Welcome to the AI Assistant for LibreOffice</Run>
-                </Paragraph>
                 <Paragraph Margin="0,0,0,16">
                     <Run>This application connects to LibreOffice to make and edit documents and presentations for you.</Run>
                 </Paragraph>
@@ -754,14 +751,53 @@
     </DataTemplate>
 
     <DataTemplate x:Key="AboutContentTemplate">
-        <RichTextBlock FontSize="18">
-            <Paragraph Margin="0,0,0,16">
-                <Run>About Page</Run>
-            </Paragraph>
-            <Paragraph Margin="0,0,0,16">
-                <Run Text="This is the about page. Describe your app, version, credits, etc." />
-            </Paragraph>
-        </RichTextBlock>
+        <Grid Padding="40,0,80,40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <RichTextBlock Grid.Row="0" FontSize="16">
+                <Paragraph Margin="0,0,0,16">
+                    <Run>This application enables AI for LibreOffice.</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>It was developed by Ben Thompson as part of the SmolPC collection for Intel, for the UCL Industry Exchange Network (IXN).</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Supervised by:</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Professor Graham Roberts &amp; Professor Dean Mohamedally</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Version 1.0</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>September 2025</Run>
+                </Paragraph>
+            </RichTextBlock>
+
+            <Grid
+                Grid.Row="2"
+                Margin="50,100,50,100"
+                VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Image
+                    Grid.Column="0"
+                    Height="60"
+                    Source="/Assets/ucl_logo.svg" />
+                <Image
+                    Grid.Column="2"
+                    Height="60"
+                    Source="/Assets/intel_logo.png" />
+            </Grid>
+
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>

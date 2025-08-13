@@ -27,6 +27,30 @@ namespace LibreOfficeAI
                 SettingsVM = serviceProvider.GetRequiredService<SettingsViewModel>();
                 HelpVM = serviceProvider.GetRequiredService<HelpViewModel>();
 
+                // Subscribe to navigation events
+                MainFrame.Navigating += (s, e) =>
+                {
+                    // Hide welcome elements during navigation
+                    if (MainFrame.Content is LibreOfficeAI.Views.MainPage mainPage)
+                    {
+                        var welcomeContainer =
+                            mainPage.FindName("WelcomeContainer") as FrameworkElement;
+                        if (welcomeContainer != null)
+                        {
+                            welcomeContainer.Visibility = Visibility.Collapsed;
+                        }
+                    }
+                };
+
+                MainFrame.Navigated += (s, e) =>
+                {
+                    // Restore visibility after navigation completes
+                    if (MainFrame.Content is LibreOfficeAI.Views.MainPage mainPage)
+                    {
+                        // Let the binding handle visibility
+                    }
+                };
+
                 ViewModel.OnRequestNavigateToSettings += () =>
                 {
                     SettingsVM.RefreshFromConfig();

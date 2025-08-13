@@ -22,7 +22,8 @@ namespace LibreOfficeAI.Services
         [ObservableProperty]
         private bool _aiTurn = false;
 
-        public ObservableCollection<ChatMessage> ChatMessages { get; set; } = [];
+        [ObservableProperty]
+        private ObservableCollection<ChatMessage> _chatMessages = [];
 
         // Cancellation token
         private CancellationTokenSource _cts = new();
@@ -45,6 +46,11 @@ namespace LibreOfficeAI.Services
             this.config = config;
 
             SetupToolEventHandlers();
+
+            ChatMessages.CollectionChanged += (sender, e) =>
+            {
+                OnPropertyChanged(nameof(ChatMessages));
+            };
         }
 
         // Create ChatMessage and send input to AI

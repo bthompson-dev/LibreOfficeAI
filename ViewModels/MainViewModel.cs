@@ -25,6 +25,8 @@ namespace LibreOfficeAI.ViewModels
         public bool ToolsLoaded => _ollamaService.ToolService.ToolsLoaded;
         public string? ToolsStatus => _ollamaService.ToolService.ToolsStatus;
 
+        public bool ShowWelcomeScreen => ChatMessages.Count == 0;
+
         // Prompt handled by UIStateService
         public string PromptText
         {
@@ -77,6 +79,13 @@ namespace LibreOfficeAI.ViewModels
             _chatService.PropertyChanged += OnChatServicePropertyChanged;
             _chatService.RequestCommandRefresh += OnRequestCommandRefresh;
             _chatService.RequestFocusTextBox += OnRequestFocusTextBox;
+            _chatService.ChatMessages.CollectionChanged += (s, e) =>
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(ShowWelcomeScreen));
+                });
+            };
         }
 
         // Commands
@@ -177,6 +186,7 @@ namespace LibreOfficeAI.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 OnPropertyChanged(nameof(AiTurn));
+                OnPropertyChanged(nameof(ShowWelcomeScreen));
                 SendMessageCommand.NotifyCanExecuteChanged();
             });
         }

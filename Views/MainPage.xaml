@@ -273,6 +273,70 @@
                         ErrorTemplate="{StaticResource ErrorMessageTemplate}"
                         UserTemplate="{StaticResource UserMessageTemplate}" />
                 </Grid.Resources>
+
+                <Grid x:Name="WelcomeContainer" Visibility="{Binding ShowWelcomeScreen, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!--  Colourful background shapes  -->
+                    <!--<Rectangle
+                        Width="120"
+                        Height="120"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Fill="Aqua">
+                        <Rectangle.RenderTransform>
+                            <TranslateTransform X="-200" Y="-60" />
+                        </Rectangle.RenderTransform>
+                    </Rectangle>-->
+                    <Rectangle
+                        x:Name="BackgroundRectangle"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Canvas.ZIndex="0"
+                        Fill="Magenta" />
+                    <!--<Rectangle
+                        Width="80"
+                        Height="100"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Fill="Yellow">
+                        <Rectangle.RenderTransform>
+                            <TranslateTransform X="200" Y="-30" />
+                        </Rectangle.RenderTransform>
+                    </Rectangle>-->
+
+                    <Border
+                        x:Name="WelcomeBorder"
+                        Padding="40"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+                        BorderBrush="Gray"
+                        BorderThickness="0.2"
+                        Canvas.ZIndex="1"
+                        CornerRadius="16">
+                        <RichTextBlock FontSize="18">
+                            <Paragraph Margin="0,0,0,16" FontSize="20">
+                                <Run>Welcome to the AI Assistant for LibreOffice.</Run>
+                            </Paragraph>
+                            <Paragraph Margin="0,0,0,16" FontSize="20">
+                                <Run>Send me a message to get started!</Run>
+                            </Paragraph>
+                            <Paragraph Margin="0,0,0,16">
+                                <Run>Here are some suggestions:</Run>
+                            </Paragraph>
+                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                                <Run>-	“Can you make me a new presentation for my sales pitch?”</Run>
+                            </Paragraph>
+                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                                <Run>-	“Can you read and summarise the ‘Annual Report’ document for me?”</Run>
+                            </Paragraph>
+                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                                <Run>-	“Please generate a cover letter for my job application to Intel”</Run>
+                            </Paragraph>
+                        </RichTextBlock>
+                    </Border>
+
+                </Grid>
+
                 <ScrollViewer
                     x:Name="ChatScrollViewer"
                     Padding="12,16"
