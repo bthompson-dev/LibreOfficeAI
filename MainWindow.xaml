@@ -14,9 +14,15 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Background="#F2F6FA">
+    <Grid
+        x:Name="MainGrid"
+        Background="#F2F6FA"
+        KeyboardAcceleratorPlacementMode="Hidden">
         <Grid.KeyboardAccelerators>
-            <KeyboardAccelerator Key="Space" Invoked="SpaceAccelerator_Invoked" />
+            <KeyboardAccelerator
+                Key="Space"
+                Invoked="SpaceAccelerator_Invoked"
+                ScopeOwner="{x:Bind MainGrid}" />
         </Grid.KeyboardAccelerators>
         <Frame x:Name="MainFrame" />
     </Grid>

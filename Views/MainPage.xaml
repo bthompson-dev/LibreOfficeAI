@@ -403,7 +403,8 @@
                     Background="White"
                     BorderThickness="1"
                     Command="{x:Bind ViewModel.ToggleMicrophoneCommand}"
-                    CornerRadius="28">
+                    CornerRadius="28"
+                    ToolTipService.ToolTip="Record Message">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Grid>
