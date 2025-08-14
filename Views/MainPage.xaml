@@ -275,34 +275,12 @@
                 </Grid.Resources>
 
                 <Grid x:Name="WelcomeContainer" Visibility="{Binding ShowWelcomeScreen, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <!--  Colourful background shapes  -->
-                    <!--<Rectangle
-                        Width="120"
-                        Height="120"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Fill="Aqua">
-                        <Rectangle.RenderTransform>
-                            <TranslateTransform X="-200" Y="-60" />
-                        </Rectangle.RenderTransform>
-                    </Rectangle>-->
                     <Rectangle
                         x:Name="BackgroundRectangle"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Canvas.ZIndex="0"
                         Fill="Magenta" />
-                    <!--<Rectangle
-                        Width="80"
-                        Height="100"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Fill="Yellow">
-                        <Rectangle.RenderTransform>
-                            <TranslateTransform X="200" Y="-30" />
-                        </Rectangle.RenderTransform>
-                    </Rectangle>-->
-
                     <Border
                         x:Name="WelcomeBorder"
                         Padding="40"
@@ -406,7 +384,8 @@
                     </Button>
                 </Grid>
                 <!--  Microphone Button  -->
-                <!--<Button
+                <Button
+                    x:Name="MicrophoneButton"
                     Grid.Column="1"
                     Width="56"
                     Height="56"
@@ -414,9 +393,114 @@
                     VerticalAlignment="Bottom"
                     Background="White"
                     BorderThickness="1"
+                    Command="{x:Bind ViewModel.ToggleMicrophoneCommand}"
                     CornerRadius="28">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <!--  Glow Ellipse  -->
+                                <Ellipse
+                                    x:Name="GlowEllipse"
+                                    Width="56"
+                                    Height="56"
+                                    Fill="#33FF0000"
+                                    Opacity="0"
+                                    RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <ScaleTransform x:Name="GlowScale" ScaleX="1" ScaleY="1" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <!--  Background ellipse (changes on hover)  -->
+                                <Ellipse
+                                    x:Name="BackgroundEllipse"
+                                    Width="56"
+                                    Height="56"
+                                    Fill="{TemplateBinding Background}" />
+                                <!--  Border ellipse  -->
+                                <Ellipse
+                                    x:Name="BorderEllipse"
+                                    Width="56"
+                                    Height="56"
+                                    Stroke="{TemplateBinding BorderBrush}"
+                                    StrokeThickness="{TemplateBinding BorderThickness}" />
+                                <!--  Button content  -->
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <!--  Visual States must be inside the Grid  -->
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <!--  Change background to #f2f2f2 on hover  -->
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <!--  Change border to #CCCCCC on hover  -->
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#CCCCCC" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed" />
+                                        <VisualState x:Name="Disabled" />
+                                    </VisualStateGroup>
+                                    <VisualStateGroup x:Name="RecordingStates">
+                                        <VisualState x:Name="NotRecording">
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="GlowEllipse"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0"
+                                                    Duration="0:0:0.2" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleX"
+                                                    To="1"
+                                                    Duration="0:0:0.2" />
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleY"
+                                                    To="1"
+                                                    Duration="0:0:0.2" />
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Recording">
+                                            <Storyboard>
+                                                <!--  Pulse opacity  -->
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowEllipse"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    From="0.6"
+                                                    To="1"
+                                                    Duration="0:0:0.5" />
+                                                <!--  Pulse scale  -->
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleX"
+                                                    From="1"
+                                                    To="1.25"
+                                                    Duration="0:0:0.5" />
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleY"
+                                                    From="1"
+                                                    To="1.25"
+                                                    Duration="0:0:0.5" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                        </ControlTemplate>
+                    </Button.Template>
                     <FontIcon Glyph="&#xE720;" />
-                </Button>-->
+                </Button>
             </Grid>
         </Grid>
     </Grid>

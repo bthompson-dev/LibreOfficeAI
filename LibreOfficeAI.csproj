@@ -32,6 +32,13 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OllamaSharp" Version="5.3.3" />
     <PackageReference Include="OllamaSharp.ModelContextProtocol" Version="5.3.3" />
+    <PackageReference Include="Whisper.net" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime.Cuda" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime.Cuda.Windows" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime.NoAvx" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime.OpenVino" Version="1.8.1" />
+    <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.8.1" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Assets\Impress_Icon.svg">

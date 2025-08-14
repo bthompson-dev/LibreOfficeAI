@@ -16,6 +16,7 @@ namespace LibreOfficeAI.ViewModels
         private readonly ChatService _chatService;
         private readonly UIStateService _uiStateService;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly AudioService _audioService;
 
         // Properties needed for UI
         public bool AppLoaded => OllamaReady && ToolsLoaded;
@@ -24,8 +25,8 @@ namespace LibreOfficeAI.ViewModels
         public double ModelPercentage => _ollamaService.ModelPercentage;
         public bool ToolsLoaded => _ollamaService.ToolService.ToolsLoaded;
         public string? ToolsStatus => _ollamaService.ToolService.ToolsStatus;
-
         public bool ShowWelcomeScreen => ChatMessages.Count == 0;
+        public bool IsRecording => _audioService.IsRecording;
 
         // Prompt handled by UIStateService
         public string PromptText
@@ -58,11 +59,14 @@ namespace LibreOfficeAI.ViewModels
         public event Action? OnRequestNavigateToSettings;
         public event Action? OnRequestNavigateToHelp;
 
+        public event Action? RecordingStateChanged;
+
         public MainViewModel(
             OllamaService ollamaService,
             DocumentService documentService,
             ChatService chatService,
             UIStateService uiStateService,
+            AudioService audioService,
             Func<DispatcherQueue> dispatcherQueueFactory
         )
         {
@@ -70,6 +74,7 @@ namespace LibreOfficeAI.ViewModels
             _documentService = documentService;
             _chatService = chatService;
             _uiStateService = uiStateService;
+            _audioService = audioService;
             _dispatcherQueue = dispatcherQueueFactory();
 
             // Subscribe to property changes for UI updates
@@ -90,6 +95,7 @@ namespace LibreOfficeAI.ViewModels
 
         // Commands
 
+        // Chat Service
         // Sends a message to the AI Chat service
         [RelayCommand(CanExecute = nameof(CanSendMessage))]
         private async Task SendMessageAsync()
@@ -120,6 +126,7 @@ namespace LibreOfficeAI.ViewModels
             _chatService.NewChat();
         }
 
+        // Buttons
         [RelayCommand]
         private void SettingsButton_Click()
         {
@@ -130,6 +137,19 @@ namespace LibreOfficeAI.ViewModels
         private void HelpButton_Click()
         {
             OnRequestNavigateToHelp?.Invoke();
+        }
+
+        //Audio Service
+        [RelayCommand]
+        private async Task ToggleMicrophoneAsync()
+        {
+            await _audioService.ToggleRecordingAsync();
+
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                OnPropertyChanged(nameof(IsRecording));
+                RecordingStateChanged?.Invoke();
+            });
         }
 
         // Property change handlers

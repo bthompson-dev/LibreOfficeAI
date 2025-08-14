@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using LibreOfficeAI.Services;
 using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Windows.Media.Capture;
+using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -37,6 +40,7 @@ namespace LibreOfficeAI.Views
                 // Subscribe to ViewModel events
                 ViewModel.RequestScrollToBottom += OnRequestScrollToBottom;
                 ViewModel.FocusTextBox += FocusTextBox;
+                ViewModel.RecordingStateChanged += UpdateMicrophoneButtonVisualState;
 
                 // Focus TextBox
                 PromptTextBox.Loaded += (_, _) =>
@@ -104,6 +108,12 @@ namespace LibreOfficeAI.Views
         {
             BackgroundRectangle.Width = WelcomeBorder.ActualWidth - 30; // 20px smaller
             BackgroundRectangle.Height = WelcomeBorder.ActualHeight - 30;
+        }
+
+        private void UpdateMicrophoneButtonVisualState()
+        {
+            var state = ViewModel.IsRecording ? "Recording" : "NotRecording";
+            VisualStateManager.GoToState(MicrophoneButton, state, true);
         }
     }
 }

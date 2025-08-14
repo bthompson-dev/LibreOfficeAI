@@ -44,6 +44,7 @@ namespace LibreOfficeAI
                         services.AddSingleton<OllamaService>();
                         services.AddSingleton<ChatService>();
                         services.AddSingleton<UIStateService>();
+                        services.AddSingleton<AudioService>();
 
                         // DispatcherQueue factory
                         services.AddSingleton<Func<DispatcherQueue>>(provider =>
