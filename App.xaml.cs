@@ -45,6 +45,7 @@ namespace LibreOfficeAI
                         services.AddSingleton<ChatService>();
                         services.AddSingleton<UIStateService>();
                         services.AddSingleton<AudioService>();
+                        services.AddSingleton<WhisperService>();
 
                         // DispatcherQueue factory
                         services.AddSingleton<Func<DispatcherQueue>>(provider =>

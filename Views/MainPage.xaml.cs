@@ -1,14 +1,12 @@
 using System;
 using System.Diagnostics;
-using System.IO;
+using System.Threading.Tasks;
 using LibreOfficeAI.Services;
 using LibreOfficeAI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Windows.Media.Capture;
-using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -21,6 +19,7 @@ namespace LibreOfficeAI.Views
     public sealed partial class MainPage : Page
     {
         public MainViewModel ViewModel { get; }
+        private bool isPointerOver = false;
 
         public MainPage()
             : this(App.Services) { }
@@ -42,11 +41,22 @@ namespace LibreOfficeAI.Views
                 ViewModel.FocusTextBox += FocusTextBox;
                 ViewModel.RecordingStateChanged += UpdateMicrophoneButtonVisualState;
 
+                // Add pointer event handlers for microphone button
+                MicrophoneButton.PointerEntered += MicrophoneButton_PointerEntered;
+                MicrophoneButton.PointerExited += MicrophoneButton_PointerExited;
+
+                // Global keyboard event handler for spacebar
+                this.KeyDown += MainPage_KeyDown;
+                RootGrid.KeyDown += RootGrid_KeyDown;
+
                 // Focus TextBox
                 PromptTextBox.Loaded += (_, _) =>
                 {
                     PromptTextBox.Focus(FocusState.Programmatic);
                 };
+
+                // Ensure the page can receive focus and gets focus when loaded
+                this.Loaded += MainPage_Loaded;
 
                 WelcomeBorder.SizeChanged += WelcomeBorder_SizeChanged;
             }
@@ -55,6 +65,30 @@ namespace LibreOfficeAI.Views
                 System.IO.File.WriteAllText("mainpage_exception.txt", ex.ToString());
                 throw;
             }
+        }
+
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Make sure the page can receive focus
+            this.IsTabStop = true;
+            RootGrid.IsTabStop = true;
+
+            // Set focus to the page itself to capture global keyboard events
+            this.Focus(FocusState.Programmatic);
+
+            Debug.WriteLine("MainPage loaded and focused");
+        }
+
+        private void MicrophoneButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            isPointerOver = true;
+            UpdateMicrophoneButtonVisualState();
+        }
+
+        private void MicrophoneButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            isPointerOver = false;
+            UpdateMicrophoneButtonVisualState();
         }
 
         private void FocusTextBox()
@@ -86,6 +120,54 @@ namespace LibreOfficeAI.Views
             }
         }
 
+        // Alternative handler on RootGrid
+        private async void RootGrid_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            Debug.WriteLine($"RootGrid KeyDown: {e.Key}");
+            if (e.Key == Windows.System.VirtualKey.Space)
+            {
+                await HandleSpaceBarPress();
+                e.Handled = true;
+            }
+        }
+
+        // Spacebar used to trigger recording - Page level
+        private async void MainPage_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            Debug.WriteLine($"MainPage KeyDown: {e.Key}");
+            if (e.Key == Windows.System.VirtualKey.Space)
+            {
+                await HandleSpaceBarPress();
+                e.Handled = true;
+            }
+        }
+
+        private async Task HandleSpaceBarPress()
+        {
+            Debug.WriteLine("Spacebar pressed - HandleSpaceBarPress called");
+
+            // Check if TextBox has focus - if so, let it handle the space normally
+            var focusedElement = FocusManager.GetFocusedElement(this.XamlRoot);
+            Debug.WriteLine($"Currently focused element: {focusedElement?.GetType().Name}");
+
+            if (focusedElement == PromptTextBox)
+            {
+                Debug.WriteLine("TextBox has focus, not triggering microphone");
+                return;
+            }
+
+            // Trigger microphone
+            if (ViewModel.ToggleMicrophoneCommand.CanExecute(null))
+            {
+                Debug.WriteLine("Executing ToggleMicrophone command");
+                await ViewModel.ToggleMicrophoneCommand.ExecuteAsync(null);
+            }
+            else
+            {
+                Debug.WriteLine("ToggleMicrophone command cannot execute");
+            }
+        }
+
         // Double click to open files in use
         private void FilesListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
@@ -112,7 +194,17 @@ namespace LibreOfficeAI.Views
 
         private void UpdateMicrophoneButtonVisualState()
         {
-            var state = ViewModel.IsRecording ? "Recording" : "NotRecording";
+            string state;
+            if (ViewModel.IsRecording)
+            {
+                state = isPointerOver ? "RecordingPointerOver" : "Recording";
+            }
+            else
+            {
+                // When not recording, explicitly go to NotRecording first to stop animations
+                VisualStateManager.GoToState(MicrophoneButton, "NotRecording", true);
+                state = isPointerOver ? "PointerOver" : "Normal";
+            }
             VisualStateManager.GoToState(MicrophoneButton, state, true);
         }
     }

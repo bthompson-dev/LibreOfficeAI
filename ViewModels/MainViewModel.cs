@@ -40,6 +40,9 @@ namespace LibreOfficeAI.ViewModels
         public ObservableCollection<ChatMessage> ChatMessages => _chatService.ChatMessages;
         public bool AiTurn => _chatService.AiTurn;
 
+        // Enable/disable typing
+        public bool CanType => !IsRecording && !AiTurn;
+
         // Documents
         public ObservableCollection<Document> DocumentsInUse => _documentService.DocumentsInUse;
 
@@ -91,6 +94,7 @@ namespace LibreOfficeAI.ViewModels
                     OnPropertyChanged(nameof(ShowWelcomeScreen));
                 });
             };
+            _audioService.RecordingStateChanged += OnAudioRecordingStateChanged;
         }
 
         // Commands
@@ -144,12 +148,6 @@ namespace LibreOfficeAI.ViewModels
         private async Task ToggleMicrophoneAsync()
         {
             await _audioService.ToggleRecordingAsync();
-
-            _dispatcherQueue.TryEnqueue(() =>
-            {
-                OnPropertyChanged(nameof(IsRecording));
-                RecordingStateChanged?.Invoke();
-            });
         }
 
         // Property change handlers
@@ -206,8 +204,19 @@ namespace LibreOfficeAI.ViewModels
             _dispatcherQueue.TryEnqueue(() =>
             {
                 OnPropertyChanged(nameof(AiTurn));
+                OnPropertyChanged(nameof(CanType));
                 OnPropertyChanged(nameof(ShowWelcomeScreen));
                 SendMessageCommand.NotifyCanExecuteChanged();
+            });
+        }
+
+        private void OnAudioRecordingStateChanged()
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                OnPropertyChanged(nameof(IsRecording));
+                OnPropertyChanged(nameof(CanType));
+                RecordingStateChanged?.Invoke();
             });
         }
 

@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OllamaSharp;
-using OllamaSharp.Models;
 
 namespace LibreOfficeAI.Services
 {

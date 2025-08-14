@@ -301,13 +301,22 @@
                             <Paragraph Margin="0,0,0,16">
                                 <Run>Here are some suggestions:</Run>
                             </Paragraph>
-                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                            <Paragraph
+                                Margin="0,0,0,16"
+                                FontSize="16"
+                                FontStyle="Italic">
                                 <Run>-	“Can you make me a new presentation for my sales pitch?”</Run>
                             </Paragraph>
-                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                            <Paragraph
+                                Margin="0,0,0,16"
+                                FontSize="16"
+                                FontStyle="Italic">
                                 <Run>-	“Can you read and summarise the ‘Annual Report’ document for me?”</Run>
                             </Paragraph>
-                            <Paragraph Margin="0,0,0,16" FontStyle="Italic">
+                            <Paragraph
+                                Margin="0,0,0,16"
+                                FontSize="16"
+                                FontStyle="Italic">
                                 <Run>-	“Please generate a cover letter for my job application to Intel”</Run>
                             </Paragraph>
                         </RichTextBlock>
@@ -358,7 +367,7 @@
                         BorderThickness="1"
                         CornerRadius="28"
                         FontSize="16"
-                        IsEnabled="{Binding AiTurn, Converter={StaticResource BoolNegationConverter}}"
+                        IsEnabled="{Binding CanType}"
                         KeyDown="PromptTextBox_KeyDown"
                         Text="{Binding PromptText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap" />
@@ -441,8 +450,6 @@
                                                 </ObjectAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
-                                        <VisualState x:Name="Pressed" />
-                                        <VisualState x:Name="Disabled" />
                                     </VisualStateGroup>
                                     <VisualStateGroup x:Name="RecordingStates">
                                         <VisualState x:Name="NotRecording">
@@ -492,6 +499,49 @@
                                                     From="1"
                                                     To="1.25"
                                                     Duration="0:0:0.5" />
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#CCCCCC" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="RecordingPointerOver">
+                                            <Storyboard>
+                                                <!--  Pulse opacity  -->
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowEllipse"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    From="0.6"
+                                                    To="1"
+                                                    Duration="0:0:0.5" />
+                                                <!--  Pulse scale  -->
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleX"
+                                                    From="1"
+                                                    To="1.25"
+                                                    Duration="0:0:0.5" />
+                                                <DoubleAnimation
+                                                    AutoReverse="True"
+                                                    RepeatBehavior="Forever"
+                                                    Storyboard.TargetName="GlowScale"
+                                                    Storyboard.TargetProperty="ScaleY"
+                                                    From="1"
+                                                    To="1.25"
+                                                    Duration="0:0:0.5" />
+                                                <!--  Hover background and border  -->
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#CCCCCC" />
+                                                </ObjectAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </VisualState>
                                     </VisualStateGroup>

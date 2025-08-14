@@ -2,15 +2,20 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using Windows.Media.Capture;
 using Windows.Storage;
 
 namespace LibreOfficeAI.Services
 {
-    public class AudioService
+    public class AudioService(UIStateService uiStateService)
     {
+        private readonly UIStateService _uiStateService = uiStateService;
         private MediaCapture? _mediaCapture;
         public bool IsRecording { get; private set; } = false;
+
+        public event Action? RecordingStateChanged;
 
         private async Task InitialiseMediaCapture()
         {
@@ -32,6 +37,8 @@ namespace LibreOfficeAI.Services
             try
             {
                 Debug.WriteLine("Starting recording...");
+                IsRecording = true;
+                RecordingStateChanged?.Invoke();
 
                 // Use temp folder which is accessible in unpackaged apps
                 var tempPath = Path.GetTempPath();
@@ -53,34 +60,73 @@ namespace LibreOfficeAI.Services
                     audioFile
                 );
 
-                IsRecording = true;
                 Debug.WriteLine("Recording started successfully");
             }
             catch (UnauthorizedAccessException ex)
             {
                 Debug.WriteLine($"Microphone access denied: {ex.Message}");
+                // Revert state on error
+                IsRecording = false;
+                RecordingStateChanged?.Invoke();
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to start recording: {ex.Message}");
+                // Revert state on error
+                IsRecording = false;
+                RecordingStateChanged?.Invoke();
+                throw;
             }
         }
 
         private async Task StopRecording()
         {
-            Debug.WriteLine("Stopping recording...");
-            await _mediaCapture.StopRecordAsync();
-            IsRecording = false;
-            Debug.WriteLine("Recording stopped successfully");
+            try
+            {
+                Debug.WriteLine("Stopping recording...");
+                IsRecording = false;
+                RecordingStateChanged?.Invoke();
 
-            // Log the final file location
-            var tempPath = Path.GetTempPath();
-            var finalFilePath = Path.Combine(tempPath, "recordedAudio.wav");
-            if (File.Exists(finalFilePath))
-            {
-                var fileInfo = new FileInfo(finalFilePath);
-                Debug.WriteLine($"Audio file created successfully at: {finalFilePath}");
-                Debug.WriteLine($"File size: {fileInfo.Length} bytes");
+                await _mediaCapture.StopRecordAsync();
+                Debug.WriteLine("Recording stopped successfully");
+
+                // Log the final file location
+                var tempPath = Path.GetTempPath();
+                var audioFilePath = Path.Combine(tempPath, "recordedAudio.wav");
+                if (File.Exists(audioFilePath))
+                {
+                    var fileInfo = new FileInfo(audioFilePath);
+                    Debug.WriteLine($"Audio file created successfully at: {audioFilePath}");
+                    Debug.WriteLine($"File size: {fileInfo.Length} bytes");
+
+                    var convertedPath = Path.Combine(tempPath, "recordedAudio_16kHz.wav");
+                    AudioService.ConvertWav(audioFilePath, convertedPath);
+
+                    string? transcribedMessage = await WhisperService.Transcribe(convertedPath);
+
+                    if (transcribedMessage != null)
+                    {
+                        string trimmedMessage = transcribedMessage.TrimStart();
+                        if (trimmedMessage != "[BLANK_AUDIO]")
+                        {
+                            _uiStateService.PromptText = trimmedMessage;
+                            _uiStateService.RequestFocus();
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"Audio file NOT found at expected location: {audioFilePath}");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Audio file NOT found at expected location: {finalFilePath}");
+                Debug.WriteLine($"Error stopping recording: {ex.Message}");
+                // Ensure state is still set to false even if stop fails
+                IsRecording = false;
+                RecordingStateChanged?.Invoke();
+                throw;
             }
         }
 
@@ -126,6 +172,13 @@ namespace LibreOfficeAI.Services
                     _mediaCapture = null;
                 }
             }
+        }
+
+        private static void ConvertWav(string inputPath, string outputPath)
+        {
+            using var reader = new AudioFileReader(inputPath);
+            var resampler = new WdlResamplingSampleProvider(reader, 16000);
+            WaveFileWriter.CreateWaveFile16(outputPath, resampler);
         }
     }
 }
