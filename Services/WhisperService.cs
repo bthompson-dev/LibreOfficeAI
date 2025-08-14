@@ -9,29 +9,33 @@ using Whisper.net.Logger;
 
 namespace LibreOfficeAI.Services
 {
-    public class WhisperService
+    public class WhisperService : IDisposable
     {
-        public static async Task<string?> Transcribe(string wavFilePath)
+        private readonly WhisperFactory whisperFactory;
+        private readonly WhisperProcessor processor;
+        private readonly IDisposable whisperLogger;
+        public bool IsTranscribing { get; private set; } = false;
+        public event Action? IsTranscribingChanged;
+
+        public WhisperService()
+        {
+            var ggmlType = GgmlType.Base;
+            var modelFileName = "ggml-base.bin";
+            if (!File.Exists(modelFileName))
+            {
+                DownloadModel(modelFileName, ggmlType).GetAwaiter().GetResult();
+            }
+            whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
+            whisperFactory = WhisperFactory.FromPath(modelFileName);
+            processor = whisperFactory.CreateBuilder().WithLanguage("auto").Build();
+        }
+
+        public async Task<string?> Transcribe(string wavFilePath)
         {
             try
             {
-                var ggmlType = GgmlType.Base;
-                var modelFileName = "ggml-base.bin";
-
-                // This section detects whether the "ggml-base.bin" file exists in our project disk. If it doesn't, it downloads it from the internet
-                if (!File.Exists(modelFileName))
-                {
-                    await DownloadModel(modelFileName, ggmlType);
-                }
-
-                // Optional logging from the native library
-                using var whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
-
-                // This section creates the whisperFactory object which is used to create the processor object.
-                using var whisperFactory = WhisperFactory.FromPath("ggml-base.bin");
-
-                // This section creates the processor object which is used to process the audio file, it uses language `auto` to detect the language of the audio file.
-                using var processor = whisperFactory.CreateBuilder().WithLanguage("auto").Build();
+                IsTranscribing = true;
+                IsTranscribingChanged?.Invoke();
 
                 using var fileStream = File.OpenRead(wavFilePath);
 
@@ -43,6 +47,9 @@ namespace LibreOfficeAI.Services
                     Debug.WriteLine($"{result.Start}->{result.End}: {result.Text}");
                     userMessage.Append(result.Text);
                 }
+
+                IsTranscribing = false;
+                IsTranscribingChanged?.Invoke();
 
                 return userMessage.ToString();
             }
@@ -59,6 +66,13 @@ namespace LibreOfficeAI.Services
             using var modelStream = await WhisperGgmlDownloader.Default.GetGgmlModelAsync(ggmlType);
             using var fileWriter = File.OpenWrite(fileName);
             await modelStream.CopyToAsync(fileWriter);
+        }
+
+        public void Dispose()
+        {
+            processor?.Dispose();
+            whisperFactory?.Dispose();
+            whisperLogger?.Dispose();
         }
     }
 }

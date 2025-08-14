@@ -15,6 +15,9 @@
     </Window.SystemBackdrop>
 
     <Grid Background="#F2F6FA">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="Space" Invoked="SpaceAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
         <Frame x:Name="MainFrame" />
     </Grid>
 </Window>

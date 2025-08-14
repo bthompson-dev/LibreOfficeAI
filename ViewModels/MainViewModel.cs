@@ -17,6 +17,7 @@ namespace LibreOfficeAI.ViewModels
         private readonly UIStateService _uiStateService;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly AudioService _audioService;
+        private readonly WhisperService _whisperService;
 
         // Properties needed for UI
         public bool AppLoaded => OllamaReady && ToolsLoaded;
@@ -27,6 +28,7 @@ namespace LibreOfficeAI.ViewModels
         public string? ToolsStatus => _ollamaService.ToolService.ToolsStatus;
         public bool ShowWelcomeScreen => ChatMessages.Count == 0;
         public bool IsRecording => _audioService.IsRecording;
+        public bool IsTranscribing => _whisperService.IsTranscribing;
 
         // Prompt handled by UIStateService
         public string PromptText
@@ -41,7 +43,7 @@ namespace LibreOfficeAI.ViewModels
         public bool AiTurn => _chatService.AiTurn;
 
         // Enable/disable typing
-        public bool CanType => !IsRecording && !AiTurn;
+        public bool CanType => !IsRecording && !IsTranscribing && !AiTurn;
 
         // Documents
         public ObservableCollection<Document> DocumentsInUse => _documentService.DocumentsInUse;
@@ -70,6 +72,7 @@ namespace LibreOfficeAI.ViewModels
             ChatService chatService,
             UIStateService uiStateService,
             AudioService audioService,
+            WhisperService whisperService,
             Func<DispatcherQueue> dispatcherQueueFactory
         )
         {
@@ -78,12 +81,15 @@ namespace LibreOfficeAI.ViewModels
             _chatService = chatService;
             _uiStateService = uiStateService;
             _audioService = audioService;
+            _whisperService = whisperService;
             _dispatcherQueue = dispatcherQueueFactory();
 
             // Subscribe to property changes for UI updates
             _ollamaService.PropertyChanged += OnServicePropertyChanged;
             _ollamaService.ToolService.PropertyChanged += OnServicePropertyChanged;
+
             _uiStateService.PropertyChanged += OnUIStatePropertyChanged;
+
             _chatService.PropertyChanged += OnChatServicePropertyChanged;
             _chatService.RequestCommandRefresh += OnRequestCommandRefresh;
             _chatService.RequestFocusTextBox += OnRequestFocusTextBox;
@@ -94,7 +100,17 @@ namespace LibreOfficeAI.ViewModels
                     OnPropertyChanged(nameof(ShowWelcomeScreen));
                 });
             };
+
             _audioService.RecordingStateChanged += OnAudioRecordingStateChanged;
+
+            _whisperService.IsTranscribingChanged += () =>
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(IsTranscribing));
+                    OnPropertyChanged(nameof(CanType));
+                });
+            };
         }
 
         // Commands

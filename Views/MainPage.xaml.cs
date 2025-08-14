@@ -45,18 +45,11 @@ namespace LibreOfficeAI.Views
                 MicrophoneButton.PointerEntered += MicrophoneButton_PointerEntered;
                 MicrophoneButton.PointerExited += MicrophoneButton_PointerExited;
 
-                // Global keyboard event handler for spacebar
-                this.KeyDown += MainPage_KeyDown;
-                RootGrid.KeyDown += RootGrid_KeyDown;
-
-                // Focus TextBox
+                // Focus TextBox when loaded
                 PromptTextBox.Loaded += (_, _) =>
                 {
                     PromptTextBox.Focus(FocusState.Programmatic);
                 };
-
-                // Ensure the page can receive focus and gets focus when loaded
-                this.Loaded += MainPage_Loaded;
 
                 WelcomeBorder.SizeChanged += WelcomeBorder_SizeChanged;
             }
@@ -65,18 +58,6 @@ namespace LibreOfficeAI.Views
                 System.IO.File.WriteAllText("mainpage_exception.txt", ex.ToString());
                 throw;
             }
-        }
-
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Make sure the page can receive focus
-            this.IsTabStop = true;
-            RootGrid.IsTabStop = true;
-
-            // Set focus to the page itself to capture global keyboard events
-            this.Focus(FocusState.Programmatic);
-
-            Debug.WriteLine("MainPage loaded and focused");
         }
 
         private void MicrophoneButton_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -117,54 +98,6 @@ namespace LibreOfficeAI.Views
                     _ = ViewModel.SendMessageCommand.ExecuteAsync(null);
                 }
                 e.Handled = true; // Prevents newline in TextBox
-            }
-        }
-
-        // Alternative handler on RootGrid
-        private async void RootGrid_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            Debug.WriteLine($"RootGrid KeyDown: {e.Key}");
-            if (e.Key == Windows.System.VirtualKey.Space)
-            {
-                await HandleSpaceBarPress();
-                e.Handled = true;
-            }
-        }
-
-        // Spacebar used to trigger recording - Page level
-        private async void MainPage_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            Debug.WriteLine($"MainPage KeyDown: {e.Key}");
-            if (e.Key == Windows.System.VirtualKey.Space)
-            {
-                await HandleSpaceBarPress();
-                e.Handled = true;
-            }
-        }
-
-        private async Task HandleSpaceBarPress()
-        {
-            Debug.WriteLine("Spacebar pressed - HandleSpaceBarPress called");
-
-            // Check if TextBox has focus - if so, let it handle the space normally
-            var focusedElement = FocusManager.GetFocusedElement(this.XamlRoot);
-            Debug.WriteLine($"Currently focused element: {focusedElement?.GetType().Name}");
-
-            if (focusedElement == PromptTextBox)
-            {
-                Debug.WriteLine("TextBox has focus, not triggering microphone");
-                return;
-            }
-
-            // Trigger microphone
-            if (ViewModel.ToggleMicrophoneCommand.CanExecute(null))
-            {
-                Debug.WriteLine("Executing ToggleMicrophone command");
-                await ViewModel.ToggleMicrophoneCommand.ExecuteAsync(null);
-            }
-            else
-            {
-                Debug.WriteLine("ToggleMicrophone command cannot execute");
             }
         }
 

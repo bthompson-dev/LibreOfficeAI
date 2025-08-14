@@ -9,9 +9,10 @@ using Windows.Storage;
 
 namespace LibreOfficeAI.Services
 {
-    public class AudioService(UIStateService uiStateService)
+    public class AudioService(UIStateService uiStateService, WhisperService whisperService)
     {
         private readonly UIStateService _uiStateService = uiStateService;
+        private readonly WhisperService _whisperService = whisperService;
         private MediaCapture? _mediaCapture;
         public bool IsRecording { get; private set; } = false;
 
@@ -86,7 +87,6 @@ namespace LibreOfficeAI.Services
             {
                 Debug.WriteLine("Stopping recording...");
                 IsRecording = false;
-                RecordingStateChanged?.Invoke();
 
                 await _mediaCapture.StopRecordAsync();
                 Debug.WriteLine("Recording stopped successfully");
@@ -103,7 +103,10 @@ namespace LibreOfficeAI.Services
                     var convertedPath = Path.Combine(tempPath, "recordedAudio_16kHz.wav");
                     AudioService.ConvertWav(audioFilePath, convertedPath);
 
-                    string? transcribedMessage = await WhisperService.Transcribe(convertedPath);
+                    string? transcribedMessage = await _whisperService.Transcribe(convertedPath);
+
+                    // Delay the event so that UI is consistent
+                    RecordingStateChanged?.Invoke();
 
                     if (transcribedMessage != null)
                     {

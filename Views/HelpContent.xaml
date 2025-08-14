@@ -681,6 +681,20 @@
                 </Paragraph>
             </RichTextBlock>
 
+            <!--  Voice Interface  -->
+            <RichTextBlock Margin="0,0,0,10" FontSize="18">
+                <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
+                    <LineBreak />
+                    <Run>Voice Interface:</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>Instead of typing, you can use the voice interface to send messages. Just click the microphone button to start recording, and press it again to stop recording. The application will transcribe your message into the chat box.</Run>
+                </Paragraph>
+                <Paragraph Margin="0,0,0,16">
+                    <Run>You can also use the keyboard – just press the spacebar to start and stop recording.</Run>
+                </Paragraph>
+            </RichTextBlock>
+
             <!--  Prompting  -->
             <RichTextBlock Margin="0,0,0,10" FontSize="18">
                 <Paragraph Margin="0,0,0,16" FontWeight="SemiBold">
