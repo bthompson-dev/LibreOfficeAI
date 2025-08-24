@@ -36,6 +36,12 @@
                     FontSize="24"
                     Foreground="{ThemeResource LoadingTextBrush}"
                     Text="{Binding ToolsStatus}" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="24"
+                    Foreground="Red"
+                    Text="{Binding ToolsError}"
+                    Visibility="{Binding ToolsError, Converter={StaticResource StringVisibilityConverter}}" />
             </StackPanel>
         </Grid>
 

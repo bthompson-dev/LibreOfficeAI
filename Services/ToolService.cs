@@ -29,6 +29,9 @@ namespace LibreOfficeAI.Services
         [ObservableProperty]
         public bool _toolsLoaded = false;
 
+        [ObservableProperty]
+        public string? _toolsError = null;
+
         private Chat InternalChat { get; set; }
 
         public ToolService(Chat internalChat, ConfigurationService config)
@@ -42,20 +45,28 @@ namespace LibreOfficeAI.Services
         // Get list of tools from MCP Server
         private async Task FindTools()
         {
-            ToolsStatus = "Connecting to LibreOffice...";
-            // Detailed logging for McpClient
-            var loggerFactory = LoggerFactory.Create(builder =>
+            try
             {
-                builder.AddDebug().SetMinimumLevel(LogLevel.Debug);
-            });
+                ToolsStatus = "Connecting to LibreOffice...";
+                // Detailed logging for McpClient
+                var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddDebug().SetMinimumLevel(LogLevel.Debug);
+                });
 
-            var options = new McpClientOptions { LoggerFactory = loggerFactory };
+                var options = new McpClientOptions { LoggerFactory = loggerFactory };
 
-            AvailableTools = await Tools.GetFromMcpServers(_config.ServerConfigPath, options);
+                AvailableTools = await Tools.GetFromMcpServers(_config.ServerConfigPath, options);
 
-            ToolsLoaded = true;
-            ToolsStatus = null;
-            Debug.WriteLine("Tools loaded");
+                ToolsLoaded = true;
+                ToolsStatus = null;
+                Debug.WriteLine("Tools loaded");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                ToolsError = $"Error: {ex}";
+            }
         }
 
         // Use internal chat to decide which tools the user may need

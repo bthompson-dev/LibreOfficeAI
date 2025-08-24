@@ -26,6 +26,7 @@ namespace LibreOfficeAI.ViewModels
         public double ModelPercentage => _ollamaService.ModelPercentage;
         public bool ToolsLoaded => _ollamaService.ToolService.ToolsLoaded;
         public string? ToolsStatus => _ollamaService.ToolService.ToolsStatus;
+        public string? ToolsError => _ollamaService.ToolService.ToolsError;
         public bool ShowWelcomeScreen => ChatMessages.Count == 0;
         public bool IsRecording => _audioService.IsRecording;
         public bool IsTranscribing => _whisperService.IsTranscribing;
@@ -194,6 +195,9 @@ namespace LibreOfficeAI.ViewModels
                         break;
                     case nameof(OllamaService.ToolService.ToolsStatus):
                         OnPropertyChanged(nameof(ToolsStatus));
+                        break;
+                    case nameof(OllamaService.ToolService.ToolsError):
+                        OnPropertyChanged(nameof(ToolsError));
                         break;
                 }
             });
