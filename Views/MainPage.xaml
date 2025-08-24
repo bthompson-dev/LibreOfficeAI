@@ -24,7 +24,7 @@
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="24"
-                    Foreground="#666666"
+                    Foreground="{ThemeResource LoadingTextBrush}"
                     Text="{Binding OllamaStatus}"
                     Visibility="{Binding OllamaStatus, Converter={StaticResource StringVisibilityConverter}}" />
                 <ProgressBar
@@ -34,7 +34,7 @@
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="24"
-                    Foreground="#666666"
+                    Foreground="{ThemeResource LoadingTextBrush}"
                     Text="{Binding ToolsStatus}" />
             </StackPanel>
         </Grid>
@@ -68,13 +68,13 @@
                         Width="40"
                         Height="40"
                         Padding="0"
-                        Background="White"
+                        Background="{ThemeResource ButtonBackgroundBrush}"
                         BorderThickness="0"
                         Command="{x:Bind ViewModel.SettingsButton_ClickCommand}"
                         CornerRadius="40"
                         ToolTipService.ToolTip="Settings">
                         <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                         </Button.Resources>
                         <FontIcon Glyph="&#xE713;" />
                     </Button>
@@ -83,13 +83,13 @@
                         Width="40"
                         Height="40"
                         Padding="0"
-                        Background="White"
+                        Background="{ThemeResource ButtonBackgroundBrush}"
                         BorderThickness="0"
                         Command="{Binding NewChatCommand}"
                         CornerRadius="40"
                         ToolTipService.ToolTip="New Chat">
                         <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                         </Button.Resources>
                         <FontIcon Glyph="&#xE932;" />
                     </Button>
@@ -98,13 +98,13 @@
                         Width="40"
                         Height="40"
                         Padding="0"
-                        Background="White"
+                        Background="{ThemeResource ButtonBackgroundBrush}"
                         BorderThickness="0"
                         Command="{x:Bind ViewModel.HelpButton_ClickCommand}"
                         CornerRadius="40"
                         ToolTipService.ToolTip="Help">
                         <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                         </Button.Resources>
                         <FontIcon Glyph="&#xE897;" />
                     </Button>
@@ -115,7 +115,7 @@
                     Margin="0,16,24,0"
                     Padding="16,4"
                     VerticalAlignment="Top"
-                    Background="#F2F2F2"
+                    Background="{ThemeResource LibreOfficeLogoBackgroundBrush}"
                     CornerRadius="16">
                     <StackPanel VerticalAlignment="Top" Orientation="Vertical">
                         <!--  Writer and Impress Doc display templates  -->
@@ -186,7 +186,7 @@
                             Margin="100,8,0,8"
                             Padding="16"
                             HorizontalAlignment="Right"
-                            Background="White"
+                            Background="{ThemeResource UserMessageBackgroundBrush}"
                             CornerRadius="16">
                             <TextBlock
                                 HorizontalAlignment="Right"
@@ -215,7 +215,7 @@
                                 Margin="0,8,100,8"
                                 Padding="16"
                                 HorizontalAlignment="Left"
-                                Background="#d9dbf5"
+                                Background="{ThemeResource AIMessageBackgroundBrush}"
                                 CornerRadius="16"
                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
                                 <StackPanel>
@@ -256,7 +256,7 @@
                             Margin="0,8,100,8"
                             Padding="16"
                             HorizontalAlignment="Left"
-                            Background="red"
+                            Background="{ThemeResource ErrorMessageBackgroundBrush}"
                             CornerRadius="16">
                             <TextBlock
                                 HorizontalAlignment="Left"
@@ -280,7 +280,7 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Canvas.ZIndex="0"
-                        Fill="Magenta" />
+                        Fill="{ThemeResource WelcomeMessageBackgroundBrush}" />
                     <Border
                         x:Name="WelcomeBorder"
                         Padding="40"
@@ -362,7 +362,7 @@
                         Padding="28,15,56,15"
                         VerticalAlignment="Bottom"
                         VerticalContentAlignment="Center"
-                        Background="White"
+                        Background="{ThemeResource ChatBoxBackgroundBrush}"
                         BorderBrush="#E0E0E0"
                         BorderThickness="1"
                         CornerRadius="28"
@@ -400,7 +400,7 @@
                     Height="56"
                     Margin="-80,0,24,0"
                     VerticalAlignment="Bottom"
-                    Background="White"
+                    Background="{ThemeResource ButtonBackgroundBrush}"
                     BorderThickness="1"
                     Command="{x:Bind ViewModel.ToggleMicrophoneCommand}"
                     CornerRadius="28"
@@ -413,7 +413,7 @@
                                     x:Name="GlowEllipse"
                                     Width="56"
                                     Height="56"
-                                    Fill="#33FF0000"
+                                    Fill="{ThemeResource RecordingEllipseBrush}"
                                     Opacity="0"
                                     RenderTransformOrigin="0.5,0.5">
                                     <Ellipse.RenderTransform>
@@ -441,9 +441,9 @@
                                         <VisualState x:Name="Normal" />
                                         <VisualState x:Name="PointerOver">
                                             <Storyboard>
-                                                <!--  Change background to #f2f2f2 on hover  -->
+                                                <!--  Change background on hover  -->
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonHoverBrush}" />
                                                 </ObjectAnimationUsingKeyFrames>
                                                 <!--  Change border to #CCCCCC on hover  -->
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
@@ -501,7 +501,7 @@
                                                     To="1.25"
                                                     Duration="0:0:0.5" />
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonHoverBrush}" />
                                                 </ObjectAnimationUsingKeyFrames>
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="#CCCCCC" />
@@ -538,7 +538,7 @@
                                                     Duration="0:0:0.5" />
                                                 <!--  Hover background and border  -->
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundEllipse" Storyboard.TargetProperty="Fill">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#f2f2f2" />
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonHoverBrush}" />
                                                 </ObjectAnimationUsingKeyFrames>
                                                 <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderEllipse" Storyboard.TargetProperty="Stroke">
                                                     <DiscreteObjectKeyFrame KeyTime="0" Value="#CCCCCC" />

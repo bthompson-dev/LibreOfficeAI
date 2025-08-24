@@ -56,7 +56,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you tell me the properties of the ‘True story’ document?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 2  -->
@@ -73,7 +73,7 @@
                         Margin="0,0,0,14"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you list all of the available documents?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 3  -->
@@ -89,7 +89,7 @@
                         Grid.Column="1"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you make a copy of the Sales Pitch document?&quot;"
                         TextWrapping="Wrap" />
                 </Grid>
@@ -142,7 +142,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you make a new document called ‘Board Meeting’?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 2  -->
@@ -161,7 +161,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you give me a summary of the Meeting Notes document?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 3  -->
@@ -180,7 +180,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you add the sentence ‘All is fair in love and war’ to the quotes document?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 4  -->
@@ -199,7 +199,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you add a new heading, ‘How I found my true self’, to the Meditation document?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 5  -->
@@ -218,7 +218,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you add a paragraph about dogs to the animals document?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 6  -->
@@ -237,7 +237,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you add a table about the pros and cons of capitalism?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 7  -->
@@ -256,7 +256,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Insert a page break at the end of the Freedom document&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 8  -->
@@ -275,7 +275,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please use a bigger font for the text ‘Things can only get better’ – make it green and use the Georgia font&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 9  -->
@@ -294,7 +294,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you replace the phrase ‘We shouldn’t speak any more’ with ‘You know where to find me’&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 10  -->
@@ -313,7 +313,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please delete ‘The time has come’ from the proposal document&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 11  -->
@@ -332,7 +332,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please give a header row and thicker borders to the second table in the ‘Product Review’ document&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 12  -->
@@ -351,7 +351,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Delete the first paragraph in the ‘Bird Species’ document&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 13  -->
@@ -370,7 +370,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please give the ‘Party invitation’ document fun styling, with big colourful text&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 14  -->
@@ -389,7 +389,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please insert the following image into the ‘Animals’ document: C:\Users\username\Downloads\monkey.png&quot;"
                         TextWrapping="Wrap" />
                 </Grid>
@@ -437,7 +437,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you create me a presentation called ‘Business Proposal’?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 2  -->
@@ -456,7 +456,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you give me a summary of the ‘Team Agenda’ presentation?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 3  -->
@@ -475,7 +475,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you add a slide about AI training to the Onboarding presentation?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 4  -->
@@ -494,7 +494,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you change the title of the second slide to ‘Supporting other team members’?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 5  -->
@@ -513,7 +513,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Can you change the content of the second slide to a list of how to support other members of your team?&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 6  -->
@@ -532,7 +532,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Delete the fourth slide&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 7  -->
@@ -551,7 +551,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please apply the Blue Curve template to the Lesson Plan presentation&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 8  -->
@@ -570,7 +570,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please make the title of the first slide bold, blue and centred&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 9  -->
@@ -589,7 +589,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please make the content of the first slide smaller and in italics, with a light blue background&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 10  -->
@@ -608,7 +608,7 @@
                         VerticalAlignment="Center"
                         FontSize="16"
                         FontStyle="Italic"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="e.g. &quot;Please insert this image into the 5th slide of the ‘Roadmap’ presentation: C:\Users\username\Pictures\roadmap_diagram.jpeg&quot;"
                         TextWrapping="Wrap" />
                     <!--  Row 11: Note  -->
@@ -618,7 +618,7 @@
                         Grid.ColumnSpan="2"
                         Margin="0,8,0,0"
                         FontSize="16"
-                        Foreground="Gray"
+                        Foreground="{ThemeResource HelpItalicsBrush}"
                         Text="Note: When working with presentations, the AI assistant is limited to a simple slide layout with a title and content textbox. For more sophisticated layouts, you will need to make changes directly in Impress."
                         TextWrapping="Wrap" />
                 </Grid>
@@ -813,10 +813,12 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
-                <Image
+                <Border
                     Grid.Column="0"
-                    Height="60"
-                    Source="/Assets/ucl_logo.svg" />
+                    Padding="10"
+                    Background="White">
+                    <Image Height="60" Source="/Assets/ucl_logo.svg" />
+                </Border>
                 <Image
                     Grid.Column="2"
                     Height="60"

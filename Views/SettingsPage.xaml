@@ -36,13 +36,13 @@
                         Width="40"
                         Height="40"
                         Padding="0"
-                        Background="White"
+                        Background="{ThemeResource ButtonBackgroundBrush}"
                         BorderThickness="0"
                         Command="{x:Bind ViewModel.BackButton_ClickCommand}"
                         CornerRadius="40"
                         ToolTipService.ToolTip="Settings">
                         <Button.Resources>
-                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                         </Button.Resources>
                         <FontIcon Glyph="&#xE72B;" />
                     </Button>
@@ -72,18 +72,18 @@
                             Height="25"
                             Margin="8,0"
                             Padding="0"
-                            Background="White"
+                            Background="{ThemeResource ButtonBackgroundBrush}"
                             BorderThickness="0"
                             Click="Info_Click"
                             CornerRadius="40"
                             Tag="DocumentsFolderInfoTeachingTip"
                             ToolTipService.ToolTip="Settings">
                             <Button.Resources>
-                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                             </Button.Resources>
                             <FontIcon
                                 FontSize="18"
-                                Foreground="#3767a8"
+                                Foreground="{ThemeResource InfoIconBrush}"
                                 Glyph="&#xE946;" />
                         </Button>
                         <TeachingTip
@@ -131,18 +131,18 @@
                             Height="25"
                             Margin="8,0"
                             Padding="0"
-                            Background="White"
+                            Background="{ThemeResource ButtonBackgroundBrush}"
                             BorderThickness="0"
                             Click="Info_Click"
                             CornerRadius="40"
                             Tag="AIModelInfoTeachingTip"
                             ToolTipService.ToolTip="Settings">
                             <Button.Resources>
-                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                             </Button.Resources>
                             <FontIcon
                                 FontSize="18"
-                                Foreground="#3767a8"
+                                Foreground="{ThemeResource InfoIconBrush}"
                                 Glyph="&#xE946;" />
                         </Button>
                         <TeachingTip
@@ -189,18 +189,18 @@
                             Height="25"
                             Margin="8,0"
                             Padding="0"
-                            Background="White"
+                            Background="{ThemeResource ButtonBackgroundBrush}"
                             BorderThickness="0"
                             Click="Info_Click"
                             CornerRadius="40"
                             Tag="PresentationTemplatesInfoTeachingTip"
                             ToolTipService.ToolTip="Settings">
                             <Button.Resources>
-                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                             </Button.Resources>
                             <FontIcon
                                 FontSize="18"
-                                Foreground="#3767a8"
+                                Foreground="{ThemeResource InfoIconBrush}"
                                 Glyph="&#xE946;" />
                         </Button>
                         <TeachingTip

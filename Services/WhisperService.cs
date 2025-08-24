@@ -14,19 +14,43 @@ namespace LibreOfficeAI.Services
         private readonly WhisperFactory whisperFactory;
         private readonly WhisperProcessor processor;
         private readonly IDisposable whisperLogger;
+        private readonly string modelsDirectory;
+        private readonly string modelFilePath;
+
         public bool IsTranscribing { get; private set; } = false;
         public event Action? IsTranscribingChanged;
 
         public WhisperService()
         {
+            // Create a dedicated directory for Whisper models
+#if DEBUG
+            modelsDirectory = Path.Combine(
+                Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+                    ?? ".",
+                "WhisperModels"
+            );
+#else
+            modelsDirectory = Path.Combine(AppContext.BaseDirectory, "WhisperModels");
+#endif
+            // Ensure the models directory exists
+            Directory.CreateDirectory(modelsDirectory);
+
             var ggmlType = GgmlType.Base;
             var modelFileName = "ggml-base.bin";
-            if (!File.Exists(modelFileName))
+            modelFilePath = Path.Combine(modelsDirectory, modelFileName);
+
+            if (!File.Exists(modelFilePath))
             {
-                DownloadModel(modelFileName, ggmlType).GetAwaiter().GetResult();
+                Debug.WriteLine($"Whisper model not found at {modelFilePath}, downloading...");
+                DownloadModel(modelFilePath, ggmlType).GetAwaiter().GetResult();
             }
+            else
+            {
+                Debug.WriteLine($"Using existing Whisper model at {modelFilePath}");
+            }
+
             whisperLogger = LogProvider.AddConsoleLogging(WhisperLogLevel.Debug);
-            whisperFactory = WhisperFactory.FromPath(modelFileName);
+            whisperFactory = WhisperFactory.FromPath(modelFilePath);
             processor = whisperFactory.CreateBuilder().WithLanguage("auto").Build();
         }
 
@@ -56,16 +80,29 @@ namespace LibreOfficeAI.Services
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
+                IsTranscribing = false;
+                IsTranscribingChanged?.Invoke();
                 return null;
             }
         }
 
-        private static async Task DownloadModel(string fileName, GgmlType ggmlType)
+        private static async Task DownloadModel(string filePath, GgmlType ggmlType)
         {
-            Console.WriteLine($"Downloading Model {fileName}");
-            using var modelStream = await WhisperGgmlDownloader.Default.GetGgmlModelAsync(ggmlType);
-            using var fileWriter = File.OpenWrite(fileName);
-            await modelStream.CopyToAsync(fileWriter);
+            Debug.WriteLine($"Downloading Whisper model to {filePath}");
+            try
+            {
+                using var modelStream = await WhisperGgmlDownloader.Default.GetGgmlModelAsync(
+                    ggmlType
+                );
+                using var fileWriter = File.OpenWrite(filePath);
+                await modelStream.CopyToAsync(fileWriter);
+                Debug.WriteLine("Whisper model download completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error downloading Whisper model: {ex.Message}");
+                throw;
+            }
         }
 
         public void Dispose()

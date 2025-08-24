@@ -16,7 +16,7 @@
 
     <Grid
         x:Name="MainGrid"
-        Background="#F2F6FA"
+        Background="{ThemeResource MainBackgroundBrush}"
         KeyboardAcceleratorPlacementMode="Hidden">
         <Grid.KeyboardAccelerators>
             <KeyboardAccelerator

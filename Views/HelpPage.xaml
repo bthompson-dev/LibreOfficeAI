@@ -44,13 +44,13 @@
                             Width="40"
                             Height="40"
                             Padding="0"
-                            Background="White"
+                            Background="{ThemeResource ButtonBackgroundBrush}"
                             BorderThickness="0"
                             Command="{x:Bind ViewModel.BackButton_ClickCommand}"
                             CornerRadius="40"
                             ToolTipService.ToolTip="Settings">
                             <Button.Resources>
-                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#f2f2f2" />
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource ButtonHoverColor}" />
                             </Button.Resources>
                             <FontIcon Glyph="&#xE72B;" />
                         </Button>
@@ -67,7 +67,7 @@
                     DisplayMode="Inline"
                     IsPaneOpen="True"
                     OpenPaneLength="200"
-                    PaneBackground="#F2F6FA">
+                    PaneBackground="{ThemeResource MainBackgroundBrush}">
                     <SplitView.Pane>
                         <Grid>
                             <Grid.RowDefinitions>
