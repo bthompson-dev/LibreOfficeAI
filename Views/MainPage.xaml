@@ -36,12 +36,18 @@
                     FontSize="24"
                     Foreground="{ThemeResource LoadingTextBrush}"
                     Text="{Binding ToolsStatus}" />
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    FontSize="24"
-                    Foreground="Red"
-                    Text="{Binding ToolsError}"
-                    Visibility="{Binding ToolsError, Converter={StaticResource StringVisibilityConverter}}" />
+                <ScrollViewer
+                    MaxHeight="100"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        FontSize="14"
+                        Foreground="Red"
+                        IsTextSelectionEnabled="True"
+                        Text="{Binding ToolsError}"
+                        Visibility="{Binding ToolsError, Converter={StaticResource StringVisibilityConverter}}" />
+                </ScrollViewer>
             </StackPanel>
         </Grid>
 
@@ -390,7 +396,11 @@
                         BorderThickness="0"
                         Command="{Binding SendMessageCommand}"
                         CornerRadius="20"
+                        ToolTipService.ToolTip="Send Message"
                         Visibility="{Binding IsSendButtonVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#3E8E41 " />
+                        </Button.Resources>
                         <FontIcon
                             Margin="3,0,0,0"
                             FontSize="18"

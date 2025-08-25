@@ -29,7 +29,25 @@ namespace LibreOfficeAI
         public App()
         {
             this.UnhandledException += App_UnhandledException;
-            InitializeComponent();
+
+            try
+            {
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                // Capture any exception during InitializeComponent
+                File.WriteAllText(
+                    "app_initialization_exception.txt",
+                    $"Exception during App.InitializeComponent():\n"
+                        + $"Message: {ex.Message}\n"
+                        + $"Stack Trace: {ex.StackTrace}\n"
+                        + $"Inner Exception: {ex.InnerException?.ToString() ?? "None"}\n"
+                        + $"HResult: {ex.HResult}\n"
+                        + $"Source: {ex.Source}"
+                );
+                throw;
+            }
 
             // Configure dependency injection
             _host = Host.CreateDefaultBuilder()
@@ -71,7 +89,17 @@ namespace LibreOfficeAI
         {
             try
             {
-                File.WriteAllText("unhandled_exception.txt", e.Exception.ToString());
+                var detailedInfo =
+                    $"Unhandled Exception:\n"
+                    + $"Message: {e.Exception.Message}\n"
+                    + $"Stack Trace: {e.Exception.StackTrace}\n"
+                    + $"Inner Exception: {e.Exception.InnerException?.ToString() ?? "None"}\n"
+                    + $"HResult: {e.Exception.HResult}\n"
+                    + $"Source: {e.Exception.Source}\n"
+                    + $"Type: {e.Exception.GetType().FullName}\n"
+                    + $"Handled: {e.Handled}";
+
+                File.WriteAllText("unhandled_exception.txt", detailedInfo);
             }
             catch { }
         }
@@ -82,18 +110,34 @@ namespace LibreOfficeAI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            var ollamaService = _host.Services.GetRequiredService<OllamaService>();
-            _ = ollamaService.StartAsync();
-
-            _window = new MainWindow(_host.Services, ollamaService);
-
-            // Dispose of Ollama when app is closed
-            _window.Closed += (s, e) =>
+            try
             {
-                ollamaService.Dispose();
-            };
+                var ollamaService = _host.Services.GetRequiredService<OllamaService>();
+                _ = ollamaService.StartAsync();
 
-            _window.Activate();
+                _window = new MainWindow(_host.Services, ollamaService);
+
+                // Dispose of Ollama when app is closed
+                _window.Closed += (s, e) =>
+                {
+                    ollamaService.Dispose();
+                };
+
+                _window.Activate();
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText(
+                    "launch_exception.txt",
+                    $"Exception during OnLaunched:\n"
+                        + $"Message: {ex.Message}\n"
+                        + $"Stack Trace: {ex.StackTrace}\n"
+                        + $"Inner Exception: {ex.InnerException?.ToString() ?? "None"}\n"
+                        + $"HResult: {ex.HResult}\n"
+                        + $"Source: {ex.Source}"
+                );
+                throw;
+            }
         }
 
         // Expose service provider for other components

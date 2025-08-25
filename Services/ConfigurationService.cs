@@ -61,7 +61,12 @@ namespace LibreOfficeAI.Services
             OllamaModelsDir = Path.Combine(AppContext.BaseDirectory, "Ollama", "lib", "models");
 
             string settingsPath = Path.Combine(AppContext.BaseDirectory, "settings.json");
-            string serverCommand = Path.Combine(AppContext.BaseDirectory, "MCPServer", "main.exe");
+            string serverCommand = Path.Combine(
+                AppContext.BaseDirectory,
+                "MCPServer",
+                "main.dist",
+                "main.exe"
+            );
             ServerConfigPath = Path.Combine(AppContext.BaseDirectory, "server_config.json");
 
             SystemPromptPath = Path.Combine(AppContext.BaseDirectory, "SystemPrompt.txt");

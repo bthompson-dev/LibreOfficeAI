@@ -45,27 +45,55 @@ namespace LibreOfficeAI.Services
         // Get list of tools from MCP Server
         private async Task FindTools()
         {
-            try
+            const int maxRetries = 3;
+            const int portToKill = 8765;
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                ToolsStatus = "Connecting to LibreOffice...";
-                // Detailed logging for McpClient
-                var loggerFactory = LoggerFactory.Create(builder =>
+                try
                 {
-                    builder.AddDebug().SetMinimumLevel(LogLevel.Debug);
-                });
+                    ToolsStatus =
+                        attempt == 1
+                            ? "Connecting to LibreOffice..."
+                            : $"Retrying connection (attempt {attempt})...";
 
-                var options = new McpClientOptions { LoggerFactory = loggerFactory };
+                    // Detailed logging for McpClient
+                    var loggerFactory = LoggerFactory.Create(builder =>
+                    {
+                        builder.AddDebug().SetMinimumLevel(LogLevel.Debug);
+                    });
 
-                AvailableTools = await Tools.GetFromMcpServers(_config.ServerConfigPath, options);
+                    var options = new McpClientOptions { LoggerFactory = loggerFactory };
 
-                ToolsLoaded = true;
-                ToolsStatus = null;
-                Debug.WriteLine("Tools loaded");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-                ToolsError = $"Error: {ex}";
+                    AvailableTools = await Tools.GetFromMcpServers(
+                        _config.ServerConfigPath,
+                        options
+                    );
+
+                    ToolsLoaded = true;
+                    ToolsStatus = null;
+                    Debug.WriteLine("Tools loaded");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Attempt {attempt} failed: {ex}");
+
+                    if (attempt < maxRetries)
+                    {
+                        Debug.WriteLine($"Killing process on port {portToKill} and retrying...");
+                        KillProcessOnPort(portToKill);
+
+                        // Optional: Add a small delay before retry
+                        await Task.Delay(1000);
+                    }
+                    else
+                    {
+                        // Final attempt failed
+                        ToolsError = $"Error after {maxRetries} attempts: {ex}";
+                        Debug.WriteLine(ex.ToString());
+                    }
+                }
             }
         }
 
@@ -105,6 +133,48 @@ namespace LibreOfficeAI.Services
             InternalChat.Messages.RemoveRange(1, InternalChat.Messages.Count - 1);
             Debug.WriteLine(InternalChat.Messages.Count);
             NeededTools.Clear();
+        }
+
+        public static void KillProcessOnPort(int port)
+        {
+            // Step 1: Find the PID using netstat
+            var netstat = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "netstat",
+                    Arguments = $"-ano | findstr :{port}",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                },
+            };
+            netstat.Start();
+            string output = netstat.StandardOutput.ReadToEnd();
+            netstat.WaitForExit();
+
+            // Step 2: Parse the PID from netstat output
+            var lines = output.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                var parts = line.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 5)
+                {
+                    if (int.TryParse(parts[4], out int pid))
+                    {
+                        // Step 3: Kill the process
+                        try
+                        {
+                            Process.GetProcessById(pid).Kill();
+                            Console.WriteLine($"Killed process {pid} on port {port}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Failed to kill process {pid}: {ex.Message}");
+                        }
+                    }
+                }
+            }
         }
     }
 }

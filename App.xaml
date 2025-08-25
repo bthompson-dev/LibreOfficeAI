@@ -4,8 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
-    xmlns:local="using:LibreOfficeAI"
-    xmlns:media="using:Microsoft.UI.Xaml.Media">
+    xmlns:local="using:LibreOfficeAI">
     <Application.Resources>
         <ResourceDictionary>
             <!--  Move property elements (ThemeDictionaries) before other content  -->
@@ -23,7 +22,7 @@
                     <Color x:Key="RecordingEllipseColor">#33FF0000</Color>
                     <Color x:Key="InfoIconColor">#3767a8</Color>
                     <Color x:Key="HelpItalicsColor">gray</Color>
-                    <media:AcrylicBrush
+                    <AcrylicBrush
                         x:Key="LibreOfficeLogoBackgroundBrush"
                         FallbackColor="#f2f2f2"
                         TintColor="#f2f2f2"
@@ -43,7 +42,7 @@
                     <Color x:Key="RecordingEllipseColor">#99FF0000</Color>
                     <Color x:Key="InfoIconColor">white</Color>
                     <Color x:Key="HelpItalicsColor">lightgray</Color>
-                    <media:AcrylicBrush
+                    <AcrylicBrush
                         x:Key="LibreOfficeLogoBackgroundBrush"
                         FallbackColor="#0a3051"
                         TintColor="#0078d4"
