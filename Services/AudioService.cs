@@ -9,9 +9,9 @@ using Windows.Storage;
 
 namespace LibreOfficeAI.Services
 {
-    public class AudioService(UIStateService uiStateService, WhisperService whisperService)
+    public class AudioService(UserPromptService userPromptService, WhisperService whisperService)
     {
-        private readonly UIStateService _uiStateService = uiStateService;
+        private readonly UserPromptService _userPromptService = userPromptService;
         private readonly WhisperService _whisperService = whisperService;
         private MediaCapture? _mediaCapture;
         public bool IsRecording { get; private set; } = false;
@@ -113,8 +113,8 @@ namespace LibreOfficeAI.Services
                         string trimmedMessage = transcribedMessage.TrimStart();
                         if (trimmedMessage != "[BLANK_AUDIO]")
                         {
-                            _uiStateService.PromptText = trimmedMessage;
-                            _uiStateService.RequestFocus();
+                            _userPromptService.PromptText = trimmedMessage;
+                            _userPromptService.RequestFocus();
                         }
                     }
                 }

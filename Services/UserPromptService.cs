@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace LibreOfficeAI.Services
 {
-    public partial class UIStateService : ObservableObject
+    public partial class UserPromptService : ObservableObject
     {
         [ObservableProperty]
         private string _promptText = string.Empty;

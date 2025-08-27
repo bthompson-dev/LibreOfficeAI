@@ -14,7 +14,7 @@ namespace LibreOfficeAI.ViewModels
         private readonly OllamaService _ollamaService;
         private readonly DocumentService _documentService;
         private readonly ChatService _chatService;
-        private readonly UIStateService _uiStateService;
+        private readonly UserPromptService _userPromptService;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly AudioService _audioService;
         private readonly WhisperService _whisperService;
@@ -31,13 +31,13 @@ namespace LibreOfficeAI.ViewModels
         public bool IsRecording => _audioService.IsRecording;
         public bool IsTranscribing => _whisperService.IsTranscribing;
 
-        // Prompt handled by UIStateService
+        // Prompt handled by userPromptService
         public string PromptText
         {
-            get => _uiStateService.PromptText;
-            set => _uiStateService.PromptText = value;
+            get => _userPromptService.PromptText;
+            set => _userPromptService.PromptText = value;
         }
-        public bool IsSendButtonVisible => _uiStateService.IsSendButtonVisible;
+        public bool IsSendButtonVisible => _userPromptService.IsSendButtonVisible;
 
         // Chat handled by ChatService
         public ObservableCollection<ChatMessage> ChatMessages => _chatService.ChatMessages;
@@ -58,8 +58,8 @@ namespace LibreOfficeAI.ViewModels
 
         public event Action? FocusTextBox
         {
-            add => _uiStateService.FocusTextBox += value;
-            remove => _uiStateService.FocusTextBox -= value;
+            add => _userPromptService.FocusTextBox += value;
+            remove => _userPromptService.FocusTextBox -= value;
         }
 
         public event Action? OnRequestNavigateToSettings;
@@ -71,7 +71,7 @@ namespace LibreOfficeAI.ViewModels
             OllamaService ollamaService,
             DocumentService documentService,
             ChatService chatService,
-            UIStateService uiStateService,
+            UserPromptService userPromptService,
             AudioService audioService,
             WhisperService whisperService,
             Func<DispatcherQueue> dispatcherQueueFactory
@@ -80,7 +80,7 @@ namespace LibreOfficeAI.ViewModels
             _ollamaService = ollamaService;
             _documentService = documentService;
             _chatService = chatService;
-            _uiStateService = uiStateService;
+            _userPromptService = userPromptService;
             _audioService = audioService;
             _whisperService = whisperService;
             _dispatcherQueue = dispatcherQueueFactory();
@@ -89,7 +89,7 @@ namespace LibreOfficeAI.ViewModels
             _ollamaService.PropertyChanged += OnServicePropertyChanged;
             _ollamaService.ToolService.PropertyChanged += OnServicePropertyChanged;
 
-            _uiStateService.PropertyChanged += OnUIStatePropertyChanged;
+            _userPromptService.PropertyChanged += OnUIStatePropertyChanged;
 
             _chatService.PropertyChanged += OnChatServicePropertyChanged;
             _chatService.RequestCommandRefresh += OnRequestCommandRefresh;
@@ -126,9 +126,9 @@ namespace LibreOfficeAI.ViewModels
                 return;
 
             // Delegate to services
-            _uiStateService.ClearPrompt();
+            _userPromptService.ClearPrompt();
             await _chatService.SendMessageAsync(userInput);
-            _uiStateService.RequestFocus();
+            _userPromptService.RequestFocus();
         }
 
         // Determines if a message can be sent based on current state
@@ -251,7 +251,7 @@ namespace LibreOfficeAI.ViewModels
 
         private void OnRequestFocusTextBox()
         {
-            _uiStateService.RequestFocus();
+            _userPromptService.RequestFocus();
         }
     }
 }

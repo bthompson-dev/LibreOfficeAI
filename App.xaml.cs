@@ -61,7 +61,7 @@ namespace LibreOfficeAI
                         services.AddSingleton<DocumentService>();
                         services.AddSingleton<OllamaService>();
                         services.AddSingleton<ChatService>();
-                        services.AddSingleton<UIStateService>();
+                        services.AddSingleton<UserPromptService>();
                         services.AddSingleton<AudioService>();
                         services.AddSingleton<WhisperService>();
 
