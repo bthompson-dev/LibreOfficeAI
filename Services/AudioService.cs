@@ -9,6 +9,14 @@ using Windows.Storage;
 
 namespace LibreOfficeAI.Services
 {
+    /// <summary>
+    /// Provides functionality for audio recording, transcription, and integration with user prompts.
+    /// </summary>
+    /// <remarks>The <see cref="AudioService"/> class manages audio recording using the device's microphone,
+    /// transcribes the recorded audio, and updates the user prompt with the transcribed text. It supports toggling
+    /// between recording states and raises an event when the recording state changes.</remarks>
+    /// <param name="userPromptService"></param>
+    /// <param name="whisperService"></param>
     public class AudioService(UserPromptService userPromptService, WhisperService whisperService)
     {
         private readonly UserPromptService _userPromptService = userPromptService;

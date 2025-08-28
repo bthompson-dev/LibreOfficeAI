@@ -7,11 +7,14 @@ using System.Linq;
 namespace LibreOfficeAI.Services
 {
     /// <summary>
-    /// Provides services for managing and accessing documents within a specified directory.
+    /// Provides functionality for managing documents and presentation templates, including tracking documents in use,
+    /// retrieving available documents, and managing presentation templates.
     /// </summary>
-    /// <remarks>The <see cref="DocumentService"/> class initializes by loading all documents from a
-    /// configured directory. It offers functionality to retrieve document names and manage documents currently in
-    /// use.</remarks>
+    /// <remarks>The <see cref="DocumentService"/> class is designed to work with a collection of documents
+    /// and presentation templates. It supports adding documents to a collection, retrieving string representations of
+    /// documents and templates, and clearing the list of documents in use. The service distinguishes between writer
+    /// documents (e.g., .docx, .odt) and presentation documents (e.g., .pptx, .odp) based on their file
+    /// extensions.</remarks>
     public class DocumentService
     {
         public ObservableCollection<Document> DocumentsInUse { get; set; } = [];

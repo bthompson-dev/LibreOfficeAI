@@ -27,11 +27,11 @@ Impress Functions:
 3. add_slide - Add a new slide to a presentation
 4. edit_slide_content - Edit the main text content of a specific slide
 5. edit_slide_title - Edit the title of a specific slide
-5. delete_slide - Delete a slide from a presentation
-6. apply_presentation_template - Apply a built-in LibreOffice template to a presentation
-7. format_slide_content - Format the content text of a specific slide
-8. format_slide_title - Format the title text of a specific slide
-9. insert_slide_image - Insert an image into a specific slide of a presentation
+6. delete_slide - Delete a slide from a presentation
+7. apply_presentation_template - Apply a built-in LibreOffice template to a presentation
+8. format_slide_content - Format the content text of a specific slide
+9. format_slide_title - Format the title text of a specific slide
+10. insert_slide_image - Insert an image into a specific slide of a presentation
 
 Read the user prompt and decide which of these functions may be useful to answer their request. Choose multiple functions if they might be useful.
 Respond with ONLY the names of the functions you choose. If no functions are relevant, respond with only 'None'.

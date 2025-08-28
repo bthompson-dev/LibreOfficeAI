@@ -12,6 +12,16 @@ using Microsoft.UI.Dispatching;
 
 namespace LibreOfficeAI.Services
 {
+    /// <summary>
+    /// Provides functionality for managing chat interactions, including sending messages, handling AI responses, and
+    /// managing chat-related events and state.
+    /// </summary>
+    /// <remarks>The <see cref="ChatService"/> class facilitates communication between the user and an AI
+    /// system. It manages the chat message collection, handles AI responses, and provides methods for sending messages,
+    /// canceling prompts, and starting new chats. This class also raises events to notify the UI of changes, such as
+    /// scrolling to the bottom of the chat or refreshing commands.  This service depends on several other services,
+    /// including <see cref="OllamaService"/> for AI interactions, <see cref="DocumentService"/> for managing documents
+    /// in use, and <see cref="ConfigurationService"/> for configuration settings.</remarks>
     public partial class ChatService : ObservableObject
     {
         private readonly OllamaService ollamaService;
@@ -24,6 +34,11 @@ namespace LibreOfficeAI.Services
 
         [ObservableProperty]
         private ObservableCollection<ChatMessage> _chatMessages = [];
+
+        public bool CanSendMessage(string promptText) =>
+            !AiTurn
+            && !string.IsNullOrWhiteSpace(promptText)
+            && ollamaService.ToolService.ToolsLoaded;
 
         // Cancellation token
         private CancellationTokenSource _cts = new();
@@ -63,11 +78,6 @@ namespace LibreOfficeAI.Services
             // Send to AI
             await SendPromptAsync(userInput);
         }
-
-        public bool CanSendMessage(string promptText) =>
-            !AiTurn
-            && !string.IsNullOrWhiteSpace(promptText)
-            && ollamaService.ToolService.ToolsLoaded;
 
         public void CancelPrompt()
         {

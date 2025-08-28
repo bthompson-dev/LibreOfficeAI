@@ -8,6 +8,14 @@ using Newtonsoft.Json.Linq;
 
 namespace LibreOfficeAI.Services
 {
+    /// <summary>
+    /// Provides configuration management for the application, including paths, templates, and settings.
+    /// </summary>
+    /// <remarks>The <see cref="ConfigurationService"/> class is responsible for managing application
+    /// settings,  such as file paths, presentation templates, and system prompts. It reads and writes configuration
+    /// data from a settings file and provides properties to access these settings at runtime.  This class also includes
+    /// default values for certain settings, which are used as fallbacks  when no values are provided in the
+    /// configuration file.</remarks>
     public partial class ConfigurationService : ObservableObject
     {
         public string DocumentsPath { get; private set; }

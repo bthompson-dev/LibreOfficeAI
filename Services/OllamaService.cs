@@ -9,6 +9,19 @@ using OllamaSharp;
 
 namespace LibreOfficeAI.Services
 {
+    /// <summary>
+    /// Provides functionality for managing and interacting with the Ollama AI service, including initializing and
+    /// configuring the service, managing AI models, and facilitating chat-based interactions.
+    /// </summary>
+    /// <remarks>The <see cref="OllamaService"/> class is responsible for orchestrating the Ollama AI service,
+    /// including starting and stopping the service, managing AI models, and providing chat-based interfaces for
+    /// external and internal interactions. It integrates with various services such as <see cref="DocumentService"/>,
+    /// <see cref="ConfigurationService"/>, and <see cref="ToolService"/>  to provide a comprehensive AI-driven
+    /// solution. <para> This class supports asynchronous operations for tasks such as starting the service, checking
+    /// model availability, and pulling models from the server. It also ensures proper resource management by
+    /// implementing the <see cref="IDisposable"/> interface. </para> <para> The service is initialized with a system
+    /// prompt and an intent prompt, which are used to configure the behavior of the AI models. The class also provides
+    /// mechanisms to refresh the service when configuration or model changes occur. </para></remarks>
     public partial class OllamaService : ObservableObject, IDisposable
     {
         private Process? _ollamaProcess;

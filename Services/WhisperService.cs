@@ -9,6 +9,12 @@ using Whisper.net.Logger;
 
 namespace LibreOfficeAI.Services
 {
+    /// <summary>
+    /// Provides functionality for transcribing audio files into text using the Whisper model.
+    /// </summary>
+    /// <remarks>The <see cref="WhisperService"/> class manages the lifecycle of the Whisper model, including
+    /// downloading the model if it is not already present, and processing audio files for transcription. It supports
+    /// automatic language detection and raises an event when the transcription state changes.</remarks>
     public class WhisperService : IDisposable
     {
         private readonly WhisperFactory whisperFactory;

@@ -12,11 +12,12 @@ using OllamaSharp.ModelContextProtocol.Server;
 namespace LibreOfficeAI.Services
 {
     /// <summary>
-    /// Provides services for managing and identifying tools available from the MCP server.
+    /// Provides functionality for managing and interacting with tools retrieved from MCP servers.
     /// </summary>
-    /// <remarks>The <see cref="ToolService"/> class is responsible for asynchronously retrieving a list of
-    /// tools from the MCP server and determining which tools are needed based on user input through an internal
-    /// chat.</remarks>
+    /// <remarks>The <see cref="ToolService"/> class is responsible for discovering available tools from MCP
+    /// servers, determining which tools are needed based on user prompts, and managing the state of these tools. It
+    /// also provides methods for refreshing the internal chat context and handling processes on specific
+    /// ports.</remarks>
     public partial class ToolService : ObservableObject
     {
         private readonly ConfigurationService _config;
