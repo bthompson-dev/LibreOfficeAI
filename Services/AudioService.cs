@@ -49,7 +49,7 @@ namespace LibreOfficeAI.Services
                 IsRecording = true;
                 RecordingStateChanged?.Invoke();
 
-                // Use temp folder which is accessible in unpackaged apps
+                // Use temp folder to store audio file
                 var tempPath = Path.GetTempPath();
                 Debug.WriteLine($"Temp path: {tempPath}");
 

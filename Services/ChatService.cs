@@ -214,7 +214,7 @@ namespace LibreOfficeAI.Services
             {
                 aiMessage.IsLoading = false;
                 AiTurn = false;
-                SendErrorMessage("Error connecting - please click to retry.");
+                SendErrorMessage("Error connecting to AI - please restart application.");
             }
 
             Debug.WriteLine(fullResponse);

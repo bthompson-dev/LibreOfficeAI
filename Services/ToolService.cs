@@ -107,10 +107,22 @@ namespace LibreOfficeAI.Services
             Debug.WriteLine("Checking for needed tools");
 
             var neededToolsResponse = new StringBuilder();
+            bool thinking = false;
 
             await foreach (var answerToken in InternalChat.SendAsync(prompt))
             {
-                neededToolsResponse.Append(answerToken);
+                // If the model uses thinking, discount output within thinking tags
+                if (answerToken == "<think>")
+                    thinking = true;
+
+                if (answerToken == "</think>")
+                {
+                    thinking = false;
+                    continue;
+                }
+
+                if (!thinking)
+                    neededToolsResponse.Append(answerToken);
             }
 
             var responseString = neededToolsResponse.ToString();

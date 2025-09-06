@@ -13,7 +13,7 @@
                     <Color x:Key="MainBackgroundColor">#F2F6FA</Color>
                     <Color x:Key="ButtonBackgroundColor">white</Color>
                     <Color x:Key="ButtonHoverColor">#f2f2f2</Color>
-                    <Color x:Key="UserMessageBackgroundColor">#f2f2f2</Color>
+                    <Color x:Key="UserMessageBackgroundColor">white</Color>
                     <Color x:Key="AIMessageBackgroundColor">#d9dbf5</Color>
                     <Color x:Key="ErrorMessageBackgroundColor">red</Color>
                     <Color x:Key="WelcomeMessageBackgroundColor">magenta</Color>
