@@ -4,9 +4,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 /Ollama
-/WhisperModels/*
-MCPServer/libre.dist/*
-MCPServer/main.dist/*
 
 # User-specific files
 *.rsuser
